@@ -103,6 +103,21 @@ This file is updated after each development step with changes, verification, lim
 - No undo, deletion, reset, save, or project close was performed. The supplied project remains open and marked modified in AE for review.
 - A non-blocking AE Comp Profiler notice was visible during inspection; it did not prevent bridge execution. The UI screenshot refresh used a stale desktop focus, so visual frame capture is not treated as evidence; command readbacks are the evidence for this step.
 
+## 2026-09-17 — frame-accurate reconstruction request
+
+- User clarified the goal: recreate the supplied After Effects animation itself, frame to frame, through the local editing system; do not add an unrelated demo.
+- Ground-truth assets identified: editable `MF_L00_First_Time_In_After_Effects_a01.aep`, nested shot compositions (`SH01 Welcome`, `SH02_To`, `SH03 After Effects`, `Bar Colour`, `Texture Loop 1`), and rendered `04_RENDERS/Welcome To After Effects.mp4`.
+- The current bridge can read and write a small allowlist of text, Position, Opacity, and keyframe operations. It does not yet expose layer topology, transforms beyond Position, timing metadata, footage import, masks, shape paths, effects, expressions, text styling, render comparison, or an MCP server.
+- Required next architecture: read-only AE inventory and frame sampling; deterministic reconstruction commands; asset-relative imports; layer/property identity; keyframe and interpolation support; render/frame comparison; an MCP adapter only after local commands are reliable.
+- User decision pending: reconstruct the full `Welcome To After Effects` composition or one shot, and whether to duplicate the source composition as the reconstruction target. Recommendation is full composition in a duplicate, preserving the original reference.
+
+## 2026-09-17 — local MCP bridge focus
+
+- User asked to record the MCP work as a documentation test and pause broader frame-accurate reconstruction.
+- Added a local stdio MCP server boundary with seven allowlisted tools mapped to the existing local AE bridge. It does not listen on a network port and does not expose arbitrary scripts.
+- Added automated MCP tests: initialization/server identity, exact tool allowlist, and rejection of an `eval` tool. These are now included in `npm.cmd test`.
+- Scope is deliberately paused at the local MCP bridge: strengthen bridge reliability and command coverage before adding prompt-driven reconstruction, render comparison, or broader editing abstractions.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.
