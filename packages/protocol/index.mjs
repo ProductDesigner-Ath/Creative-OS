@@ -25,6 +25,7 @@ export function validateRequest(r) {
     case 'layer.addOpacityKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
     case 'layer.addTransformKeyframes': keys(a,['context','compositionId','layerId','property','keyframes']); break;
     case 'layer.addAnchorPointKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
+    case 'layer.setTiming': keys(a,['context','compositionId','layerId','inPoint','outPoint']); break;
     case 'layer.getKeyframes': keys(a,['context','compositionId','layerId','property']); break;
     default: fail('Operation is not allowlisted');
   }
@@ -35,6 +36,7 @@ export function validateRequest(r) {
   if ('layerId' in a && (!Number.isSafeInteger(a.layerId) || a.layerId < 1)) fail('Invalid layerId');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');
+  if (r.operation === 'layer.setTiming' && (![a.inPoint,a.outPoint].every(v=>typeof v==='number' && Number.isFinite(v) && v>=0) || a.outPoint<=a.inPoint)) fail('Timing requires nonnegative increasing inPoint and outPoint');
   if ('property' in a && !['position','opacity','scale','rotation'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.addTransformKeyframes' && !['scale','rotation'].includes(a.property)) fail('Transform property is not allowlisted');
   if ('keyframes' in a && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');

@@ -80,6 +80,10 @@
                     if((a.property==='scale' && (tk[0].value.length!==3 || tk[1].value.length!==3)) || (a.property==='rotation' && (tk[0].value.length!==1 || tk[1].value.length!==1))) fail('INVALID_KEYFRAMES','Scale needs 3 values; Rotation needs 1 value.');
                     app.beginUndoGroup('Creative OS: Transform Keyframes'); group=true; tp.setValueAtTime(tk[0].time,tk[0].value); tp.setValueAtTime(tk[1].time,tk[1].value); changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframes:[{time:tk[0].time,value:tp.valueAtTime(tk[0].time,false)},{time:tk[1].time,value:tp.valueAtTime(tk[1].time,false)}],retained:true};
+                } else if(r.operation==='layer.setTiming') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    if(a.inPoint<0 || a.outPoint<=a.inPoint || a.outPoint>comp.duration) fail('INVALID_TIMING','Timing must be within the composition.');
+                    app.beginUndoGroup('Creative OS: Layer Timing'); group=true; var oldIn=layer.inPoint,oldOut=layer.outPoint; layer.inPoint=a.inPoint; layer.outPoint=a.outPoint; changed=true; response.result={compositionId:comp.id,layerId:layer.id,before:{inPoint:oldIn,outPoint:oldOut},inPoint:layer.inPoint,outPoint:layer.outPoint,retained:true};
                 } else if(r.operation==='layer.addAnchorPointKeyframes') {
                     var at=layer.property('ADBE Transform Group').property('ADBE Anchor Point'), ak=a.keyframes;
                     if(at.isTimeVarying || at.expressionEnabled || ak.length!==2 || ak[1].time<=ak[0].time || ak[0].value.length!==at.value.length || ak[1].value.length!==at.value.length) fail('INVALID_KEYFRAMES','Use two increasing Anchor Point keyframes with matching dimensions.');

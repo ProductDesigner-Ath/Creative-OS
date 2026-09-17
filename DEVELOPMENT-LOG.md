@@ -173,3 +173,9 @@ This file is updated after each development step with changes, verification, lim
 - The contract keeps edits structured and allowlisted while preserving visible AE changes for review.
 - Higher-risk capabilities such as layer timing, masks, shapes, footage import, rendering, and rollback remain separate future batches.
 
+
+## 2026-09-17 — layer timing construction
+
+- Added allowlisted layer inPoint/outPoint editing with composition-bound validation.
+- Changes remain visible in AE and are returned with before/after timing for verification.
+
