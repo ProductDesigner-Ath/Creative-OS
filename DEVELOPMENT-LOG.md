@@ -161,3 +161,9 @@ This file is updated after each development step with changes, verification, lim
 - Validation enforces increasing times, correct dimensions, and no expression-driven properties.
 - Changes are retained and visible in After Effects; no undo or cleanup is performed.
 
+
+## 2026-09-17 — anchor point keyframe construction
+
+- Added allowlisted Anchor Point two-keyframe creation through the local bridge and MCP boundary.
+- Matching dimensions and increasing times are enforced; changes remain visible in AE.
+

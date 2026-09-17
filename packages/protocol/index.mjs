@@ -24,6 +24,7 @@ export function validateRequest(r) {
     case 'layer.addPositionKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
     case 'layer.addOpacityKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
     case 'layer.addTransformKeyframes': keys(a,['context','compositionId','layerId','property','keyframes']); break;
+    case 'layer.addAnchorPointKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
     case 'layer.getKeyframes': keys(a,['context','compositionId','layerId','property']); break;
     default: fail('Operation is not allowlisted');
   }

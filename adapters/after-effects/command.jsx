@@ -80,6 +80,10 @@
                     if((a.property==='scale' && (tk[0].value.length!==3 || tk[1].value.length!==3)) || (a.property==='rotation' && (tk[0].value.length!==1 || tk[1].value.length!==1))) fail('INVALID_KEYFRAMES','Scale needs 3 values; Rotation needs 1 value.');
                     app.beginUndoGroup('Creative OS: Transform Keyframes'); group=true; tp.setValueAtTime(tk[0].time,tk[0].value); tp.setValueAtTime(tk[1].time,tk[1].value); changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframes:[{time:tk[0].time,value:tp.valueAtTime(tk[0].time,false)},{time:tk[1].time,value:tp.valueAtTime(tk[1].time,false)}],retained:true};
+                } else if(r.operation==='layer.addAnchorPointKeyframes') {
+                    var at=layer.property('ADBE Transform Group').property('ADBE Anchor Point'), ak=a.keyframes;
+                    if(at.isTimeVarying || at.expressionEnabled || ak.length!==2 || ak[1].time<=ak[0].time || ak[0].value.length!==at.value.length || ak[1].value.length!==at.value.length) fail('INVALID_KEYFRAMES','Use two increasing Anchor Point keyframes with matching dimensions.');
+                    app.beginUndoGroup('Creative OS: Anchor Point Keyframes'); group=true; at.setValueAtTime(ak[0].time,ak[0].value); at.setValueAtTime(ak[1].time,ak[1].value); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'anchorPoint',keyframes:ak,retained:true};
                 } else if(r.operation==='layer.addPositionKeyframes' || r.operation==='layer.addOpacityKeyframes') {
                     if(r.operation==='layer.addOpacityKeyframes') {
                         var op=layer.property('ADBE Transform Group').property('ADBE Opacity'), ok=a.keyframes, oi;
