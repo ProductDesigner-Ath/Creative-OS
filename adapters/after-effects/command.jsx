@@ -34,6 +34,9 @@
             var layers=[], li, item;
             for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer}); }
             response.result={compositionId:comp.id,name:comp.name,layerCount:layers.length,layers:layers};
+        } else if(r.operation==='composition.getState') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            response.result={compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,pixelAspect:comp.pixelAspect,duration:comp.duration,frameDuration:comp.frameDuration,frameRate:1/comp.frameDuration,currentTime:comp.time,workAreaStart:comp.workAreaStart,workAreaDuration:comp.workAreaDuration,displayStartTime:comp.displayStartTime,layerCount:comp.numLayers};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;
@@ -47,6 +50,10 @@
                 for(i=1;i<=comp.numLayers;i++) if(comp.layer(i).id===a.layerId) {layer=comp.layer(i);break;}
                 if(!layer) fail('LAYER_NOT_FOUND','Layer ID is not in this composition.');
                 var p=position(layer),before=p.value;
+                if(r.operation==='layer.getTransform') {
+                    var tg=layer.property('ADBE Transform Group');
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,anchorPoint:tg.property('ADBE Anchor Point').value,position:p.value,scale:tg.property('ADBE Scale').value,rotation:tg.property('ADBE Rotate Z').value,opacity:tg.property('ADBE Opacity').value,threeDLayer:layer.threeDLayer};
+                } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');

@@ -124,6 +124,14 @@ This file is updated after each development step with changes, verification, lim
 - Inventory returns stable layer ID, current index, name, host match name, in/out timing, selected/locked/enabled flags, and 3D status.
 - This step is read-only and does not modify or undo the opened asset project.
 
+## 2026-09-17 — composition state and transform inspection
+
+- Added `composition.getState` and `layer.getTransform` to the local bridge and MCP boundary.
+- Live read-only inspection succeeded: `Welcome To After Effects`, 1920 × 1080, 24 fps, 5 seconds, current time 3.4583s, work area 0–5s.
+- Transform readback succeeded for layer 257: Anchor Point `[0,0,0]`, Position `[960,540,0]`, Scale `[100,100,100]`, Rotation `0`, Opacity `100`, 2D.
+- No AE changes, undo, deletion, reset, save, or project close occurred.
+- This capability remains focused on the local MCP bridge; frame-accurate reconstruction is paused.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.

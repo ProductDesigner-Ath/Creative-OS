@@ -13,6 +13,8 @@ export function validateRequest(r) {
   switch(r.operation) {
     case 'composition.getActive': keys(a,[]); break;
     case 'composition.getLayers': keys(a,['context','compositionId']); break;
+    case 'composition.getState': keys(a,['context','compositionId']); break;
+    case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.createText': keys(a,['context','compositionId','text']); break;
     case 'layer.getPosition': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setPosition': keys(a,['context','compositionId','layerId','value']); break;
