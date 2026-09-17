@@ -29,6 +29,11 @@
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
             response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,version:app.version};
+        } else if(r.operation==='composition.getLayers') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var layers=[], li, item;
+            for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer}); }
+            response.result={compositionId:comp.id,name:comp.name,layerCount:layers.length,layers:layers};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;

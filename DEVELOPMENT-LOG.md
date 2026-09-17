@@ -118,6 +118,12 @@ This file is updated after each development step with changes, verification, lim
 - Added automated MCP tests: initialization/server identity, exact tool allowlist, and rejection of an `eval` tool. These are now included in `npm.cmd test`.
 - Scope is deliberately paused at the local MCP bridge: strengthen bridge reliability and command coverage before adding prompt-driven reconstruction, render comparison, or broader editing abstractions.
 
+## 2026-09-17 — read-only layer inventory
+
+- Added `composition.getLayers` to the local bridge and `ae_get_layers` to the local MCP boundary.
+- Inventory returns stable layer ID, current index, name, host match name, in/out timing, selected/locked/enabled flags, and 3D status.
+- This step is read-only and does not modify or undo the opened asset project.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.
