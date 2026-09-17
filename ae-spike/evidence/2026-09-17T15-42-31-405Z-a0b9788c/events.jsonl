@@ -1,0 +1,5 @@
+{"runId":"2026-09-17T15-42-31-405Z-a0b9788c","timeMs":1789659751914,"event":"start","data":{"version":"26.3x87","build":87,"language":"en_US","undoCommandId":16}}
+{"runId":"2026-09-17T15-42-31-405Z-a0b9788c","timeMs":1789659751930,"event":"get_active_comp","data":{"id":1,"name":"Comp 1","width":1920,"height":1080,"layerIds":[]}}
+{"runId":"2026-09-17T15-42-31-405Z-a0b9788c","timeMs":1789659752184,"event":"create_text_layer","data":{"id":13,"text":"Creative OS"}}
+{"runId":"2026-09-17T15-42-31-405Z-a0b9788c","timeMs":1789659752270,"event":"error","data":{"message":"Error: Unexpected position configuration","line":21,"cleanup":"undo_verified"}}
+{"runId":"2026-09-17T15-42-31-405Z-a0b9788c","timeMs":1789659752285,"event":"complete","data":{"pass":false}}
