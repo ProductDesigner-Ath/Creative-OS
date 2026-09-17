@@ -1,0 +1,7 @@
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901604,"event":"start","data":{"version":"26.3x87","build":87,"language":"en_US","undoCommandId":16}}
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901612,"event":"get_active_comp","data":{"id":1,"name":"Comp 1","width":1920,"height":1080,"layerIds":[]}}
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901675,"event":"create_text_layer","data":{"id":16,"text":"Creative OS"}}
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901683,"event":"read_position","data":{"layerId":16,"value":[960,540,0],"threeDLayer":false}}
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901691,"event":"set_position","data":{"layerId":16,"before":[960,540,0],"requested":[1080,600,0],"actual":[1080,600,0]}}
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901756,"event":"undo","data":{"removedLayerId":16,"beforeLayerIds":[],"afterLayerIds":[],"restored":true}}
+{"runId":"2026-09-17T15-45-01-218Z-bfb8a418","timeMs":1789659901765,"event":"complete","data":{"pass":true,"operations":5}}

@@ -1,0 +1,18 @@
+{
+  "runId": "2026-09-17T15-45-00-340Z-ea51b001",
+  "pass": true,
+  "errors": [],
+  "host": {
+    "version": "26.3x87",
+    "build": 87,
+    "language": "en_US",
+    "undoCommandId": 16
+  },
+  "operations": [
+    "get_active_comp",
+    "create_text_layer",
+    "read_position",
+    "set_position",
+    "undo"
+  ]
+}

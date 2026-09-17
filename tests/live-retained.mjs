@@ -1,0 +1,27 @@
+// Run after the retained demo. Only the cached create request is replayed; no new mutation.
+import {readFile,writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {command} from '../services/local-bridge/client.mjs';
+const events=JSON.parse(await readFile(new URL('../.local/review-result.json',import.meta.url),'utf8'));
+const comp=events[0].result,create=events[1];
+const ref={context:comp.context,compositionId:comp.compositionId};
+const results=[];
+const initial=await command('composition.getActive');assert.equal(initial.success,true);
+const liveRef={context:initial.result.context,compositionId:initial.result.compositionId};
+const before=await command('layer.getPosition',{...liveRef,layerId:create.result.layerId});assert.equal(before.success,true);
+const replay=await command('layer.createText',{...ref,text:'Creative OS'},create.requestId);
+assert.equal(replay.replayed,true);assert.equal(replay.result.layerId,create.result.layerId);results.push('identical request replayed without creating a duplicate');
+const conflict=await command('layer.createText',{...ref,text:'Do not create'},create.requestId);
+assert.equal(conflict.error.code,'ID_CONFLICT');results.push('conflicting reuse of request ID rejected');
+const stale=await command('layer.getPosition',{...liveRef,context:randomUUID(),layerId:create.result.layerId});
+assert.equal(stale.error.code,'STALE_CONTEXT');results.push('stale context rejected');
+const missing=await command('layer.getPosition',{...liveRef,layerId:2147483647});
+assert.equal(missing.error.code,'LAYER_NOT_FOUND');results.push('missing layer rejected');
+const current=await command('composition.getActive');assert.equal(current.success,true);
+assert.equal(current.result.layerCount,comp.layerCount+1);results.push('exactly one new layer remains');
+const position=await command('layer.getPosition',{context:current.result.context,compositionId:current.result.compositionId,layerId:create.result.layerId});
+assert.deepEqual(position.result.value,before.result.value);results.push('read-only checks preserved the current Position, including review edits');
+const report={date:new Date().toISOString(),pass:true,results,compositionId:comp.compositionId,layerId:create.result.layerId,position:position.result.value,originalDemoPosition:events[4].result.value,changedSinceDemo:JSON.stringify(position.result.value)!==JSON.stringify(events[4].result.value)};
+await writeFile(new URL('../.local/live-verification.json',import.meta.url),JSON.stringify(report,null,2));
+console.log(JSON.stringify(report,null,2));

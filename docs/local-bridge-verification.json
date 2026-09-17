@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-17T16:03:43.108Z",
+  "pass": true,
+  "results": [
+    "identical request replayed without creating a duplicate",
+    "conflicting reuse of request ID rejected",
+    "stale context rejected",
+    "missing layer rejected",
+    "exactly one new layer remains",
+    "read-only checks preserved the current Position, including review edits"
+  ],
+  "compositionId": 1,
+  "layerId": 17,
+  "position": [
+    941.96891784668,
+    493.678756713867,
+    0
+  ],
+  "originalDemoPosition": [
+    1080,
+    600,
+    0
+  ],
+  "changedSinceDemo": true
+}
