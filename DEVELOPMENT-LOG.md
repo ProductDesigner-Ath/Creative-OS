@@ -140,6 +140,13 @@ This file is updated after each development step with changes, verification, lim
 - The first text readback exposed an AE edge case for no-stroke text; the adapter now returns `strokeColor: null` and `strokeWidth: 0` when stroke is disabled.
 - No AE changes, undo, deletion, reset, save, or project close occurred. All 21 tests pass after updating the MCP allowlist expectation.
 
+## 2026-09-17 — complete animation inventory
+
+- Added `layer.getAnimationState` and `ae_get_animation_state` for read-only transform and keyframe inspection.
+- Live readback of the open `Welcome To After Effects` comp succeeded across all four layers. Layer 257 (`Creative OS`) has Position keys at 0s `[960,690,0]` and 1s `[960,540,0]`, plus Opacity keys 0s `0` and 1s `100`; the three nested shot layers have no top-level transform keys.
+- No AE mutation, undo, deletion, reset, save, or project close occurred. The visible Creative OS layer remains available for user verification.
+- The first batch of read-only inventory capabilities is now complete enough to guide the next local bridge batch. Full automated checks pass locally.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.

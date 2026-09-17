@@ -8,7 +8,7 @@ Start it from the repository:
 node services/mcp-server/server.mjs
 ```
 
-The process exposes seven allowlisted tools that map to the local AE bridge: active composition, text creation, Position read/write, Position keyframes, Opacity keyframes, and keyframe readback. It delegates validation, local authentication, replay protection, AE dispatch, and journaling to the existing bridge. Changes remain visible in AE; there is no undo tool and no automatic rollback.
+The process exposes thirteen allowlisted tools that map to the local AE bridge: composition and layer inventory, transform/source/text/animation inspection, text creation, Position read/write, Position keyframes, Opacity keyframes, and keyframe readback. It delegates validation, local authentication, replay protection, AE dispatch, and journaling to the existing bridge. Changes remain visible in AE; there is no undo tool and no automatic rollback.
 
 The MCP server never accepts raw JavaScript, arbitrary property paths, arbitrary executable paths, or arbitrary filesystem paths. Tool arguments become structured bridge requests and are validated before dispatch. Errors are returned as structured MCP tool results.
 
@@ -24,4 +24,4 @@ The MCP test is part of the repository test command:
 npm.cmd test
 ```
 
-It verifies that the server initializes as `creative-os-local-mcp`, advertises exactly the seven allowlisted AE tools, and rejects an unknown `eval` tool. This test does not modify After Effects. The live AE bridge tests remain separate and are documented in `DEVELOPMENT-LOG.md`.
+It verifies that the server initializes as `creative-os-local-mcp`, advertises exactly the thirteen allowlisted AE tools, and rejects an unknown `eval` tool. This test does not modify After Effects. The live AE bridge tests remain separate and are documented in `DEVELOPMENT-LOG.md`.

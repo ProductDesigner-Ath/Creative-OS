@@ -17,6 +17,7 @@ export function validateRequest(r) {
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
+    case 'layer.getAnimationState': keys(a,['context','compositionId','layerId']); break;
     case 'layer.createText': keys(a,['context','compositionId','text']); break;
     case 'layer.getPosition': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setPosition': keys(a,['context','compositionId','layerId','value']); break;

@@ -60,6 +60,10 @@
                     if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
                     var td=layer.property('ADBE Text Properties').property('ADBE Text Document').value;
                     response.result={compositionId:comp.id,layerId:layer.id,text:td.text,font:td.font,fontSize:td.fontSize,fillColor:td.applyFill?td.fillColor:null,strokeColor:td.applyStroke?td.strokeColor:null,strokeWidth:td.applyStroke?td.strokeWidth:0,applyFill:td.applyFill,applyStroke:td.applyStroke,justification:td.justification};
+                } else if(r.operation==='layer.getAnimationState') {
+                    var ag=layer.property('ADBE Transform Group'), names=['anchorPoint','position','scale','rotation','opacity'], props=[ag.property('ADBE Anchor Point'),ag.property('ADBE Position'),ag.property('ADBE Scale'),ag.property('ADBE Rotate Z'),ag.property('ADBE Opacity')], anim={}, ai, aj, ap, af=[];
+                    for(ai=0;ai<props.length;ai++){ap=props[ai];af=[];for(aj=1;aj<=ap.numKeys;aj++)af.push({time:ap.keyTime(aj),value:ap.keyValue(aj)});anim[names[ai]]={value:ap.value,numKeys:ap.numKeys,keyframes:af};}
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,animation:anim};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
