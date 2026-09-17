@@ -16,6 +16,10 @@ This is intentionally a narrow MCP surface. Full layer inventory, footage import
 
 The read-only inspection surface now also includes composition state, full transforms, source information for nested compositions/footage, and basic text-document styling.
 
+## Batch recipe contract
+
+An animation recipe should first call `ae_get_active_composition`, then `ae_get_composition_state` and `ae_get_layers`. It can inspect each candidate with `ae_get_source_info`, `ae_get_text_document`, `ae_get_transform`, and `ae_get_animation_state`, create or animate only the intended layer, and finish with `ae_get_animation_state` verification. Editing operations are limited to text creation, Position/Scale/Rotation/Anchor Point/Opacity keyframes, and Position setting. Every edit is retained in AE for review; rollback is deliberately outside the MCP surface.
+
 ## Recorded test
 
 The MCP test is part of the repository test command:

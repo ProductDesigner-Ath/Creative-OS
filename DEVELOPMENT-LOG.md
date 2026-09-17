@@ -167,3 +167,9 @@ This file is updated after each development step with changes, verification, lim
 - Added allowlisted Anchor Point two-keyframe creation through the local bridge and MCP boundary.
 - Matching dimensions and increasing times are enforced; changes remain visible in AE.
 
+## 2026-09-17 — batch recipe contract
+
+- Documented the deterministic call order for future prompt-driven animation recipes: discover, inspect, edit, then verify.
+- The contract keeps edits structured and allowlisted while preserving visible AE changes for review.
+- Higher-risk capabilities such as layer timing, masks, shapes, footage import, rendering, and rollback remain separate future batches.
+
