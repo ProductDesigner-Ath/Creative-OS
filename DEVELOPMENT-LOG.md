@@ -187,3 +187,10 @@ This file is updated after each development step with changes, verification, lim
 - Applied and retained Rotation keys: 0s -8, 1s  .
 - Both operations returned successful readback; no undo or cleanup performed.
 
+
+## 2026-09-17 — fresh composition animation pass
+
+- Created and retained text layer Creative OS (layer 13) in the fresh 1920x1080, 5s, 24fps composition.
+- Applied and verified Position, Opacity, Scale, and Rotation keys from 0s to 1s.
+- No undo or cleanup performed.
+
