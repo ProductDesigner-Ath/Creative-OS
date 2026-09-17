@@ -86,6 +86,23 @@ This file is updated after each development step with changes, verification, lim
 - Personal input/reference/output files are ignored by Git by default; only placeholders are committed.
 - Today’s final output will use the existing native AE text layer and keyframes, so no asset upload is required. User can add resources under `assets/input` when needed.
 
+## 2026-09-17 — supplied animation assets
+
+- User supplied `After-effect-assets/AF-1 Creative OS test animation assets/FOUNDATION_L00`.
+- Inventory: prepared AE project `03_AE/MF_L00_First_Time_In_After_Effects_a01.aep`, AE icon PNG, paper texture JPG, Ocean_Drone MP4, eight hand-still PNGs, Illustrator design source, and rendered reference MP4.
+- The supplied YouTube URL was recorded as a visual reference, but its watch page could not be fetched in this environment, so no unverified shot-by-shot claims were made.
+- Current unsaved `Comp 1` was not replaced. User was asked to open the supplied AEP before asset-based animation work begins; no asset import or AE project switch occurred in this step.
+
+## 2026-09-17 — asset-project simple animation
+
+- User opened `MF_L00_First_Time_In_After_Effects_a01 (converted).aep` from the supplied package.
+- Active composition detected: `Welcome To After Effects`, composition ID 242, 1920 × 1080, 3 existing layers, AE 26.3x87.
+- Added a visible native text layer `Creative OS`, layer ID 257.
+- Added and read back Position keyframes: 0s `[960,690,0]`, 1s `[960,540,0]`.
+- Added and read back Opacity keyframes: 0s `0`, 1s `100`.
+- No undo, deletion, reset, save, or project close was performed. The supplied project remains open and marked modified in AE for review.
+- A non-blocking AE Comp Profiler notice was visible during inspection; it did not prevent bridge execution. The UI screenshot refresh used a stale desktop focus, so visual frame capture is not treated as evidence; command readbacks are the evidence for this step.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.
