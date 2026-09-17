@@ -154,3 +154,10 @@ This file is updated after each development step with changes, verification, lim
 - Repository branch: https://github.com/ProductDesigner-Ath/Creative-OS/tree/codex/local-ae-bridge
 - Existing `main` history is preserved; this work has not been merged into `main`.
 - This documentation update records the failed attempt and successful retry. Local credentials, tokens, and runtime files remain excluded.
+
+## 2026-09-17 — transform keyframe construction
+
+- Added allowlisted Scale and Rotation two-keyframe creation through the local bridge and MCP boundary.
+- Validation enforces increasing times, correct dimensions, and no expression-driven properties.
+- Changes are retained and visible in After Effects; no undo or cleanup is performed.
+

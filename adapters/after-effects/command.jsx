@@ -74,6 +74,12 @@
                     p.setValue(a.value); changed=true;
                     if(encode(p.value)!==encode(a.value)) fail('READBACK_MISMATCH','Position did not match request.');
                     response.result={compositionId:comp.id,layerId:layer.id,before:before,value:p.value,retained:true};
+                } else if(r.operation==='layer.addTransformKeyframes') {
+                    var tr=layer.property('ADBE Transform Group'), tp=a.property==='scale'?tr.property('ADBE Scale'):tr.property('ADBE Rotate Z'), tk=a.keyframes;
+                    if(tp.isTimeVarying || tp.expressionEnabled || tk.length!==2 || tk[1].time<=tk[0].time) fail('INVALID_KEYFRAMES','Use two increasing Scale or Rotation keyframes.');
+                    if((a.property==='scale' && (tk[0].value.length!==3 || tk[1].value.length!==3)) || (a.property==='rotation' && (tk[0].value.length!==1 || tk[1].value.length!==1))) fail('INVALID_KEYFRAMES','Scale needs 3 values; Rotation needs 1 value.');
+                    app.beginUndoGroup('Creative OS: Transform Keyframes'); group=true; tp.setValueAtTime(tk[0].time,tk[0].value); tp.setValueAtTime(tk[1].time,tk[1].value); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframes:[{time:tk[0].time,value:tp.valueAtTime(tk[0].time,false)},{time:tk[1].time,value:tp.valueAtTime(tk[1].time,false)}],retained:true};
                 } else if(r.operation==='layer.addPositionKeyframes' || r.operation==='layer.addOpacityKeyframes') {
                     if(r.operation==='layer.addOpacityKeyframes') {
                         var op=layer.property('ADBE Transform Group').property('ADBE Opacity'), ok=a.keyframes, oi;
