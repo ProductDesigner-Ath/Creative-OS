@@ -212,3 +212,8 @@ This file is updated after each development step with changes, verification, lim
 - Added an allowlisted filled rectangle shape primitive with explicit dimensions, position, and RGB color.
 - Geometry is created through fixed AE APIs; arbitrary shape scripts remain unavailable.
 
+
+## 2026-09-17 — ellipse shape construction
+
+- Added an allowlisted filled ellipse primitive with explicit dimensions, position, and RGB color.
+

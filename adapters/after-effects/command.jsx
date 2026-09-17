@@ -25,7 +25,9 @@
         var comp=app.project && app.project.activeItem;
         if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
-        if(r.operation==='layer.createRectangle') {
+        if(r.operation==='layer.createEllipse') {
+            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), ep=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); ep.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+        } else if(r.operation==='layer.createRectangle') {
             var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rect=contents.addProperty('ADBE Vector Shape - Rect'), fill=contents.addProperty('ADBE Vector Graphic - Fill'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createSolid') {
             var solid=comp.layers.addSolid(a.color,a.name,a.width,a.height,1,comp.duration); changed=true; response.result={compositionId:comp.id,layerId:solid.id,name:solid.name,width:a.width,height:a.height,color:a.color,retained:true};
