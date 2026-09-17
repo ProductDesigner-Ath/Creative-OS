@@ -73,6 +73,13 @@ This file is updated after each development step with changes, verification, lim
 - The failed attempt retained its created layer under the user's no-undo preference. No deletion or undo was performed.
 - Next target: opacity keyframe writes and a guarded retained demo.
 
+## 2026-09-17 — Opacity keyframe step
+
+- Added allowlisted `layer.addOpacityKeyframes` with validation for two increasing times and opacity values from 0 to 100.
+- Live operation succeeded on existing animation-review layer 19: opacity 0 at 0s and 100 at 1s. Result remains visible; no undo or deletion occurred.
+- First attempt failed before mutation because ExtendScript lacks `Array.some`; replaced it with an ES3-compatible loop and reran successfully.
+- Documentation updated in `services/local-bridge/README.md`. Next step is a combined retained position + opacity verification report.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.

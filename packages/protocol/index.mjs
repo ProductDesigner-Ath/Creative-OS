@@ -16,6 +16,7 @@ export function validateRequest(r) {
     case 'layer.getPosition': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setPosition': keys(a,['context','compositionId','layerId','value']); break;
     case 'layer.addPositionKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
+    case 'layer.addOpacityKeyframes': keys(a,['context','compositionId','layerId','keyframes']); break;
     case 'layer.getKeyframes': keys(a,['context','compositionId','layerId','property']); break;
     default: fail('Operation is not allowlisted');
   }

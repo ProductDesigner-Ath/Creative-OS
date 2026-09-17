@@ -51,13 +51,22 @@
                     p.setValue(a.value); changed=true;
                     if(encode(p.value)!==encode(a.value)) fail('READBACK_MISMATCH','Position did not match request.');
                     response.result={compositionId:comp.id,layerId:layer.id,before:before,value:p.value,retained:true};
-                } else if(r.operation==='layer.addPositionKeyframes') {
+                } else if(r.operation==='layer.addPositionKeyframes' || r.operation==='layer.addOpacityKeyframes') {
+                    if(r.operation==='layer.addOpacityKeyframes') {
+                        var op=layer.property('ADBE Transform Group').property('ADBE Opacity'), ok=a.keyframes, oi;
+                        var invalidOpacity=false;
+                        for(oi=0;oi<ok.length;oi++) if(ok[oi].value[0]<0 || ok[oi].value[0]>100) invalidOpacity=true;
+                        if(op.isTimeVarying || op.expressionEnabled || ok.length!==2 || ok[1].time<=ok[0].time || ok[0].value.length!==1 || ok[1].value.length!==1 || invalidOpacity) fail('INVALID_KEYFRAMES','Opacity needs two increasing times and values from 0 to 100.');
+                        app.beginUndoGroup('Creative OS: Opacity Keyframes'); group=true;
+                        for(oi=0;oi<ok.length;oi++) op.setValueAtTime(ok[oi].time,ok[oi].value[0]);
+                        changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'opacity',keyframes:[{time:ok[0].time,value:op.valueAtTime(ok[0].time,false)},{time:ok[1].time,value:op.valueAtTime(ok[1].time,false)}],retained:true};
+                    } else {
                     if(p.isTimeVarying || p.expressionEnabled || p.dimensionsSeparated) fail('UNSUPPORTED_POSITION','Animated, expression-driven, or separated Position is not supported.');
                     var k=a.keyframes, j;
                     if(k[0].value.length!==p.value.length || k[1].value.length!==p.value.length || k[1].time<=k[0].time) fail('INVALID_KEYFRAMES','Use two increasing times and matching Position dimensions.');
                     app.beginUndoGroup('Creative OS: Position Keyframes'); group=true;
                     for(j=0;j<k.length;j++) p.setValueAtTime(k[j].time,k[j].value);
-                    changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:[{time:k[0].time,value:p.valueAtTime(k[0].time,false)},{time:k[1].time,value:p.valueAtTime(k[1].time,false)}],retained:true};
+                    changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:[{time:k[0].time,value:p.valueAtTime(k[0].time,false)},{time:k[1].time,value:p.valueAtTime(k[1].time,false)}],retained:true}; }
                 } else if(r.operation==='layer.getKeyframes') {
                     var prop=a.property==='position'?p:layer.property('ADBE Transform Group').property('ADBE Opacity'), frames=[], q;
                     for(q=1;q<=prop.numKeys;q++) frames.push({time:prop.keyTime(q),value:prop.keyValue(q)});

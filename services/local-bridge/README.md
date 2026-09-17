@@ -39,6 +39,7 @@ Each new request needs a new UUID. Responses contain `version`, `requestId`, `su
 | `layer.getPosition` | `context`, `compositionId`, `layerId` |
 | `layer.setPosition` | `context`, `compositionId`, `layerId`, `value` |
 | `layer.addPositionKeyframes` | `context`, `compositionId`, `layerId`, two increasing `keyframes` |
+| `layer.addOpacityKeyframes` | `context`, `compositionId`, `layerId`, two increasing keyframes with values 0–100 |
 | `layer.getKeyframes` | `context`, `compositionId`, `layerId`, `property` (`position` or `opacity`) |
 
 The active-composition response supplies a context token. Subsequent commands must use that token, the composition ID, and the returned stable layer ID, not the layer's index. A new active-composition query replaces the context. The AE adapter also checks the active project and composition object references. Restarting AE or changing the active comp invalidates old context. Cross-restart persistence is not promised.
