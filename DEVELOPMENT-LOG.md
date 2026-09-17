@@ -179,3 +179,11 @@ This file is updated after each development step with changes, verification, lim
 - Added allowlisted layer inPoint/outPoint editing with composition-bound validation.
 - Changes remain visible in AE and are returned with before/after timing for verification.
 
+
+## 2026-09-17 — live transform animation verification
+
+- Restarted the local bridge to load the construction adapter.
+- Applied and retained Scale keys on layer 257: 0s [85,85,100], 1s [100,100,100].
+- Applied and retained Rotation keys: 0s -8, 1s  .
+- Both operations returned successful readback; no undo or cleanup performed.
+
