@@ -194,3 +194,9 @@ This file is updated after each development step with changes, verification, lim
 - Applied and verified Position, Opacity, Scale, and Rotation keys from 0s to 1s.
 - No undo or cleanup performed.
 
+
+## 2026-09-17 — Bezier interpolation control
+
+- Added a structured operation to apply Bezier interpolation to existing Position, Opacity, Scale, Rotation, or Anchor Point keys.
+- The operation requires existing keyframes and retains changes in AE for review.
+
