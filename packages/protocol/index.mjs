@@ -11,6 +11,7 @@ export function validateRequest(r) {
   if (typeof r.requestId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(r.requestId)) fail('requestId must be a lowercase UUID');
   const a=r.arguments;
   switch(r.operation) {
+    case 'composition.create': keys(a,['name','width','height','duration','frameRate']); break;
     case 'composition.getActive': keys(a,[]); break;
     case 'composition.getLayers': keys(a,['context','compositionId']); break;
     case 'composition.getState': keys(a,['context','compositionId']); break;
@@ -29,6 +30,7 @@ export function validateRequest(r) {
     case 'layer.getKeyframes': keys(a,['context','compositionId','layerId','property']); break;
     default: fail('Operation is not allowlisted');
   }
+  if (r.operation === 'composition.create') { if(typeof a.name!=='string'||!a.name.length||a.name.length>100) fail('Invalid name'); if(![a.width,a.height,a.duration,a.frameRate].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>0)) fail('Invalid composition settings'); return r; }
   if (r.operation !== 'composition.getActive') {
     if (typeof a.context !== 'string' || !/^[a-f0-9-]{36}$/.test(a.context)) fail('Invalid context');
     if (!Number.isSafeInteger(a.compositionId) || a.compositionId < 1) fail('Invalid compositionId');

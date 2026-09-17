@@ -23,9 +23,11 @@
     try {
         write(cfg.startedPath,{requestId:r.requestId,started:true,version:app.version});
         var comp=app.project && app.project.activeItem;
-        if(!(comp instanceof CompItem)) fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
+        if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
-        if(r.operation==='composition.getActive') {
+        if(r.operation==='composition.create') {
+            var created=app.project.items.addComp(a.name,a.width,a.height,1,a.duration,1/a.frameRate); app.project.activeItem=created; response.result={compositionId:created.id,name:created.name,width:created.width,height:created.height,duration:created.duration,frameRate:a.frameRate,layerCount:created.numLayers,retained:true}; changed=true;
+        } else if(r.operation==='composition.getActive') {
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
             response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,version:app.version};
