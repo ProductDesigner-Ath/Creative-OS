@@ -206,3 +206,9 @@ This file is updated after each development step with changes, verification, lim
 - Added an allowlisted solid-layer creation operation with explicit size and normalized RGB validation.
 - The created layer is retained in AE for review.
 
+
+## 2026-09-17 — rectangle shape construction
+
+- Added an allowlisted filled rectangle shape primitive with explicit dimensions, position, and RGB color.
+- Geometry is created through fixed AE APIs; arbitrary shape scripts remain unavailable.
+
