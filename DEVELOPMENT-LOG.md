@@ -49,3 +49,18 @@ This file is updated after each development step with changes, verification, lim
 - The first Git preparation permission was declined; that command was not executed. The user subsequently instructed “Start uploading,” renewing authorization. Upload is proceeding on `codex/local-ae-bridge`, preserving the initial commit and excluding `.local/` and generated spike runs.
 - GitHub CLI is not available in the current command path. Git is used directly. A per-command, exact-workspace trust setting handles the sandbox/desktop Windows account ownership difference; no global trust wildcard was added.
 - `.local/` includes secrets and runtime data and is ignored. Source, tests, setup docs, and this log are intended for GitHub.
+
+## 2026-09-17 — upload attempt
+
+- Created `codex/local-ae-bridge` on top of the existing remote initial commit.
+- Committed 33 source, test, evidence, and documentation files as `eef0c13` (`Build local After Effects bridge with retained edits and G0 evidence`). Staged whitespace checks passed. `.local/` and generated spike runs were excluded.
+- Push did not succeed: Git reported `User cancelled dialog`, then could not read a GitHub username. GitHub authentication must be completed by the user before retrying. No remote upload is confirmed.
+- AE was not modified during upload.
+
+### Successful retry
+
+- User requested a retry and completed GitHub authentication.
+- Push succeeded: implementation commit `eef0c13` is uploaded to `origin/codex/local-ae-bridge`, with upstream tracking configured.
+- Repository branch: https://github.com/ProductDesigner-Ath/Creative-OS/tree/codex/local-ae-bridge
+- Existing `main` history is preserved; this work has not been merged into `main`.
+- This documentation update records the failed attempt and successful retry. Local credentials, tokens, and runtime files remain excluded.
