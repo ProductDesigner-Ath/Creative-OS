@@ -1,0 +1,14 @@
+import {command} from '../services/local-bridge/client.mjs';
+const comp=await command('composition.getActive');
+if(!comp.success) throw new Error(JSON.stringify(comp.error));
+const ref={context:comp.result.context,compositionId:comp.result.compositionId};
+const layer=await command('layer.createText',{...ref,text:'Creative OS — Animation Review'});
+if(!layer.success) throw new Error(JSON.stringify(layer.error));
+const target={...ref,layerId:layer.result.layerId};
+const p=layer.result.position;
+const keys=[{time:0,value:p.map((v,i)=>v+(i===1?150:0))},{time:1,value:p}];
+const moved=await command('layer.addPositionKeyframes',{...target,keyframes:keys});
+if(!moved.success) throw new Error(JSON.stringify(moved.error));
+const read=await command('layer.getKeyframes',{...target,property:'position'});
+if(!read.success) throw new Error(JSON.stringify(read.error));
+console.log(JSON.stringify({retained:true,layerId:target.layerId,positionKeyframes:read.result.keyframes},null,2));

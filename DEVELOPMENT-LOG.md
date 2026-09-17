@@ -65,6 +65,14 @@ This file is updated after each development step with changes, verification, lim
 - Layer count: 1, confirming the retained `Creative OS` layer is visible to the bridge.
 - This was read-only; no AE changes or undo occurred.
 
+## 2026-09-17 — Position keyframe step
+
+- Added allowlisted `layer.addPositionKeyframes` and `layer.getKeyframes` operations.
+- Live retained demo verified layer 19 Position keyframes: 0s `[960,690,0]`, 1s `[960,540,0]`.
+- Automated suite: 19 tests passed. The first live readback exposed AE's required second `valueAtTime` parameter; corrected to `valueAtTime(time,false)`.
+- The failed attempt retained its created layer under the user's no-undo preference. No deletion or undo was performed.
+- Next target: opacity keyframe writes and a guarded retained demo.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.
