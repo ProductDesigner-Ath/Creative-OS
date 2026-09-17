@@ -25,7 +25,9 @@
         var comp=app.project && app.project.activeItem;
         if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
-        if(r.operation==='layer.setBezierKeyframes') {
+        if(r.operation==='layer.createSolid') {
+            var solid=comp.layers.addSolid(a.color,a.name,a.width,a.height,1,comp.duration); changed=true; response.result={compositionId:comp.id,layerId:solid.id,name:solid.name,width:a.width,height:a.height,color:a.color,retained:true};
+        } else if(r.operation==='layer.setBezierKeyframes') {
             var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):bt.property('ADBE Anchor Point');
             if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
             app.beginUndoGroup('Creative OS: Bezier Keyframes'); group=true; for(var bi=1;bi<=bp.numKeys;bi++) bp.setInterpolationTypeAtKey(bi,KeyframeInterpolationType.BEZIER,KeyframeInterpolationType.BEZIER); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:bp.numKeys,interpolation:'bezier',retained:true};

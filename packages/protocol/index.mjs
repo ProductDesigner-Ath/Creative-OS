@@ -12,6 +12,7 @@ export function validateRequest(r) {
   const a=r.arguments;
   switch(r.operation) {
     case 'composition.create': keys(a,['name','width','height','duration','frameRate']); break;
+    case 'layer.createSolid': keys(a,['context','compositionId','name','width','height','color']); break;
     case 'composition.getActive': keys(a,[]); break;
     case 'composition.getLayers': keys(a,['context','compositionId']); break;
     case 'composition.getState': keys(a,['context','compositionId']); break;
@@ -32,6 +33,7 @@ export function validateRequest(r) {
     default: fail('Operation is not allowlisted');
   }
   if (r.operation === 'composition.create') { if(typeof a.name!=='string'||!a.name.length||a.name.length>100) fail('Invalid name'); if(![a.width,a.height,a.duration,a.frameRate].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>0)) fail('Invalid composition settings'); return r; }
+  if (r.operation === 'layer.createSolid') { if(typeof a.name!=='string'||!a.name.length||a.name.length>100||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid solid settings'); }
   if (r.operation !== 'composition.getActive') {
     if (typeof a.context !== 'string' || !/^[a-f0-9-]{36}$/.test(a.context)) fail('Invalid context');
     if (!Number.isSafeInteger(a.compositionId) || a.compositionId < 1) fail('Invalid compositionId');

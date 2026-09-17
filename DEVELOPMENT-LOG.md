@@ -200,3 +200,9 @@ This file is updated after each development step with changes, verification, lim
 - Added a structured operation to apply Bezier interpolation to existing Position, Opacity, Scale, Rotation, or Anchor Point keys.
 - The operation requires existing keyframes and retains changes in AE for review.
 
+
+## 2026-09-17 — solid layer construction
+
+- Added an allowlisted solid-layer creation operation with explicit size and normalized RGB validation.
+- The created layer is retained in AE for review.
+
