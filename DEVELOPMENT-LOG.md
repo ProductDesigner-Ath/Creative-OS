@@ -80,6 +80,12 @@ This file is updated after each development step with changes, verification, lim
 - First attempt failed before mutation because ExtendScript lacks `Array.some`; replaced it with an ES3-compatible loop and reran successfully.
 - Documentation updated in `services/local-bridge/README.md`. Next step is a combined retained position + opacity verification report.
 
+## 2026-09-17 — simple animation preparation
+
+- Added `assets/input`, `assets/reference`, and `assets/output` folders with placeholders.
+- Personal input/reference/output files are ignored by Git by default; only placeholders are committed.
+- Today’s final output will use the existing native AE text layer and keyframes, so no asset upload is required. User can add resources under `assets/input` when needed.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.

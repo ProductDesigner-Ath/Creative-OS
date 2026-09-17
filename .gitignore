@@ -1,4 +1,10 @@
 ae-spike/runs/
 .local/
+assets/input/*
+!assets/input/.gitkeep
+assets/reference/*
+!assets/reference/.gitkeep
+assets/output/*
+!assets/output/.gitkeep
 *.aep
 *.aepx
