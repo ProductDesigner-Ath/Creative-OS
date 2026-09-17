@@ -14,6 +14,8 @@ The MCP server never accepts raw JavaScript, arbitrary property paths, arbitrary
 
 This is intentionally a narrow MCP surface. Full layer inventory, footage import, shape/mask operations, text styling, render comparison, and high-level prompt planning are the next capabilities needed for frame-accurate reconstruction of the supplied example.
 
+The read-only inspection surface now also includes composition state, full transforms, source information for nested compositions/footage, and basic text-document styling.
+
 ## Recorded test
 
 The MCP test is part of the repository test command:

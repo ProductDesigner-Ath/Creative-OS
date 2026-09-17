@@ -132,6 +132,14 @@ This file is updated after each development step with changes, verification, lim
 - No AE changes, undo, deletion, reset, save, or project close occurred.
 - This capability remains focused on the local MCP bridge; frame-accurate reconstruction is paused.
 
+## 2026-09-17 — source and text metadata inspection
+
+- Added `layer.getSourceInfo` and `layer.getTextDocument` to the local bridge and MCP boundary.
+- Live read-only inspection identified layers 254–256 as nested compositions (`SH01 Welcome`, `SH02_To`, `SH03 After Effects`) with source IDs 15, 34, and 114.
+- Text readback for layer 257 succeeded: `Creative OS`, Times New Roman, 36px, fill enabled, stroke disabled, Position unchanged.
+- The first text readback exposed an AE edge case for no-stroke text; the adapter now returns `strokeColor: null` and `strokeWidth: 0` when stroke is disabled.
+- No AE changes, undo, deletion, reset, save, or project close occurred. All 21 tests pass after updating the MCP allowlist expectation.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.

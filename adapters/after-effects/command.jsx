@@ -53,6 +53,13 @@
                 if(r.operation==='layer.getTransform') {
                     var tg=layer.property('ADBE Transform Group');
                     response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,anchorPoint:tg.property('ADBE Anchor Point').value,position:p.value,scale:tg.property('ADBE Scale').value,rotation:tg.property('ADBE Rotate Z').value,opacity:tg.property('ADBE Opacity').value,threeDLayer:layer.threeDLayer};
+                } else if(r.operation==='layer.getSourceInfo') {
+                    var src=layer.source;
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,matchName:layer.matchName,sourceName:src?src.name:null,sourceType:src?(src instanceof CompItem?'composition':(src.mainSource?'footage':'unknown')):null,sourceId:src?src.id:null};
+                } else if(r.operation==='layer.getTextDocument') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    var td=layer.property('ADBE Text Properties').property('ADBE Text Document').value;
+                    response.result={compositionId:comp.id,layerId:layer.id,text:td.text,font:td.font,fontSize:td.fontSize,fillColor:td.applyFill?td.fillColor:null,strokeColor:td.applyStroke?td.strokeColor:null,strokeWidth:td.applyStroke?td.strokeWidth:0,applyFill:td.applyFill,applyStroke:td.applyStroke,justification:td.justification};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
