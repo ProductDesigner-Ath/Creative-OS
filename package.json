@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "start": "node services/local-bridge/server.mjs",
-    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs",
+    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs",
     "inspect": "node services/local-bridge/client.mjs composition.getActive",
-    "demo:retain": "node examples/retain-for-review.mjs"
+    "demo:retain": "node examples/retain-for-review.mjs",
+    "demo:animate": "node examples/animate-review.mjs"
+    ,"mcp": "node services/mcp-server/server.mjs"
   },
   "engines": {"node": ">=22"}
 }

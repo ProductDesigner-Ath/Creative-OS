@@ -29,6 +29,14 @@
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
             response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,version:app.version};
+        } else if(r.operation==='composition.getLayers') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var layers=[], li, item;
+            for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer}); }
+            response.result={compositionId:comp.id,name:comp.name,layerCount:layers.length,layers:layers};
+        } else if(r.operation==='composition.getState') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            response.result={compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,pixelAspect:comp.pixelAspect,duration:comp.duration,frameDuration:comp.frameDuration,frameRate:1/comp.frameDuration,currentTime:comp.time,workAreaStart:comp.workAreaStart,workAreaDuration:comp.workAreaDuration,displayStartTime:comp.displayStartTime,layerCount:comp.numLayers};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;
@@ -42,6 +50,21 @@
                 for(i=1;i<=comp.numLayers;i++) if(comp.layer(i).id===a.layerId) {layer=comp.layer(i);break;}
                 if(!layer) fail('LAYER_NOT_FOUND','Layer ID is not in this composition.');
                 var p=position(layer),before=p.value;
+                if(r.operation==='layer.getTransform') {
+                    var tg=layer.property('ADBE Transform Group');
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,anchorPoint:tg.property('ADBE Anchor Point').value,position:p.value,scale:tg.property('ADBE Scale').value,rotation:tg.property('ADBE Rotate Z').value,opacity:tg.property('ADBE Opacity').value,threeDLayer:layer.threeDLayer};
+                } else if(r.operation==='layer.getSourceInfo') {
+                    var src=layer.source;
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,matchName:layer.matchName,sourceName:src?src.name:null,sourceType:src?(src instanceof CompItem?'composition':(src.mainSource?'footage':'unknown')):null,sourceId:src?src.id:null};
+                } else if(r.operation==='layer.getTextDocument') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    var td=layer.property('ADBE Text Properties').property('ADBE Text Document').value;
+                    response.result={compositionId:comp.id,layerId:layer.id,text:td.text,font:td.font,fontSize:td.fontSize,fillColor:td.applyFill?td.fillColor:null,strokeColor:td.applyStroke?td.strokeColor:null,strokeWidth:td.applyStroke?td.strokeWidth:0,applyFill:td.applyFill,applyStroke:td.applyStroke,justification:td.justification};
+                } else if(r.operation==='layer.getAnimationState') {
+                    var ag=layer.property('ADBE Transform Group'), names=['anchorPoint','position','scale','rotation','opacity'], props=[ag.property('ADBE Anchor Point'),ag.property('ADBE Position'),ag.property('ADBE Scale'),ag.property('ADBE Rotate Z'),ag.property('ADBE Opacity')], anim={}, ai, aj, ap, af=[];
+                    for(ai=0;ai<props.length;ai++){ap=props[ai];af=[];for(aj=1;aj<=ap.numKeys;aj++)af.push({time:ap.keyTime(aj),value:ap.keyValue(aj)});anim[names[ai]]={value:ap.value,numKeys:ap.numKeys,keyframes:af};}
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,animation:anim};
+                } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
@@ -51,6 +74,26 @@
                     p.setValue(a.value); changed=true;
                     if(encode(p.value)!==encode(a.value)) fail('READBACK_MISMATCH','Position did not match request.');
                     response.result={compositionId:comp.id,layerId:layer.id,before:before,value:p.value,retained:true};
+                } else if(r.operation==='layer.addPositionKeyframes' || r.operation==='layer.addOpacityKeyframes') {
+                    if(r.operation==='layer.addOpacityKeyframes') {
+                        var op=layer.property('ADBE Transform Group').property('ADBE Opacity'), ok=a.keyframes, oi;
+                        var invalidOpacity=false;
+                        for(oi=0;oi<ok.length;oi++) if(ok[oi].value[0]<0 || ok[oi].value[0]>100) invalidOpacity=true;
+                        if(op.isTimeVarying || op.expressionEnabled || ok.length!==2 || ok[1].time<=ok[0].time || ok[0].value.length!==1 || ok[1].value.length!==1 || invalidOpacity) fail('INVALID_KEYFRAMES','Opacity needs two increasing times and values from 0 to 100.');
+                        app.beginUndoGroup('Creative OS: Opacity Keyframes'); group=true;
+                        for(oi=0;oi<ok.length;oi++) op.setValueAtTime(ok[oi].time,ok[oi].value[0]);
+                        changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'opacity',keyframes:[{time:ok[0].time,value:op.valueAtTime(ok[0].time,false)},{time:ok[1].time,value:op.valueAtTime(ok[1].time,false)}],retained:true};
+                    } else {
+                    if(p.isTimeVarying || p.expressionEnabled || p.dimensionsSeparated) fail('UNSUPPORTED_POSITION','Animated, expression-driven, or separated Position is not supported.');
+                    var k=a.keyframes, j;
+                    if(k[0].value.length!==p.value.length || k[1].value.length!==p.value.length || k[1].time<=k[0].time) fail('INVALID_KEYFRAMES','Use two increasing times and matching Position dimensions.');
+                    app.beginUndoGroup('Creative OS: Position Keyframes'); group=true;
+                    for(j=0;j<k.length;j++) p.setValueAtTime(k[j].time,k[j].value);
+                    changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:[{time:k[0].time,value:p.valueAtTime(k[0].time,false)},{time:k[1].time,value:p.valueAtTime(k[1].time,false)}],retained:true}; }
+                } else if(r.operation==='layer.getKeyframes') {
+                    var prop=a.property==='position'?p:layer.property('ADBE Transform Group').property('ADBE Opacity'), frames=[], q;
+                    for(q=1;q<=prop.numKeys;q++) frames.push({time:prop.keyTime(q),value:prop.keyValue(q)});
+                    response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframes:frames};
                 } else fail('INVALID_OPERATION','Unknown operation');
             }
         }
