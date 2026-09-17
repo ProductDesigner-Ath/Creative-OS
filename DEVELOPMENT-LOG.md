@@ -57,6 +57,14 @@ This file is updated after each development step with changes, verification, lim
 - Push did not succeed: Git reported `User cancelled dialog`, then could not read a GitHub username. GitHub authentication must be completed by the user before retrying. No remote upload is confirmed.
 - AE was not modified during upload.
 
+## 2026-09-17 — user manual connection check
+
+- User ran `npm.cmd run inspect` from the repository and received a successful protocol 0.1 response.
+- Active composition: `Comp 1`, ID 1, 1920 × 1080.
+- After Effects host: `26.3x87`.
+- Layer count: 1, confirming the retained `Creative OS` layer is visible to the bridge.
+- This was read-only; no AE changes or undo occurred.
+
 ### Successful retry
 
 - User requested a retry and completed GitHub authentication.
