@@ -1,0 +1,26 @@
+# Creative OS milestones
+
+GitHub contains implementation code and milestone documentation only. Adobe After Effects projects, source assets, renders, local logs, credentials, and runtime state stay on the local machine.
+
+## M0 — Local AE control (complete)
+
+- Establish a localhost-only, authenticated bridge to the installed After Effects instance.
+- Implement the five initial G0 operations and retain visible AE changes for review.
+- Result: passed for AE 26.3x87.
+
+## M1 — Structured animation construction (in progress)
+
+- Composition and layer inspection.
+- Text creation and metadata readback.
+- Position, Opacity, Scale, Rotation, Anchor Point keyframes.
+- Layer timing and Bezier interpolation controls.
+- Result: automated contract tests pass; live construction is verified where the running bridge has loaded the current adapter.
+
+## M2 — Reference animation building blocks (next)
+
+- Controlled shape and solid layers.
+- Text styling and alignment.
+- Frame-accurate timing recipes.
+- Render-safe verification and documented visual checks.
+
+Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.
