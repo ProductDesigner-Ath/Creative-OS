@@ -351,3 +351,20 @@ The two unpublished asset add/remove commits had no net code changes relative to
 
 - Automated validation passes 39 tests, including the public MCP tool inventory, blur/feather request bounds, recipe validation, rejected unrecognized recipe steps, and the non-mutating recipe default.
 - The live retained composition is intentionally a capability testbed. It contains duplicate icon/title layers from the first failed recipe attempt and successful retry because project changes are never automatically deleted or undone. The next phase is the dedicated reference-video build and visual review, where a planned composition should be used rather than this accumulating testbed.
+
+## 2026-09-18 — M3 reference-video test (in progress)
+
+- Created a separate retained composition, `Creative OS Reference Test 01` (ID 104), at 1920×1080, 24fps, and 5 seconds. The completed M2 capability test composition remains untouched.
+- Initial scene construction uses only supplied local assets and allowlisted controls: dark background (layer 117), Paper Scan texture with Multiply blending (118), Ocean Drone footage with 0.75–4.25 second timing and Gaussian Blur 4 (119), and a styled `CREATIVE OS` title (120).
+- The title has retained 0–1.1 second Position keys `[700,460,0]` → `[960,460,0]`, Opacity keys `0` → `100`, plus character tracking and Position reveals. First and closing hand stills are layers 121 and 122 with explicit windows and opacity entrances.
+- Markers establish three review beats: title entrance at frame 0, first hand transition at frame 38, and closing hand at frame 82. Bridge frame inventories passed at frames 0, 24, 48, 82, and 108; the playhead is retained at frame 48 for review.
+- Limitation: the provided YouTube reference could not be fetched by the local browsing environment, and the native AE canvas is not currently exposed to the visual-automation surface. This first M3 build is therefore a controlled bridge-validation scene, not a claim of a frame-for-frame reference recreation. No project changes were undone, deleted, saved, or closed.
+
+## 2026-09-18 — M3 converted-project reference mapping and timeline recreation
+
+- Moved the local workspace to `D:\Creative-OS` after verifying a complete copy. The AE host now derives its local runtime root from its own script location, so the bridge continues to work after a workspace move.
+- Read-only project inspection recovered the reference structure: final comp `Welcome To After Effects` (242) stages `SH01 Welcome` (15) at 0 seconds, `SH02_To` (34) at 1 second, and `SH03 After Effects` (114) at 2 seconds. The title uses `SwearDisplay-BlackCilati`, 450px, white; its Position changes from `[922.36,559.29,0]` to `[922.36,648.29,0]` from 0–1 seconds.
+- Added read-only composition and layer-construction inventory to identify source masks, mattes, blend modes, text animators, and effects. The source uses Noise, Posterize Time, Curves, and Hue/Saturation in its final scene, which are recorded as the next controlled-effect requirements.
+- Created retained `Creative OS Recreation` (257) in the D: converted project. It stages the three original source scenes at the reference timing and exact 100% centered placement. Readback confirms one scene at frame 0, two at frame 24, and all three at frame 48 and frame 96.
+- Added a narrow `layer.setEnabled` operation because AE added the nested source scenes disabled. It accepts only `enabled:true` for an existing unlocked layer; it cannot disable, remove, save, or alter arbitrary properties. Live verification enabled recreation layers 270 and 271 successfully.
+- This passes the top-level timeline recreation check. It uses the original source scene precompositions as controlled inputs, so it proves the local bridge can reproduce the final staging exactly but does not yet claim independent reconstruction of every inner scene or effect.

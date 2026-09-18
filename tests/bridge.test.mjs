@@ -7,6 +7,8 @@ import {createBridge} from '../services/local-bridge/server.mjs';
 const base=()=>({version:'0.1',requestId:randomUUID(),app:'after_effects',operation:'composition.getActive',arguments:{}});
 test('allowlist accepts inspection and treats quoted text as data',()=>{
   assert.doesNotThrow(()=>validateRequest(base()));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'project.listCompositions',arguments:{}}));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.getConstructionInfo',arguments:{context:randomUUID(),compositionId:1,layerId:1}}));
   assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.createText',arguments:{context:randomUUID(),compositionId:1,text:'"; app.quit(); //'}}));
 });
 test('allowlist accepts bounded text styling and rejects unsafe values',()=>{
