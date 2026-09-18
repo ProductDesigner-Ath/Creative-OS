@@ -28,6 +28,7 @@ export function validateRequest(r) {
     case 'layer.setTextStyle': keys(a,['context','compositionId','layerId','fontSize','fillColor','justification']); break;
     case 'layer.getAnimationState': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setParent': keys(a,['context','compositionId','layerId','parentLayerId']); break;
+    case 'layer.moveBefore': keys(a,['context','compositionId','layerId','targetLayerId']); break;
     case 'layer.createText': keys(a,['context','compositionId','text']); break;
     case 'layer.getPosition': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setPosition': keys(a,['context','compositionId','layerId','value']); break;
@@ -50,6 +51,7 @@ export function validateRequest(r) {
   }
   if ('layerId' in a && (!Number.isSafeInteger(a.layerId) || a.layerId < 1)) fail('Invalid layerId');
   if (r.operation === 'layer.setParent' && (!Number.isSafeInteger(a.parentLayerId) || a.parentLayerId < 1 || a.parentLayerId === a.layerId)) fail('Invalid parentLayerId');
+  if (r.operation === 'layer.moveBefore' && (!Number.isSafeInteger(a.targetLayerId) || a.targetLayerId < 1 || a.targetLayerId === a.layerId)) fail('Invalid targetLayerId');
   if ((r.operation === 'composition.setCurrentFrame' || r.operation === 'composition.getVisibleLayersAtFrame' || r.operation === 'composition.addMarker') && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
   if (r.operation === 'composition.addMarker' && (typeof a.comment !== 'string' || !a.comment.length || a.comment.length > 100 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.comment))) fail('Marker comment must contain 1–100 characters without control codes');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');

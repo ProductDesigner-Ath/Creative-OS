@@ -28,5 +28,6 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Automatic AE host connection is verified in AE 26.3x87; one host start is needed after each AE launch.
 - Layer parenting is implemented and verified live, with readable hierarchy inspection.
 - Exact-frame composition markers are implemented and verified live for visible animation timing notes.
+- Controlled layer stacking is implemented and verified live for foreground/background scene order.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

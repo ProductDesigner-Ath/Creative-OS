@@ -275,3 +275,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added the fixed `composition.addMarker` operation and `ae_add_composition_marker` MCP tool. It adds one labelled marker at an exact whole-number frame, with a 1–100 character safe label.
 - Frame bounds are checked against the open composition, and marker creation is retained for visual timeline review. The bridge cannot remove markers, save the project, or execute arbitrary script content.
 - Live AE verification passed through the automatic host: `Creative OS Capability Test` (composition 59) now has the retained `Text arrives` marker at frame 24 / 1 second. Readback reports one marker with the same label and time.
+
+## 2026-09-18 — M2 controlled layer stacking
+
+- Added the fixed `layer.moveBefore` operation and `ae_move_layer_before` MCP tool. It accepts only two distinct existing layer IDs in the active composition and rejects a locked layer being moved.
+- This gives scene recipes a safe foreground/background ordering control without exposing arbitrary property paths or deletion operations.
+- Live AE verification passed through the automatic host: rectangle layer 74 was moved before ellipse layer 75 in `Creative OS Capability Test` (composition 59). AE reported the retained resulting indices as Rectangle 1 and Ellipse 2.

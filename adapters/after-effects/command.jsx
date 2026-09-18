@@ -111,6 +111,12 @@
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
                     app.beginUndoGroup('Creative OS: Set Parent'); group=true; layer.parent=parentLayer; changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,parentLayerId:layer.parent.id,retained:true};
+                } else if(r.operation==='layer.moveBefore') {
+                    var targetLayer=null, ti; for(ti=1;ti<=comp.numLayers;ti++) if(comp.layer(ti).id===a.targetLayerId) {targetLayer=comp.layer(ti);break;}
+                    if(!targetLayer) fail('LAYER_NOT_FOUND','Target layer ID is not in this composition.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    app.beginUndoGroup('Creative OS: Move Layer'); group=true; layer.moveBefore(targetLayer); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,index:layer.index,targetLayerId:targetLayer.id,targetIndex:targetLayer.index,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {

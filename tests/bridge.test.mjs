@@ -37,6 +37,11 @@ test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,parentLayerId:2}}));
 });
+test('allowlist accepts layer reordering only between distinct valid layer IDs',()=>{
+  const request={...base(),operation:'layer.moveBefore',arguments:{context:randomUUID(),compositionId:1,layerId:2,targetLayerId:1}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,targetLayerId:2}}));
+});
 for(const [label,change] of [
   ['arbitrary code',r=>({...r,operation:'eval',arguments:{script:'app.quit()'}})],
   ['undo',r=>({...r,operation:'undo'})],
