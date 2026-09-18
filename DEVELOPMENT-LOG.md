@@ -154,3 +154,75 @@ This file is updated after each development step with changes, verification, lim
 - Repository branch: https://github.com/ProductDesigner-Ath/Creative-OS/tree/codex/local-ae-bridge
 - Existing `main` history is preserved; this work has not been merged into `main`.
 - This documentation update records the failed attempt and successful retry. Local credentials, tokens, and runtime files remain excluded.
+
+## 2026-09-17 — transform keyframe construction
+
+- Added allowlisted Scale and Rotation two-keyframe creation through the local bridge and MCP boundary.
+- Validation enforces increasing times, correct dimensions, and no expression-driven properties.
+- Changes are retained and visible in After Effects; no undo or cleanup is performed.
+
+
+## 2026-09-17 — anchor point keyframe construction
+
+- Added allowlisted Anchor Point two-keyframe creation through the local bridge and MCP boundary.
+- Matching dimensions and increasing times are enforced; changes remain visible in AE.
+
+## 2026-09-17 — batch recipe contract
+
+- Documented the deterministic call order for future prompt-driven animation recipes: discover, inspect, edit, then verify.
+- The contract keeps edits structured and allowlisted while preserving visible AE changes for review.
+- Higher-risk capabilities such as layer timing, masks, shapes, footage import, rendering, and rollback remain separate future batches.
+
+
+## 2026-09-17 — layer timing construction
+
+- Added allowlisted layer inPoint/outPoint editing with composition-bound validation.
+- Changes remain visible in AE and are returned with before/after timing for verification.
+
+
+## 2026-09-17 — live transform animation verification
+
+- Restarted the local bridge to load the construction adapter.
+- Applied and retained Scale keys on layer 257: 0s [85,85,100], 1s [100,100,100].
+- Applied and retained Rotation keys: 0s -8, 1s  .
+- Both operations returned successful readback; no undo or cleanup performed.
+
+
+## 2026-09-17 — fresh composition animation pass
+
+- Created and retained text layer Creative OS (layer 13) in the fresh 1920x1080, 5s, 24fps composition.
+- Applied and verified Position, Opacity, Scale, and Rotation keys from 0s to 1s.
+- No undo or cleanup performed.
+
+
+## 2026-09-17 — Bezier interpolation control
+
+- Added a structured operation to apply Bezier interpolation to existing Position, Opacity, Scale, Rotation, or Anchor Point keys.
+- The operation requires existing keyframes and retains changes in AE for review.
+
+
+## 2026-09-17 — solid layer construction
+
+- Added an allowlisted solid-layer creation operation with explicit size and normalized RGB validation.
+- The created layer is retained in AE for review.
+
+
+## 2026-09-17 — rectangle shape construction
+
+- Added an allowlisted filled rectangle shape primitive with explicit dimensions, position, and RGB color.
+- Geometry is created through fixed AE APIs; arbitrary shape scripts remain unavailable.
+
+
+## 2026-09-17 — ellipse shape construction
+
+- Added an allowlisted filled ellipse primitive with explicit dimensions, position, and RGB color.
+
+
+## 2026-09-17 — ellipse shape construction
+
+- Added an allowlisted filled ellipse primitive with explicit dimensions, position, and RGB color.
+
+
+## 2026-09-18 — GitHub checkpoint recovery
+
+The two unpublished asset add/remove commits had no net code changes relative to 050cd26. Preserved their history in a local backup branch and replaced them with a code/documentation-only checkpoint. Added an explicit ignore rule for After-effect-assets. No AE or local asset files changed. This checkpoint does not claim new feature validation.

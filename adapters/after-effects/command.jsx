@@ -23,9 +23,23 @@
     try {
         write(cfg.startedPath,{requestId:r.requestId,started:true,version:app.version});
         var comp=app.project && app.project.activeItem;
-        if(!(comp instanceof CompItem)) fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
+        if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
-        if(r.operation==='composition.getActive') {
+        if(r.operation==='layer.createEllipse') {
+            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), ep=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); ep.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+        } else if(r.operation==='layer.createEllipse') {
+            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), el=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+        } else if(r.operation==='layer.createRectangle') {
+            var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rect=contents.addProperty('ADBE Vector Shape - Rect'), fill=contents.addProperty('ADBE Vector Graphic - Fill'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+        } else if(r.operation==='layer.createSolid') {
+            var solid=comp.layers.addSolid(a.color,a.name,a.width,a.height,1,comp.duration); changed=true; response.result={compositionId:comp.id,layerId:solid.id,name:solid.name,width:a.width,height:a.height,color:a.color,retained:true};
+        } else if(r.operation==='layer.setBezierKeyframes') {
+            var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):bt.property('ADBE Anchor Point');
+            if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
+            app.beginUndoGroup('Creative OS: Bezier Keyframes'); group=true; for(var bi=1;bi<=bp.numKeys;bi++) bp.setInterpolationTypeAtKey(bi,KeyframeInterpolationType.BEZIER,KeyframeInterpolationType.BEZIER); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:bp.numKeys,interpolation:'bezier',retained:true};
+        } else if(r.operation==='composition.create') {
+            var created=app.project.items.addComp(a.name,a.width,a.height,1,a.duration,1/a.frameRate); app.project.activeItem=created; response.result={compositionId:created.id,name:created.name,width:created.width,height:created.height,duration:created.duration,frameRate:a.frameRate,layerCount:created.numLayers,retained:true}; changed=true;
+        } else if(r.operation==='composition.getActive') {
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
             response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,version:app.version};
@@ -74,6 +88,20 @@
                     p.setValue(a.value); changed=true;
                     if(encode(p.value)!==encode(a.value)) fail('READBACK_MISMATCH','Position did not match request.');
                     response.result={compositionId:comp.id,layerId:layer.id,before:before,value:p.value,retained:true};
+                } else if(r.operation==='layer.addTransformKeyframes') {
+                    var tr=layer.property('ADBE Transform Group'), tp=a.property==='scale'?tr.property('ADBE Scale'):tr.property('ADBE Rotate Z'), tk=a.keyframes;
+                    if(tp.isTimeVarying || tp.expressionEnabled || tk.length!==2 || tk[1].time<=tk[0].time) fail('INVALID_KEYFRAMES','Use two increasing Scale or Rotation keyframes.');
+                    if((a.property==='scale' && (tk[0].value.length!==3 || tk[1].value.length!==3)) || (a.property==='rotation' && (tk[0].value.length!==1 || tk[1].value.length!==1))) fail('INVALID_KEYFRAMES','Scale needs 3 values; Rotation needs 1 value.');
+                    app.beginUndoGroup('Creative OS: Transform Keyframes'); group=true; tp.setValueAtTime(tk[0].time,tk[0].value); tp.setValueAtTime(tk[1].time,tk[1].value); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframes:[{time:tk[0].time,value:tp.valueAtTime(tk[0].time,false)},{time:tk[1].time,value:tp.valueAtTime(tk[1].time,false)}],retained:true};
+                } else if(r.operation==='layer.setTiming') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    if(a.inPoint<0 || a.outPoint<=a.inPoint || a.outPoint>comp.duration) fail('INVALID_TIMING','Timing must be within the composition.');
+                    app.beginUndoGroup('Creative OS: Layer Timing'); group=true; var oldIn=layer.inPoint,oldOut=layer.outPoint; layer.inPoint=a.inPoint; layer.outPoint=a.outPoint; changed=true; response.result={compositionId:comp.id,layerId:layer.id,before:{inPoint:oldIn,outPoint:oldOut},inPoint:layer.inPoint,outPoint:layer.outPoint,retained:true};
+                } else if(r.operation==='layer.addAnchorPointKeyframes') {
+                    var at=layer.property('ADBE Transform Group').property('ADBE Anchor Point'), ak=a.keyframes;
+                    if(at.isTimeVarying || at.expressionEnabled || ak.length!==2 || ak[1].time<=ak[0].time || ak[0].value.length!==at.value.length || ak[1].value.length!==at.value.length) fail('INVALID_KEYFRAMES','Use two increasing Anchor Point keyframes with matching dimensions.');
+                    app.beginUndoGroup('Creative OS: Anchor Point Keyframes'); group=true; at.setValueAtTime(ak[0].time,ak[0].value); at.setValueAtTime(ak[1].time,ak[1].value); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'anchorPoint',keyframes:ak,retained:true};
                 } else if(r.operation==='layer.addPositionKeyframes' || r.operation==='layer.addOpacityKeyframes') {
                     if(r.operation==='layer.addOpacityKeyframes') {
                         var op=layer.property('ADBE Transform Group').property('ADBE Opacity'), ok=a.keyframes, oi;
