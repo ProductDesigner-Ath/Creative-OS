@@ -256,3 +256,16 @@ The two unpublished asset add/remove commits had no net code changes relative to
 
 - Added read-only composition-marker inspection for timing-recipe verification. It returns marker time, comment, and duration without changing AE.
 - This code batch is awaiting the separate AE command-line handoff repair; no live AE mutation or verification is claimed.
+
+## 2026-09-18 — Automatic host connection and full capability pass
+
+- Replaced the unreliable command-line launch path with a local polling host. After Effects runs `adapters/after-effects/bridge-host.jsx` once per AE launch; it reads only a single pending, generated command from the local bridge and returns its response. The bridge remains loopback-only, bearer-token protected, and allowlisted.
+- The host was adapted for AE ExtendScript, which does not provide the browser-style `JSON` global used by the first version. It now accepts only the bridge's fixed local command-path format.
+- A retained composition named `Creative OS Capability Test` (ID 59) was created and verified live in AE 26.3x87. It contains a styled `Creative OS` text layer plus background, rectangle, and ellipse layers. Text styling, Position, Opacity, Scale, Rotation, Anchor Point, timing, Bezier interpolation, frame selection, and visible-layer inspection all returned successful AE readback.
+- Nothing was undone, deleted, saved, or closed. Earlier retained test compositions also remain available for review.
+
+## 2026-09-18 — M2 layer-parenting control
+
+- Added the fixed `layer.setParent` operation and `ae_set_parent` MCP tool. It accepts only an existing, distinct parent layer ID in the current active composition and rejects locked target layers.
+- Layer inventory now returns each layer's `parentLayerId`, making the resulting hierarchy readable through the bridge.
+- Live AE verification passed through the automatic host: text layer 71 (`Creative OS`) in `Creative OS Capability Test` (composition 59) was parented to rectangle layer 74. The visible project change is retained for review.

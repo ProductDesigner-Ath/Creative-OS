@@ -16,7 +16,7 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Layer timing and Bezier interpolation controls.
 - Result: automated contract tests pass; live construction is verified where the running bridge has loaded the current adapter.
 
-## M2 — Reference animation building blocks (next)
+## M2 — Reference animation building blocks (in progress)
 
 - Controlled shape and solid layers.
 - Text styling and alignment.
@@ -25,5 +25,7 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Frame-accurate review control is implemented; recipes can now target an exact composition frame.
 - Render-safe verification and documented visual checks.
 - Frame-specific visible-layer inventory is implemented as the first render-safe visual-check building block.
+- Automatic AE host connection is verified in AE 26.3x87; one host start is needed after each AE launch.
+- Layer parenting is implemented and verified live, with readable hierarchy inspection.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

@@ -27,6 +27,11 @@ test('allowlist accepts frame-specific visual inspection',()=>{
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
 });
 test('allowlist accepts composition-marker inspection',()=>assert.doesNotThrow(()=>validateRequest({...base(),operation:'composition.getMarkers',arguments:{context:randomUUID(),compositionId:1}})));
+test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
+  const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,parentLayerId:2}}));
+});
 for(const [label,change] of [
   ['arbitrary code',r=>({...r,operation:'eval',arguments:{script:'app.quit()'}})],
   ['undo',r=>({...r,operation:'undo'})],

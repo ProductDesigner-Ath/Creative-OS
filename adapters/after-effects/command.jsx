@@ -26,17 +26,13 @@
         if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
         if(r.operation==='layer.createEllipse') {
-            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), el=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), eg=ec.addProperty('ADBE Vector Group'), el=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Ellipse'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); var ef=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createRectangle') {
-            var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rect=contents.addProperty('ADBE Vector Shape - Rect'), fill=contents.addProperty('ADBE Vector Graphic - Fill'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+            var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rg=contents.addProperty('ADBE Vector Group'), rect=rg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Rect'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); var fill=rg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createSolid') {
             var solid=comp.layers.addSolid(a.color,a.name,a.width,a.height,1,comp.duration); changed=true; response.result={compositionId:comp.id,layerId:solid.id,name:solid.name,width:a.width,height:a.height,color:a.color,retained:true};
-        } else if(r.operation==='layer.setBezierKeyframes') {
-            var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):bt.property('ADBE Anchor Point');
-            if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
-            app.beginUndoGroup('Creative OS: Bezier Keyframes'); group=true; for(var bi=1;bi<=bp.numKeys;bi++) bp.setInterpolationTypeAtKey(bi,KeyframeInterpolationType.BEZIER,KeyframeInterpolationType.BEZIER); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:bp.numKeys,interpolation:'bezier',retained:true};
         } else if(r.operation==='composition.create') {
-            var created=app.project.items.addComp(a.name,a.width,a.height,1,a.duration,1/a.frameRate); app.project.activeItem=created; response.result={compositionId:created.id,name:created.name,width:created.width,height:created.height,duration:created.duration,frameRate:a.frameRate,layerCount:created.numLayers,retained:true}; changed=true;
+            var created=app.project.items.addComp(a.name,a.width,a.height,1,a.duration,a.frameRate); created.openInViewer(); response.result={compositionId:created.id,name:created.name,width:created.width,height:created.height,duration:created.duration,frameRate:a.frameRate,layerCount:created.numLayers,retained:true}; changed=true;
         } else if(r.operation==='composition.getActive') {
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
@@ -44,7 +40,7 @@
         } else if(r.operation==='composition.getLayers') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layers=[], li, item;
-            for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer}); }
+            for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer,parentLayerId:item.parent?item.parent.id:null}); }
             response.result={compositionId:comp.id,name:comp.name,layerCount:layers.length,layers:layers};
         } else if(r.operation==='composition.getState') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
@@ -103,6 +99,12 @@
                     var ag=layer.property('ADBE Transform Group'), names=['anchorPoint','position','scale','rotation','opacity'], props=[ag.property('ADBE Anchor Point'),ag.property('ADBE Position'),ag.property('ADBE Scale'),ag.property('ADBE Rotate Z'),ag.property('ADBE Opacity')], anim={}, ai, aj, ap, af=[];
                     for(ai=0;ai<props.length;ai++){ap=props[ai];af=[];for(aj=1;aj<=ap.numKeys;aj++)af.push({time:ap.keyTime(aj),value:ap.keyValue(aj)});anim[names[ai]]={value:ap.value,numKeys:ap.numKeys,keyframes:af};}
                     response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,animation:anim};
+                } else if(r.operation==='layer.setParent') {
+                    var parentLayer=null, pi; for(pi=1;pi<=comp.numLayers;pi++) if(comp.layer(pi).id===a.parentLayerId) {parentLayer=comp.layer(pi);break;}
+                    if(!parentLayer) fail('LAYER_NOT_FOUND','Parent layer ID is not in this composition.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    app.beginUndoGroup('Creative OS: Set Parent'); group=true; layer.parent=parentLayer; changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,parentLayerId:layer.parent.id,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
@@ -143,6 +145,10 @@
                     app.beginUndoGroup('Creative OS: Position Keyframes'); group=true;
                     for(j=0;j<k.length;j++) p.setValueAtTime(k[j].time,k[j].value);
                     changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:[{time:k[0].time,value:p.valueAtTime(k[0].time,false)},{time:k[1].time,value:p.valueAtTime(k[1].time,false)}],retained:true}; }
+                } else if(r.operation==='layer.setBezierKeyframes') {
+                    var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):a.property==='rotation'?bt.property('ADBE Rotate Z'):bt.property('ADBE Anchor Point');
+                    if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
+                    app.beginUndoGroup('Creative OS: Bezier Keyframes'); group=true; for(var bi=1;bi<=bp.numKeys;bi++) bp.setInterpolationTypeAtKey(bi,KeyframeInterpolationType.BEZIER,KeyframeInterpolationType.BEZIER); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:bp.numKeys,interpolation:'bezier',retained:true};
                 } else if(r.operation==='layer.getKeyframes') {
                     var prop=a.property==='position'?p:layer.property('ADBE Transform Group').property('ADBE Opacity'), frames=[], q;
                     for(q=1;q<=prop.numKeys;q++) frames.push({time:prop.keyTime(q),value:prop.keyValue(q)});
