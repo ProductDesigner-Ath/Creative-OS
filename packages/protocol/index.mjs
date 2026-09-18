@@ -15,13 +15,13 @@ export function validateRequest(r) {
     case 'layer.createSolid': keys(a,['context','compositionId','name','width','height','color']); break;
     case 'layer.createRectangle': keys(a,['context','compositionId','name','width','height','position','color']); break;
     case 'layer.createEllipse': keys(a,['context','compositionId','name','width','height','position','color']); break;
-    case 'layer.createEllipse': keys(a,['context','compositionId','name','width','height','position','color']); break;
     case 'composition.getActive': keys(a,[]); break;
     case 'composition.getLayers': keys(a,['context','compositionId']); break;
     case 'composition.getState': keys(a,['context','compositionId']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
+    case 'layer.setTextStyle': keys(a,['context','compositionId','layerId','fontSize','fillColor','justification']); break;
     case 'layer.getAnimationState': keys(a,['context','compositionId','layerId']); break;
     case 'layer.createText': keys(a,['context','compositionId','text']); break;
     case 'layer.getPosition': keys(a,['context','compositionId','layerId']); break;
@@ -39,13 +39,13 @@ export function validateRequest(r) {
   if (r.operation === 'layer.createSolid') { if(typeof a.name!=='string'||!a.name.length||a.name.length>100||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid solid settings'); }
   if (r.operation === 'layer.createRectangle') { if(typeof a.name!=='string'||!a.name.length||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.position)||a.position.length!==2||!a.position.every(Number.isFinite)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid rectangle settings'); }
   if (r.operation === 'layer.createEllipse') { if(typeof a.name!=='string'||!a.name.length||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.position)||a.position.length!==2||!a.position.every(Number.isFinite)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid ellipse settings'); }
-  if (r.operation === 'layer.createEllipse') { if(typeof a.name!=='string'||!a.name.length||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.position)||a.position.length!==2||!a.position.every(Number.isFinite)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid ellipse settings'); }
   if (r.operation !== 'composition.getActive') {
     if (typeof a.context !== 'string' || !/^[a-f0-9-]{36}$/.test(a.context)) fail('Invalid context');
     if (!Number.isSafeInteger(a.compositionId) || a.compositionId < 1) fail('Invalid compositionId');
   }
   if ('layerId' in a && (!Number.isSafeInteger(a.layerId) || a.layerId < 1)) fail('Invalid layerId');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
+  if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');
   if (r.operation === 'layer.setTiming' && (![a.inPoint,a.outPoint].every(v=>typeof v==='number' && Number.isFinite(v) && v>=0) || a.outPoint<=a.inPoint)) fail('Timing requires nonnegative increasing inPoint and outPoint');
   if ('property' in a && !['position','opacity','scale','rotation'].includes(a.property)) fail('Property is not allowlisted');

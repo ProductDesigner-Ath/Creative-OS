@@ -20,6 +20,7 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 
 - Controlled shape and solid layers.
 - Text styling and alignment.
+- Text styling and alignment (font size, fill color, left/center/right paragraph alignment) are implemented; live AE verification is pending the current adapter process.
 - Frame-accurate timing recipes.
 - Render-safe verification and documented visual checks.
 

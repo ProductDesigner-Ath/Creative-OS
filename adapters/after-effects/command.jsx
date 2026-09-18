@@ -26,8 +26,6 @@
         if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
         if(r.operation==='layer.createEllipse') {
-            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), ep=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); ep.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
-        } else if(r.operation==='layer.createEllipse') {
             var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), el=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createRectangle') {
             var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rect=contents.addProperty('ADBE Vector Shape - Rect'), fill=contents.addProperty('ADBE Vector Graphic - Fill'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
@@ -70,6 +68,15 @@
                 } else if(r.operation==='layer.getSourceInfo') {
                     var src=layer.source;
                     response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,matchName:layer.matchName,sourceName:src?src.name:null,sourceType:src?(src instanceof CompItem?'composition':(src.mainSource?'footage':'unknown')):null,sourceId:src?src.id:null};
+                } else if(r.operation==='layer.setTextStyle') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var textProp=layer.property('ADBE Text Properties').property('ADBE Text Document'), style=textProp.value;
+                    style.fontSize=a.fontSize; style.applyFill=true; style.fillColor=a.fillColor;
+                    style.justification=a.justification==='left'?ParagraphJustification.LEFT_JUSTIFY:(a.justification==='center'?ParagraphJustification.CENTER_JUSTIFY:ParagraphJustification.RIGHT_JUSTIFY);
+                    app.beginUndoGroup('Creative OS: Text Style'); group=true; textProp.setValue(style); changed=true;
+                    var styled=textProp.value;
+                    response.result={compositionId:comp.id,layerId:layer.id,fontSize:styled.fontSize,fillColor:styled.fillColor,justification:a.justification,retained:true};
                 } else if(r.operation==='layer.getTextDocument') {
                     if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
                     var td=layer.property('ADBE Text Properties').property('ADBE Text Document').value;

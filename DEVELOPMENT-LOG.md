@@ -226,3 +226,11 @@ This file is updated after each development step with changes, verification, lim
 ## 2026-09-18 — GitHub checkpoint recovery
 
 The two unpublished asset add/remove commits had no net code changes relative to 050cd26. Preserved their history in a local backup branch and replaced them with a code/documentation-only checkpoint. Added an explicit ignore rule for After-effect-assets. No AE or local asset files changed. This checkpoint does not claim new feature validation.
+
+## 2026-09-18 — M2 text styling and alignment
+
+- Added the fixed `layer.setTextStyle` operation and `ae_set_text_style` MCP tool. It allows only font size (1–1000px), normalized RGB fill color, and left, center, or right paragraph alignment.
+- It only applies to unlocked AE text layers and confirms the resulting style through AE before reporting success. No arbitrary font names, scripts, property paths, or paragraph options are accepted.
+- Removed duplicate ellipse/rectangle MCP registrations left by the preceding shape batch; the MCP test now verifies the exact tool names rather than only a tool count.
+- Automated protocol and MCP checks cover valid styling, invalid bounds, invalid alignment, and the exact public allowlist. Live AE verification has not been run in this batch, so no project state changed.
+- Next: frame-accurate timing recipes and a live inspection/verification pass once the local bridge is known to load this adapter version.
