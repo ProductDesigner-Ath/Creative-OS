@@ -294,3 +294,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added `layer.addProjectItem` and `ae_add_project_item_layer`. It places an existing imported footage or composition item with explicit two-dimensional position and scale; no file path is accepted at this stage.
 - Live AE verification passed: the bridge activated `Creative OS Capability Test` (composition 59) directly, then added imported footage item 76 (`AE_icon.png`) as retained layer 77 at [960,540], scale [50,50,100].
 - During verification, the adapter was corrected for AE ExtendScript's lack of an `AVItem` constructor. It now accepts only `FootageItem` or `CompItem` explicitly.
+
+## 2026-09-18 — M2 controlled track mattes
+
+- Added the fixed `layer.setTrackMatte` operation and `ae_set_track_matte` MCP tool. It connects two existing layers using only Alpha, inverted Alpha, Luma, or inverted Luma matte types.
+- The implementation uses AE's current `setTrackMatte()` API, which does not depend on layer order in AE 23+.
+- Live AE verification passed: imported icon layer 77 now uses rectangle layer 74 as an Alpha track matte in `Creative OS Capability Test` (composition 59). The change remains visible and retained. All 31 automated checks pass.

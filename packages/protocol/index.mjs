@@ -25,6 +25,7 @@ export function validateRequest(r) {
     case 'composition.addMarker': keys(a,['context','compositionId','frame','comment']); break;
     case 'project.importAsset': keys(a,['context','compositionId','assetPath']); break;
     case 'layer.addProjectItem': keys(a,['context','compositionId','itemId','position','scale']); break;
+    case 'layer.setTrackMatte': keys(a,['context','compositionId','layerId','matteLayerId','type']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
@@ -60,6 +61,7 @@ export function validateRequest(r) {
   if (r.operation === 'composition.addMarker' && (typeof a.comment !== 'string' || !a.comment.length || a.comment.length > 100 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.comment))) fail('Marker comment must contain 1–100 characters without control codes');
   if (r.operation === 'project.importAsset' && (typeof a.assetPath !== 'string' || !/^(?:[A-Za-z0-9 _.-]+\\)*[A-Za-z0-9 _.-]+\.(?:png|jpg|jpeg|mp4|ai)$/i.test(a.assetPath) || /(^|\\)\.\.?($|\\)/.test(a.assetPath))) fail('Asset path must be a safe relative approved-media path');
   if (r.operation === 'layer.addProjectItem' && (!Number.isSafeInteger(a.itemId) || a.itemId < 1 || !Array.isArray(a.position) || a.position.length !== 2 || !a.position.every(v=>Number.isFinite(v) && Math.abs(v)<=100000) || !Array.isArray(a.scale) || a.scale.length !== 2 || !a.scale.every(v=>Number.isFinite(v) && v>0 && v<=10000))) fail('Invalid project-item layer placement');
+  if (r.operation === 'layer.setTrackMatte' && (!Number.isSafeInteger(a.matteLayerId) || a.matteLayerId < 1 || a.matteLayerId === a.layerId || !['alpha','alphaInverted','luma','lumaInverted'].includes(a.type))) fail('Invalid track matte settings');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');

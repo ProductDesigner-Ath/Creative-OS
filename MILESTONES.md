@@ -31,5 +31,6 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Controlled layer stacking is implemented and verified live for foreground/background scene order.
 - Approved local image, video, and Illustrator asset import is implemented and verified live; placing imported footage in a composition is the next batch.
 - Imported footage placement and deterministic composition activation are implemented and verified live.
+- Alpha and Luma track-matte compositing is implemented and verified live.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

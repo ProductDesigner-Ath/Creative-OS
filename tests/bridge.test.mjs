@@ -42,6 +42,11 @@ test('allowlist accepts explicit project-item layer placement',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,scale:[0,50]}}));
 });
+test('allowlist accepts explicit alpha and luma track mattes',()=>{
+  const request={...base(),operation:'layer.setTrackMatte',arguments:{context:randomUUID(),compositionId:1,layerId:2,matteLayerId:1,type:'alpha'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,type:'unsupported'}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));

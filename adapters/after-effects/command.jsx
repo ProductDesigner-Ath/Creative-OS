@@ -134,6 +134,13 @@
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
                     app.beginUndoGroup('Creative OS: Move Layer'); group=true; layer.moveBefore(targetLayer); changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,index:layer.index,targetLayerId:targetLayer.id,targetIndex:targetLayer.index,retained:true};
+                } else if(r.operation==='layer.setTrackMatte') {
+                    var matteLayer=null, mti; for(mti=1;mti<=comp.numLayers;mti++) if(comp.layer(mti).id===a.matteLayerId) {matteLayer=comp.layer(mti);break;}
+                    if(!matteLayer) fail('LAYER_NOT_FOUND','Matte layer ID is not in this composition.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var matteType=a.type==='alpha'?TrackMatteType.ALPHA:a.type==='alphaInverted'?TrackMatteType.ALPHA_INVERTED:a.type==='luma'?TrackMatteType.LUMA:TrackMatteType.LUMA_INVERTED;
+                    app.beginUndoGroup('Creative OS: Set Track Matte'); group=true; layer.setTrackMatte(matteLayer,matteType); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,matteLayerId:layer.trackMatteLayer?layer.trackMatteLayer.id:null,type:a.type,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
