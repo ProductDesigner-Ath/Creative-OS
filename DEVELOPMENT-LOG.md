@@ -222,3 +222,7 @@ This file is updated after each development step with changes, verification, lim
 
 - Added an allowlisted filled ellipse primitive with explicit dimensions, position, and RGB color.
 
+
+## 2026-09-18 — GitHub checkpoint recovery
+
+The two unpublished asset add/remove commits had no net code changes relative to 050cd26. Preserved their history in a local backup branch and replaced them with a code/documentation-only checkpoint. Added an explicit ignore rule for After-effect-assets. No AE or local asset files changed. This checkpoint does not claim new feature validation.
