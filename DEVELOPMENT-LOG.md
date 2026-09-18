@@ -269,3 +269,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added the fixed `layer.setParent` operation and `ae_set_parent` MCP tool. It accepts only an existing, distinct parent layer ID in the current active composition and rejects locked target layers.
 - Layer inventory now returns each layer's `parentLayerId`, making the resulting hierarchy readable through the bridge.
 - Live AE verification passed through the automatic host: text layer 71 (`Creative OS`) in `Creative OS Capability Test` (composition 59) was parented to rectangle layer 74. The visible project change is retained for review.
+
+## 2026-09-18 — M2 composition marker authoring
+
+- Added the fixed `composition.addMarker` operation and `ae_add_composition_marker` MCP tool. It adds one labelled marker at an exact whole-number frame, with a 1–100 character safe label.
+- Frame bounds are checked against the open composition, and marker creation is retained for visual timeline review. The bridge cannot remove markers, save the project, or execute arbitrary script content.
+- Live AE verification passed through the automatic host: `Creative OS Capability Test` (composition 59) now has the retained `Text arrives` marker at frame 24 / 1 second. Readback reports one marker with the same label and time.

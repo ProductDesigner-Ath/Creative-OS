@@ -27,5 +27,6 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Frame-specific visible-layer inventory is implemented as the first render-safe visual-check building block.
 - Automatic AE host connection is verified in AE 26.3x87; one host start is needed after each AE launch.
 - Layer parenting is implemented and verified live, with readable hierarchy inspection.
+- Exact-frame composition markers are implemented and verified live for visible animation timing notes.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

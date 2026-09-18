@@ -63,6 +63,12 @@
             var markerProp=comp.markerProperty, markers=[], mi, markerValue;
             for(mi=1;mi<=markerProp.numKeys;mi++) { markerValue=markerProp.keyValue(mi); markers.push({time:markerProp.keyTime(mi),comment:markerValue.comment,duration:markerValue.duration}); }
             response.result={compositionId:comp.id,markerCount:markers.length,markers:markers};
+        } else if(r.operation==='composition.addMarker') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var markerTime=a.frame*comp.frameDuration;
+            if(markerTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            app.beginUndoGroup('Creative OS: Add Marker'); group=true; comp.markerProperty.setValueAtTime(markerTime,new MarkerValue(a.comment)); changed=true;
+            response.result={compositionId:comp.id,frame:a.frame,time:markerTime,comment:a.comment,retained:true};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;
