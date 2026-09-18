@@ -1,0 +1,15 @@
+{
+  "version":"0.1",
+  "name":"Capability scene template",
+  "compositionId":59,
+  "steps":[
+    {"type":"importAsset","ref":"icon","assetPath":"AE_icon.png"},
+    {"type":"placeAsset","ref":"icon","position":[960,540],"scale":[50,50]},
+    {"type":"setTiming","ref":"icon","inPoint":0,"outPoint":2},
+    {"type":"addText","ref":"title","text":"Creative OS"},
+    {"type":"positionKeyframes","ref":"title","keyframes":[{"time":0,"value":[700,540,0]},{"time":1,"value":[960,540,0]}]},
+    {"type":"opacityKeyframes","ref":"title","keyframes":[{"time":0,"value":[0]},{"time":1,"value":[100]}]},
+    {"type":"setFrame","frame":24},
+    {"type":"verifyLayers","names":["Creative OS","AE_icon.png"]}
+  ]
+}

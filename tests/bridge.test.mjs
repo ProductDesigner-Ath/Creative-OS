@@ -7,6 +7,8 @@ import {createBridge} from '../services/local-bridge/server.mjs';
 const base=()=>({version:'0.1',requestId:randomUUID(),app:'after_effects',operation:'composition.getActive',arguments:{}});
 test('allowlist accepts inspection and treats quoted text as data',()=>{
   assert.doesNotThrow(()=>validateRequest(base()));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'project.listCompositions',arguments:{}}));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.getConstructionInfo',arguments:{context:randomUUID(),compositionId:1,layerId:1}}));
   assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.createText',arguments:{context:randomUUID(),compositionId:1,text:'"; app.quit(); //'}}));
 });
 test('allowlist accepts bounded text styling and rejects unsafe values',()=>{
@@ -57,6 +59,29 @@ test('allowlist accepts only the controlled compositing blend modes',()=>{
   const request={...base(),operation:'layer.setBlendMode',arguments:{context:randomUUID(),compositionId:1,layerId:2,mode:'screen'}};
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,mode:'overlay'}}));
+});
+test('allowlist accepts bounded text tracking reveals',()=>{
+  const request={...base(),operation:'text.addTrackingReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1,tracking:50}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,tracking:1001}}));
+});
+test('allowlist accepts a bounded per-character position reveal',()=>{
+  const request={...base(),operation:'text.addPositionReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1,offset:[0,80]}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,offset:[0,10001]}}));
+});
+test('allowlist accepts animated mask feather and bounded Gaussian blur',()=>{
+  const feather={...base(),operation:'layer.animateMaskFeather',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,keyframes:[{time:0,value:[0,0]},{time:1,value:[12,12]}]}};
+  assert.doesNotThrow(()=>validateRequest(feather));
+  assert.throws(()=>validateRequest({...feather,arguments:{...feather.arguments,keyframes:[{time:0,value:[-1,0]},{time:1,value:[12,12]}]}}));
+  const blur={...base(),operation:'layer.addGaussianBlur',arguments:{context:randomUUID(),compositionId:1,layerId:2,blurriness:16}};
+  assert.doesNotThrow(()=>validateRequest(blur));
+  assert.throws(()=>validateRequest({...blur,arguments:{...blur.arguments,blurriness:501}}));
+});
+test('allowlist accepts temporal easing only for keyed transform properties',()=>{
+  const request={...base(),operation:'layer.setTemporalEase',arguments:{context:randomUUID(),compositionId:1,layerId:2,property:'position',influence:66}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,influence:101}}));
 });
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};

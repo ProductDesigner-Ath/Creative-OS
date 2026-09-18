@@ -312,3 +312,59 @@ The two unpublished asset add/remove commits had no net code changes relative to
 
 - Added `layer.setBlendMode` and `ae_set_blend_mode`. The allowlist supports only Normal, Multiply, Screen, and Add; unsupported compositing modes and locked layers are rejected.
 - Live AE verification passed: icon layer 77 uses retained Screen blending in `Creative OS Capability Test` (composition 59). All 33 automated checks pass.
+
+## 2026-09-18 — M2 temporal easing and footage sequencing
+
+- Added `layer.setTemporalEase` and `ae_set_temporal_ease`. It applies a bounded uniform ease influence to existing Position, Opacity, Scale, or Rotation keyframes; it cannot create expressions or change arbitrary graph settings.
+- Live AE verification passed: Creative OS text layer 71 Position keys received retained 66% temporal ease influence. The automated suite passes 35/35.
+- Verified footage sequencing using the established import, placement, and layer-timing controls: supplied `Ocean_Drone.mp4` was imported as footage item 78, placed as layer 79, and retained with an explicit 1–4 second window in `Creative OS Capability Test` (composition 59).
+
+## 2026-09-18 — M2 core animation completion
+
+### Per-character text stagger and position
+
+- Added `text.addPositionReveal` and `ae_add_text_position_reveal`. It creates one AE text animator with a range selector and a fixed two-dimensional character offset. The selector moves from 100% to 0% between two explicit times, so characters receive the position offset in sequence rather than as one layer-wide move.
+- Live AE verification passed on retained text layer 71 (`Creative OS`): `Animator 4` offsets characters by `[0,80]` from 0 to 1 second. Existing opacity and tracking text animators remain available for combined staggered reveals.
+
+### Animated mask feather
+
+- Added `layer.animateMaskFeather` and `ae_animate_mask_feather`. It accepts exactly two increasing keyframes, each with a nonnegative bounded horizontal/vertical feather pair. It cannot alter mask paths or execute arbitrary properties.
+- Live AE verification passed on retained icon layer 77: mask 1 now has two feather keyframes, from `[0,0]` at 0 seconds to `[24,24]` at 1 second.
+
+### Controlled effects
+
+- Added `layer.addGaussianBlur` and `ae_add_gaussian_blur`, the first deliberately small effect allowlist. Only Gaussian Blur may be added, and its blur amount is bounded to 0–500. No effect names, property paths, expressions, or arbitrary effect parameters are accepted.
+- Live AE verification passed on retained Ocean Drone footage layer 79. AE created `Gaussian Blur` and read back a blur amount of `8`.
+
+### Remaining reference-asset coverage
+
+- Imported the supplied `Paper Scan.jpg` plus `Hand_01.png` through `Hand_08.png` from the approved asset root. All imports and placements remain in `Creative OS Capability Test` (composition 59).
+- Paper Scan is placed as layer 89 for the full 0–5 second composition duration. Hand still layers 90–97 are centered at 25% scale and sequenced in consecutive 0.5-second windows from 0 to 4 seconds. This establishes controlled import, placement, and timing coverage for the remaining supplied assets; it does not claim final reference-video art direction.
+
+### Scene recipe runner
+
+- Added a local scene-recipe runner in `services/scene-recipe/` and the example recipe `recipes/capability-scene.json`. It accepts only eight named step types: import asset, place asset, set timing, add text, two-key Position animation, two-key Opacity animation, set review frame, and verify expected layer names.
+- Recipes are dry-run by default. `--apply` is explicit and every applied step is sent through the existing local bridge and protocol validation. The runner has no network operation, arbitrary-script step, deletion, undo, save, render, or project-close capability.
+- Live AE verification passed with `node examples/run-scene-recipe.mjs recipes/capability-scene.json --apply`: AE retained item 101, layer 102, and text layer 103; Position and Opacity keys were created; frame 24 was selected; and both `Creative OS` and `AE_icon.png` were found by verification.
+
+### Validation and limitations
+
+- Automated validation passes 39 tests, including the public MCP tool inventory, blur/feather request bounds, recipe validation, rejected unrecognized recipe steps, and the non-mutating recipe default.
+- The live retained composition is intentionally a capability testbed. It contains duplicate icon/title layers from the first failed recipe attempt and successful retry because project changes are never automatically deleted or undone. The next phase is the dedicated reference-video build and visual review, where a planned composition should be used rather than this accumulating testbed.
+
+## 2026-09-18 — M3 reference-video test (in progress)
+
+- Created a separate retained composition, `Creative OS Reference Test 01` (ID 104), at 1920×1080, 24fps, and 5 seconds. The completed M2 capability test composition remains untouched.
+- Initial scene construction uses only supplied local assets and allowlisted controls: dark background (layer 117), Paper Scan texture with Multiply blending (118), Ocean Drone footage with 0.75–4.25 second timing and Gaussian Blur 4 (119), and a styled `CREATIVE OS` title (120).
+- The title has retained 0–1.1 second Position keys `[700,460,0]` → `[960,460,0]`, Opacity keys `0` → `100`, plus character tracking and Position reveals. First and closing hand stills are layers 121 and 122 with explicit windows and opacity entrances.
+- Markers establish three review beats: title entrance at frame 0, first hand transition at frame 38, and closing hand at frame 82. Bridge frame inventories passed at frames 0, 24, 48, 82, and 108; the playhead is retained at frame 48 for review.
+- Limitation: the provided YouTube reference could not be fetched by the local browsing environment, and the native AE canvas is not currently exposed to the visual-automation surface. This first M3 build is therefore a controlled bridge-validation scene, not a claim of a frame-for-frame reference recreation. No project changes were undone, deleted, saved, or closed.
+
+## 2026-09-18 — M3 converted-project reference mapping and timeline recreation
+
+- Moved the local workspace to `D:\Creative-OS` after verifying a complete copy. The AE host now derives its local runtime root from its own script location, so the bridge continues to work after a workspace move.
+- Read-only project inspection recovered the reference structure: final comp `Welcome To After Effects` (242) stages `SH01 Welcome` (15) at 0 seconds, `SH02_To` (34) at 1 second, and `SH03 After Effects` (114) at 2 seconds. The title uses `SwearDisplay-BlackCilati`, 450px, white; its Position changes from `[922.36,559.29,0]` to `[922.36,648.29,0]` from 0–1 seconds.
+- Added read-only composition and layer-construction inventory to identify source masks, mattes, blend modes, text animators, and effects. The source uses Noise, Posterize Time, Curves, and Hue/Saturation in its final scene, which are recorded as the next controlled-effect requirements.
+- Created retained `Creative OS Recreation` (257) in the D: converted project. It stages the three original source scenes at the reference timing and exact 100% centered placement. Readback confirms one scene at frame 0, two at frame 24, and all three at frame 48 and frame 96.
+- Added a narrow `layer.setEnabled` operation because AE added the nested source scenes disabled. It accepts only `enabled:true` for an existing unlocked layer; it cannot disable, remove, save, or alter arbitrary properties. Live verification enabled recreation layers 270 and 271 successfully.
+- This passes the top-level timeline recreation check. It uses the original source scene precompositions as controlled inputs, so it proves the local bridge can reproduce the final staging exactly but does not yet claim independent reconstruction of every inner scene or effect.

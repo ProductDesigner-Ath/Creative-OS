@@ -23,9 +23,13 @@
     try {
         write(cfg.startedPath,{requestId:r.requestId,started:true,version:app.version});
         var comp=app.project && app.project.activeItem;
-        if(!(comp instanceof CompItem) && r.operation!=='composition.create' && r.operation!=='composition.openById') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
+        if(!(comp instanceof CompItem) && r.operation!=='composition.create' && r.operation!=='composition.openById' && r.operation!=='project.listCompositions') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
-        if(r.operation==='layer.createEllipse') {
+        if(r.operation==='project.listCompositions') {
+            var compositions=[], pi, projectItem;
+            for(pi=1;pi<=app.project.numItems;pi++) { projectItem=app.project.item(pi); if(projectItem instanceof CompItem) compositions.push({compositionId:projectItem.id,name:projectItem.name,width:projectItem.width,height:projectItem.height,duration:projectItem.duration,frameRate:1/projectItem.frameDuration,layerCount:projectItem.numLayers}); }
+            response.result={compositionCount:compositions.length,compositions:compositions};
+        } else if(r.operation==='layer.createEllipse') {
             var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), eg=ec.addProperty('ADBE Vector Group'), el=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Ellipse'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); var ef=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createRectangle') {
             var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rg=contents.addProperty('ADBE Vector Group'), rect=rg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Rect'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); var fill=rg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
@@ -105,6 +109,12 @@
                 } else if(r.operation==='layer.getSourceInfo') {
                     var src=layer.source;
                     response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,matchName:layer.matchName,sourceName:src?src.name:null,sourceType:src?(src instanceof CompItem?'composition':(src.mainSource?'footage':'unknown')):null,sourceId:src?src.id:null};
+                } else if(r.operation==='layer.getConstructionInfo') {
+                    var effects=[], masksInfo=[], animators=[], effectParade=layer.property('ADBE Effect Parade'), maskParade=layer.property('ADBE Mask Parade'), textAnimators=layer.matchName==='ADBE Text Layer'?layer.property('ADBE Text Properties').property('ADBE Text Animators'):null, ci;
+                    if(effectParade) for(ci=1;ci<=effectParade.numProperties;ci++) effects.push({name:effectParade.property(ci).name,matchName:effectParade.property(ci).matchName,enabled:effectParade.property(ci).enabled});
+                    if(maskParade) for(ci=1;ci<=maskParade.numProperties;ci++) { var cm=maskParade.property(ci), cf=cm.property('ADBE Mask Feather'), cp=cm.property('ADBE Mask Shape'); masksInfo.push({index:ci,name:cm.name,inverted:cm.inverted,feather:cf?cf.value:null,featherKeyframes:cf?cf.numKeys:0,pathKeyframes:cp?cp.numKeys:0}); }
+                    if(textAnimators) for(ci=1;ci<=textAnimators.numProperties;ci++) animators.push({name:textAnimators.property(ci).name,matchName:textAnimators.property(ci).matchName});
+                    response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,blendMode:String(layer.blendingMode),trackMatteType:String(layer.trackMatteType),trackMatteLayerId:layer.trackMatteLayer?layer.trackMatteLayer.id:null,effects:effects,masks:masksInfo,textAnimators:animators};
                 } else if(r.operation==='layer.setTextStyle') {
                     if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
@@ -128,6 +138,11 @@
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
                     app.beginUndoGroup('Creative OS: Set Parent'); group=true; layer.parent=parentLayer; changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,parentLayerId:layer.parent.id,retained:true};
+                } else if(r.operation==='layer.setEnabled') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    if(a.enabled!==true) fail('INVALID_ENABLED','This operation only enables layers.');
+                    app.beginUndoGroup('Creative OS: Enable Layer'); group=true; layer.enabled=true; changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,enabled:layer.enabled,retained:true};
                 } else if(r.operation==='layer.moveBefore') {
                     var targetLayer=null, ti; for(ti=1;ti<=comp.numLayers;ti++) if(comp.layer(ti).id===a.targetLayerId) {targetLayer=comp.layer(ti);break;}
                     if(!targetLayer) fail('LAYER_NOT_FOUND','Target layer ID is not in this composition.');
@@ -171,6 +186,35 @@
                     var blend=a.mode==='normal'?BlendingMode.NORMAL:a.mode==='multiply'?BlendingMode.MULTIPLY:a.mode==='screen'?BlendingMode.SCREEN:BlendingMode.ADD;
                     app.beginUndoGroup('Creative OS: Set Blend Mode'); group=true; layer.blendingMode=blend; changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,mode:a.mode,retained:true};
+                } else if(r.operation==='text.addTrackingReveal') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var trackingAnimator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), trackingProps=trackingAnimator.property('ADBE Text Animator Properties'), trackingProp=trackingProps.addProperty('ADBE Text Tracking Amount'), trackingSelector=trackingAnimator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), trackingEnd=trackingSelector.property('ADBE Text Percent End');
+                    trackingProp.setValue(a.tracking); app.beginUndoGroup('Creative OS: Text Tracking Reveal'); group=true; trackingEnd.setValueAtTime(a.startTime,100); trackingEnd.setValueAtTime(a.endTime,0); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,animatorName:trackingAnimator.name,startTime:a.startTime,endTime:a.endTime,tracking:a.tracking,retained:true};
+                } else if(r.operation==='layer.setTemporalEase') {
+                    var easeTransform=layer.property('ADBE Transform Group'), easeProp=a.property==='position'?easeTransform.property('ADBE Position'):a.property==='opacity'?easeTransform.property('ADBE Opacity'):a.property==='scale'?easeTransform.property('ADBE Scale'):easeTransform.property('ADBE Rotate Z');
+                    if(easeProp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
+                    var easeDim=easeProp.value instanceof Array?easeProp.value.length:1, easeIn=[], easeOut=[], ei; for(ei=0;ei<easeDim;ei++){easeIn.push(new KeyframeEase(0,a.influence));easeOut.push(new KeyframeEase(0,a.influence));}
+                    app.beginUndoGroup('Creative OS: Set Temporal Ease'); group=true; for(ei=1;ei<=easeProp.numKeys;ei++) easeProp.setTemporalEaseAtKey(ei,easeIn,easeOut); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:easeProp.numKeys,influence:a.influence,retained:true};
+                } else if(r.operation==='text.addPositionReveal') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var positionAnimator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), positionProps=positionAnimator.property('ADBE Text Animator Properties'), positionAmount=positionProps.addProperty('ADBE Text Position 3D'), positionSelector=positionAnimator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), positionEnd=positionSelector.property('ADBE Text Percent End');
+                    positionAmount.setValue(a.offset); app.beginUndoGroup('Creative OS: Text Position Reveal'); group=true; positionEnd.setValueAtTime(a.startTime,100); positionEnd.setValueAtTime(a.endTime,0); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,animatorName:positionAnimator.name,startTime:a.startTime,endTime:a.endTime,offset:a.offset,retained:true};
+                } else if(r.operation==='layer.animateMaskFeather') {
+                    var featherAnimMask=layer.property('ADBE Mask Parade').property(a.maskIndex), featherAnimProp=featherAnimMask && featherAnimMask.property('ADBE Mask Feather'); if(!featherAnimProp) fail('MASK_NOT_FOUND','Mask index is not on this layer.');
+                    app.beginUndoGroup('Creative OS: Animate Mask Feather'); group=true; featherAnimProp.setValueAtTime(a.keyframes[0].time,a.keyframes[0].value); featherAnimProp.setValueAtTime(a.keyframes[1].time,a.keyframes[1].value); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:a.maskIndex,keyframeCount:featherAnimProp.numKeys,retained:true};
+                } else if(r.operation==='layer.addGaussianBlur') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var effectParade=layer.property('ADBE Effect Parade'), gaussianBlur=effectParade.addProperty('ADBE Gaussian Blur 2');
+                    if(!gaussianBlur) fail('EFFECT_UNAVAILABLE','Gaussian Blur is unavailable in this After Effects installation.');
+                    var blurAmount=gaussianBlur.property(1); if(!blurAmount) fail('EFFECT_UNAVAILABLE','Gaussian Blur amount control is unavailable.');
+                    app.beginUndoGroup('Creative OS: Add Gaussian Blur'); group=true; blurAmount.setValue(a.blurriness); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,effectName:gaussianBlur.name,blurriness:blurAmount.value,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {

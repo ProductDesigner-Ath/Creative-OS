@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node services/local-bridge/server.mjs",
-    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs",
+    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs tests/scene-recipe.test.mjs",
     "inspect": "node services/local-bridge/client.mjs composition.getActive",
     "demo:retain": "node examples/retain-for-review.mjs",
     "demo:animate": "node examples/animate-review.mjs"
