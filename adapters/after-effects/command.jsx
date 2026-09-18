@@ -166,6 +166,11 @@
                     var animator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), animatorProps=animator.property('ADBE Text Animator Properties'), opacityProp=animatorProps.addProperty('ADBE Text Opacity'), selector=animator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), endProp=selector.property('ADBE Text Percent End');
                     opacityProp.setValue(0); app.beginUndoGroup('Creative OS: Text Opacity Reveal'); group=true; endProp.setValueAtTime(a.startTime,100); endProp.setValueAtTime(a.endTime,0); changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,animatorName:animator.name,startTime:a.startTime,endTime:a.endTime,retained:true};
+                } else if(r.operation==='layer.setBlendMode') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var blend=a.mode==='normal'?BlendingMode.NORMAL:a.mode==='multiply'?BlendingMode.MULTIPLY:a.mode==='screen'?BlendingMode.SCREEN:BlendingMode.ADD;
+                    app.beginUndoGroup('Creative OS: Set Blend Mode'); group=true; layer.blendingMode=blend; changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,mode:a.mode,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {

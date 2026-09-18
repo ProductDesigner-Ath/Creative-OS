@@ -53,6 +53,11 @@ test('allowlist accepts bounded animated masks and text reveals',()=>{
   assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.setMaskFeather',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,feather:[12,12]}}));
   assert.doesNotThrow(()=>validateRequest({...base(),operation:'text.addOpacityReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1}}));
 });
+test('allowlist accepts only the controlled compositing blend modes',()=>{
+  const request={...base(),operation:'layer.setBlendMode',arguments:{context:randomUUID(),compositionId:1,layerId:2,mode:'screen'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,mode:'overlay'}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));

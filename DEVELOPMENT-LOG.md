@@ -307,3 +307,8 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Live AE verification passed on icon layer 77: a retained rectangular mask was added, animated from a near-zero width at 0 seconds to 512 pixels at 1 second, then given a 12px feather in both directions.
 - Added `text.addOpacityReveal` and `ae_add_text_opacity_reveal`. It creates a fixed AE text animator with an opacity range selector that reveals characters from 0 to 1 second. It does not accept expressions, arbitrary selector settings, or script paths.
 - Live AE verification passed on text layer 71 (`Creative OS`): retained `Animator 1` was created with a 0–1 second per-character opacity reveal.
+
+## 2026-09-18 — M2 controlled blend modes
+
+- Added `layer.setBlendMode` and `ae_set_blend_mode`. The allowlist supports only Normal, Multiply, Screen, and Add; unsupported compositing modes and locked layers are rejected.
+- Live AE verification passed: icon layer 77 uses retained Screen blending in `Creative OS Capability Test` (composition 59). All 33 automated checks pass.

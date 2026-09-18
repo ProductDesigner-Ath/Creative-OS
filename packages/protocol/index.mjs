@@ -30,6 +30,7 @@ export function validateRequest(r) {
     case 'layer.animateRectMask': keys(a,['context','compositionId','layerId','maskIndex','keyframes']); break;
     case 'layer.setMaskFeather': keys(a,['context','compositionId','layerId','maskIndex','feather']); break;
     case 'text.addOpacityReveal': keys(a,['context','compositionId','layerId','startTime','endTime']); break;
+    case 'layer.setBlendMode': keys(a,['context','compositionId','layerId','mode']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
@@ -70,6 +71,7 @@ export function validateRequest(r) {
   if (r.operation === 'layer.animateRectMask' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.keyframes) || a.keyframes.length!==2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && [k.x,k.y,k.width,k.height].every(v=>Number.isFinite(v) && Math.abs(v)<=100000) && k.width>0 && k.height>0) || a.keyframes[1].time<=a.keyframes[0].time)) fail('Invalid rectangular mask keyframes');
   if (r.operation === 'layer.setMaskFeather' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.feather) || a.feather.length!==2 || !a.feather.every(v=>Number.isFinite(v) && v>=0 && v<=10000))) fail('Invalid mask feather');
   if (r.operation === 'text.addOpacityReveal' && (![a.startTime,a.endTime].every(v=>Number.isFinite(v) && v>=0) || a.endTime<=a.startTime)) fail('Invalid text reveal timing');
+  if (r.operation === 'layer.setBlendMode' && !['normal','multiply','screen','add'].includes(a.mode)) fail('Unsupported blend mode');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');

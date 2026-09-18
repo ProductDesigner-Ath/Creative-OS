@@ -19,6 +19,7 @@ const tools=[{name:'ae_create_ellipse',description:'Create a filled ellipse shap
   {name:'ae_animate_rect_mask',description:'Animate an existing rectangular mask with exactly two explicit bounds keyframes.',inputSchema:{type:'object',required:['context','compositionId','layerId','maskIndex','keyframes'],properties:{context:{type:'string'},compositionId:{type:'integer'},layerId:{type:'integer'},maskIndex:{type:'integer'},keyframes:{type:'array',minItems:2,maxItems:2}},additionalProperties:false}},
   {name:'ae_set_mask_feather',description:'Set one mask’s horizontal and vertical feather in pixels.',inputSchema:{type:'object',required:['context','compositionId','layerId','maskIndex','feather'],properties:{context:{type:'string'},compositionId:{type:'integer'},layerId:{type:'integer'},maskIndex:{type:'integer'},feather:{type:'array',items:{type:'number'}}},additionalProperties:false}},
   {name:'ae_add_text_opacity_reveal',description:'Add a fixed per-character text opacity reveal between two times.',inputSchema:{type:'object',required:['context','compositionId','layerId','startTime','endTime'],properties:{context:{type:'string'},compositionId:{type:'integer'},layerId:{type:'integer'},startTime:{type:'number'},endTime:{type:'number'}},additionalProperties:false}},
+  {name:'ae_set_blend_mode',description:'Set Normal, Multiply, Screen, or Add blend mode on an unlocked layer.',inputSchema:{type:'object',required:['context','compositionId','layerId','mode'],properties:{context:{type:'string'},compositionId:{type:'integer'},layerId:{type:'integer'},mode:{type:'string',enum:['normal','multiply','screen','add']}},additionalProperties:false}},
   {name:'ae_create_text_layer',description:'Create an editable text layer in the active composition. The change remains visible.',inputSchema:{type:'object',required:['context','compositionId','text'],properties:{context:{type:'string'},compositionId:{type:'integer'},text:{type:'string'}},additionalProperties:false}},
   {name:'ae_get_position',description:'Read a layer Position value.',inputSchema:{type:'object',required:['context','compositionId','layerId'],properties:{context:{type:'string'},compositionId:{type:'integer'},layerId:{type:'integer'}},additionalProperties:false}},
   {name:'ae_get_transform',description:'Read Anchor Point, Position, Scale, Rotation, Opacity, and 3D status for a layer.',inputSchema:{type:'object',required:['context','compositionId','layerId'],properties:{context:{type:'string'},compositionId:{type:'integer'},layerId:{type:'integer'}},additionalProperties:false}},
@@ -40,6 +41,7 @@ const operationByTool={ae_create_ellipse:['layer.createEllipse'],ae_create_recta
 operationByTool.ae_animate_rect_mask=['layer.animateRectMask'];
 operationByTool.ae_set_mask_feather=['layer.setMaskFeather'];
 operationByTool.ae_add_text_opacity_reveal=['text.addOpacityReveal'];
+operationByTool.ae_set_blend_mode=['layer.setBlendMode'];
 function result(id,body){return {jsonrpc:'2.0',id,result:body};}
 function error(id,code,message){return {jsonrpc:'2.0',id,error:{code,message}};}
 async function handle(msg){
