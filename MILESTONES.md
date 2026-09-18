@@ -32,5 +32,6 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Approved local image, video, and Illustrator asset import is implemented and verified live; placing imported footage in a composition is the next batch.
 - Imported footage placement and deterministic composition activation are implemented and verified live.
 - Alpha and Luma track-matte compositing is implemented and verified live.
+- Animated rectangular-mask reveals, mask feathering, and a basic per-character text-opacity reveal are implemented and verified live.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

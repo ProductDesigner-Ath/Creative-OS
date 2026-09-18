@@ -47,6 +47,12 @@ test('allowlist accepts explicit alpha and luma track mattes',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,type:'unsupported'}}));
 });
+test('allowlist accepts bounded animated masks and text reveals',()=>{
+  const mask={...base(),operation:'layer.animateRectMask',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,keyframes:[{time:0,x:0,y:0,width:1,height:100},{time:1,x:0,y:0,width:100,height:100}]}};
+  assert.doesNotThrow(()=>validateRequest(mask));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.setMaskFeather',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,feather:[12,12]}}));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'text.addOpacityReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));

@@ -141,6 +141,31 @@
                     var matteType=a.type==='alpha'?TrackMatteType.ALPHA:a.type==='alphaInverted'?TrackMatteType.ALPHA_INVERTED:a.type==='luma'?TrackMatteType.LUMA:TrackMatteType.LUMA_INVERTED;
                     app.beginUndoGroup('Creative OS: Set Track Matte'); group=true; layer.setTrackMatte(matteLayer,matteType); changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,matteLayerId:layer.trackMatteLayer?layer.trackMatteLayer.id:null,type:a.type,retained:true};
+                } else if(r.operation==='layer.addRectMask') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var masks=layer.property('ADBE Mask Parade'), mask=masks.addProperty('ADBE Mask Atom'), pathProp=mask.property('ADBE Mask Shape'), shape=new Shape();
+                    shape.vertices=[[a.x,a.y],[a.x+a.width,a.y],[a.x+a.width,a.y+a.height],[a.x,a.y+a.height]]; shape.inTangents=[[0,0],[0,0],[0,0],[0,0]]; shape.outTangents=[[0,0],[0,0],[0,0],[0,0]]; shape.closed=true;
+                    app.beginUndoGroup('Creative OS: Add Rectangle Mask'); group=true; pathProp.setValue(shape); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:mask.propertyIndex,bounds:{x:a.x,y:a.y,width:a.width,height:a.height},retained:true};
+                } else if(r.operation==='layer.animateRectMask') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var maskGroup=layer.property('ADBE Mask Parade').property(a.maskIndex), animatedPath=maskGroup && maskGroup.property('ADBE Mask Shape');
+                    if(!animatedPath) fail('MASK_NOT_FOUND','Mask index is not on this layer.');
+                    function rectShape(k){var s=new Shape();s.vertices=[[k.x,k.y],[k.x+k.width,k.y],[k.x+k.width,k.y+k.height],[k.x,k.y+k.height]];s.inTangents=[[0,0],[0,0],[0,0],[0,0]];s.outTangents=[[0,0],[0,0],[0,0],[0,0]];s.closed=true;return s;}
+                    app.beginUndoGroup('Creative OS: Animate Rectangle Mask'); group=true; animatedPath.setValueAtTime(a.keyframes[0].time,rectShape(a.keyframes[0])); animatedPath.setValueAtTime(a.keyframes[1].time,rectShape(a.keyframes[1])); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:a.maskIndex,keyframeCount:animatedPath.numKeys,retained:true};
+                } else if(r.operation==='layer.setMaskFeather') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var featherMask=layer.property('ADBE Mask Parade').property(a.maskIndex), featherProp=featherMask && featherMask.property('ADBE Mask Feather');
+                    if(!featherProp) fail('MASK_NOT_FOUND','Mask index is not on this layer.');
+                    app.beginUndoGroup('Creative OS: Set Mask Feather'); group=true; featherProp.setValue(a.feather); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:a.maskIndex,feather:featherProp.value,retained:true};
+                } else if(r.operation==='text.addOpacityReveal') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var animator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), animatorProps=animator.property('ADBE Text Animator Properties'), opacityProp=animatorProps.addProperty('ADBE Text Opacity'), selector=animator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), endProp=selector.property('ADBE Text Percent End');
+                    opacityProp.setValue(0); app.beginUndoGroup('Creative OS: Text Opacity Reveal'); group=true; endProp.setValueAtTime(a.startTime,100); endProp.setValueAtTime(a.endTime,0); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,animatorName:animator.name,startTime:a.startTime,endTime:a.endTime,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {

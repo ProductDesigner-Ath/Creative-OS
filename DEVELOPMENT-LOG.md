@@ -300,3 +300,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added the fixed `layer.setTrackMatte` operation and `ae_set_track_matte` MCP tool. It connects two existing layers using only Alpha, inverted Alpha, Luma, or inverted Luma matte types.
 - The implementation uses AE's current `setTrackMatte()` API, which does not depend on layer order in AE 23+.
 - Live AE verification passed: imported icon layer 77 now uses rectangle layer 74 as an Alpha track matte in `Creative OS Capability Test` (composition 59). The change remains visible and retained. All 31 automated checks pass.
+
+## 2026-09-18 — M2 mask reveals and text reveal
+
+- Added `layer.addRectMask`, `layer.animateRectMask`, and `layer.setMaskFeather`, with matching MCP tools. Rectangular masks use explicit layer-space bounds; animation is limited to exactly two increasing bounds keyframes; feathering accepts a bounded horizontal/vertical pixel pair.
+- Live AE verification passed on icon layer 77: a retained rectangular mask was added, animated from a near-zero width at 0 seconds to 512 pixels at 1 second, then given a 12px feather in both directions.
+- Added `text.addOpacityReveal` and `ae_add_text_opacity_reveal`. It creates a fixed AE text animator with an opacity range selector that reveals characters from 0 to 1 second. It does not accept expressions, arbitrary selector settings, or script paths.
+- Live AE verification passed on text layer 71 (`Creative OS`): retained `Animator 1` was created with a 0–1 second per-character opacity reveal.
