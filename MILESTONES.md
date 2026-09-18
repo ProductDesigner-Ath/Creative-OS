@@ -16,7 +16,7 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Layer timing and Bezier interpolation controls.
 - Result: automated contract tests pass; live construction is verified where the running bridge has loaded the current adapter.
 
-## M2 — Reference animation building blocks (in progress)
+## M2 — Reference animation building blocks (complete)
 
 - Controlled shape and solid layers.
 - Text styling and alignment.
@@ -35,5 +35,14 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Animated rectangular-mask reveals, mask feathering, and a basic per-character text-opacity reveal are implemented and verified live.
 - Controlled Normal, Multiply, Screen, and Add blend modes are implemented and verified live.
 - Controlled temporal easing and explicit footage/video sequencing are implemented and verified live.
+- Per-character tracking and Position stagger, including fixed range-selector timing, are implemented and verified live.
+- Animated two-dimensional mask feather is implemented and verified live.
+- The controlled effect set starts with bounded Gaussian Blur and is verified live.
+- The supplied paper scan and all eight hand stills are imported, placed, and explicitly sequenced in the retained capability composition.
+- The constrained local scene recipe runner is implemented, dry-run tested, and verified live from import through final layer verification.
+
+### M2 result
+
+M2 passes as a local, safe capability layer for the upcoming reference-video test. It deliberately does not claim the reference video has been recreated. The next approved milestone should create that video in a dedicated composition using the supported recipe primitives and supplied resources.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

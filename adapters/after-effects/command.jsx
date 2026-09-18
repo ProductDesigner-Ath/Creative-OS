@@ -183,6 +183,23 @@
                     var easeDim=easeProp.value instanceof Array?easeProp.value.length:1, easeIn=[], easeOut=[], ei; for(ei=0;ei<easeDim;ei++){easeIn.push(new KeyframeEase(0,a.influence));easeOut.push(new KeyframeEase(0,a.influence));}
                     app.beginUndoGroup('Creative OS: Set Temporal Ease'); group=true; for(ei=1;ei<=easeProp.numKeys;ei++) easeProp.setTemporalEaseAtKey(ei,easeIn,easeOut); changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:easeProp.numKeys,influence:a.influence,retained:true};
+                } else if(r.operation==='text.addPositionReveal') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var positionAnimator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), positionProps=positionAnimator.property('ADBE Text Animator Properties'), positionAmount=positionProps.addProperty('ADBE Text Position 3D'), positionSelector=positionAnimator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), positionEnd=positionSelector.property('ADBE Text Percent End');
+                    positionAmount.setValue(a.offset); app.beginUndoGroup('Creative OS: Text Position Reveal'); group=true; positionEnd.setValueAtTime(a.startTime,100); positionEnd.setValueAtTime(a.endTime,0); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,animatorName:positionAnimator.name,startTime:a.startTime,endTime:a.endTime,offset:a.offset,retained:true};
+                } else if(r.operation==='layer.animateMaskFeather') {
+                    var featherAnimMask=layer.property('ADBE Mask Parade').property(a.maskIndex), featherAnimProp=featherAnimMask && featherAnimMask.property('ADBE Mask Feather'); if(!featherAnimProp) fail('MASK_NOT_FOUND','Mask index is not on this layer.');
+                    app.beginUndoGroup('Creative OS: Animate Mask Feather'); group=true; featherAnimProp.setValueAtTime(a.keyframes[0].time,a.keyframes[0].value); featherAnimProp.setValueAtTime(a.keyframes[1].time,a.keyframes[1].value); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:a.maskIndex,keyframeCount:featherAnimProp.numKeys,retained:true};
+                } else if(r.operation==='layer.addGaussianBlur') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var effectParade=layer.property('ADBE Effect Parade'), gaussianBlur=effectParade.addProperty('ADBE Gaussian Blur 2');
+                    if(!gaussianBlur) fail('EFFECT_UNAVAILABLE','Gaussian Blur is unavailable in this After Effects installation.');
+                    var blurAmount=gaussianBlur.property(1); if(!blurAmount) fail('EFFECT_UNAVAILABLE','Gaussian Blur amount control is unavailable.');
+                    app.beginUndoGroup('Creative OS: Add Gaussian Blur'); group=true; blurAmount.setValue(a.blurriness); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,effectName:gaussianBlur.name,blurriness:blurAmount.value,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {

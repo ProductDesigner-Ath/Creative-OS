@@ -318,3 +318,36 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added `layer.setTemporalEase` and `ae_set_temporal_ease`. It applies a bounded uniform ease influence to existing Position, Opacity, Scale, or Rotation keyframes; it cannot create expressions or change arbitrary graph settings.
 - Live AE verification passed: Creative OS text layer 71 Position keys received retained 66% temporal ease influence. The automated suite passes 35/35.
 - Verified footage sequencing using the established import, placement, and layer-timing controls: supplied `Ocean_Drone.mp4` was imported as footage item 78, placed as layer 79, and retained with an explicit 1–4 second window in `Creative OS Capability Test` (composition 59).
+
+## 2026-09-18 — M2 core animation completion
+
+### Per-character text stagger and position
+
+- Added `text.addPositionReveal` and `ae_add_text_position_reveal`. It creates one AE text animator with a range selector and a fixed two-dimensional character offset. The selector moves from 100% to 0% between two explicit times, so characters receive the position offset in sequence rather than as one layer-wide move.
+- Live AE verification passed on retained text layer 71 (`Creative OS`): `Animator 4` offsets characters by `[0,80]` from 0 to 1 second. Existing opacity and tracking text animators remain available for combined staggered reveals.
+
+### Animated mask feather
+
+- Added `layer.animateMaskFeather` and `ae_animate_mask_feather`. It accepts exactly two increasing keyframes, each with a nonnegative bounded horizontal/vertical feather pair. It cannot alter mask paths or execute arbitrary properties.
+- Live AE verification passed on retained icon layer 77: mask 1 now has two feather keyframes, from `[0,0]` at 0 seconds to `[24,24]` at 1 second.
+
+### Controlled effects
+
+- Added `layer.addGaussianBlur` and `ae_add_gaussian_blur`, the first deliberately small effect allowlist. Only Gaussian Blur may be added, and its blur amount is bounded to 0–500. No effect names, property paths, expressions, or arbitrary effect parameters are accepted.
+- Live AE verification passed on retained Ocean Drone footage layer 79. AE created `Gaussian Blur` and read back a blur amount of `8`.
+
+### Remaining reference-asset coverage
+
+- Imported the supplied `Paper Scan.jpg` plus `Hand_01.png` through `Hand_08.png` from the approved asset root. All imports and placements remain in `Creative OS Capability Test` (composition 59).
+- Paper Scan is placed as layer 89 for the full 0–5 second composition duration. Hand still layers 90–97 are centered at 25% scale and sequenced in consecutive 0.5-second windows from 0 to 4 seconds. This establishes controlled import, placement, and timing coverage for the remaining supplied assets; it does not claim final reference-video art direction.
+
+### Scene recipe runner
+
+- Added a local scene-recipe runner in `services/scene-recipe/` and the example recipe `recipes/capability-scene.json`. It accepts only eight named step types: import asset, place asset, set timing, add text, two-key Position animation, two-key Opacity animation, set review frame, and verify expected layer names.
+- Recipes are dry-run by default. `--apply` is explicit and every applied step is sent through the existing local bridge and protocol validation. The runner has no network operation, arbitrary-script step, deletion, undo, save, render, or project-close capability.
+- Live AE verification passed with `node examples/run-scene-recipe.mjs recipes/capability-scene.json --apply`: AE retained item 101, layer 102, and text layer 103; Position and Opacity keys were created; frame 24 was selected; and both `Creative OS` and `AE_icon.png` were found by verification.
+
+### Validation and limitations
+
+- Automated validation passes 39 tests, including the public MCP tool inventory, blur/feather request bounds, recipe validation, rejected unrecognized recipe steps, and the non-mutating recipe default.
+- The live retained composition is intentionally a capability testbed. It contains duplicate icon/title layers from the first failed recipe attempt and successful retry because project changes are never automatically deleted or undone. The next phase is the dedicated reference-video build and visual review, where a planned composition should be used rather than this accumulating testbed.

@@ -63,6 +63,19 @@ test('allowlist accepts bounded text tracking reveals',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,tracking:1001}}));
 });
+test('allowlist accepts a bounded per-character position reveal',()=>{
+  const request={...base(),operation:'text.addPositionReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1,offset:[0,80]}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,offset:[0,10001]}}));
+});
+test('allowlist accepts animated mask feather and bounded Gaussian blur',()=>{
+  const feather={...base(),operation:'layer.animateMaskFeather',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,keyframes:[{time:0,value:[0,0]},{time:1,value:[12,12]}]}};
+  assert.doesNotThrow(()=>validateRequest(feather));
+  assert.throws(()=>validateRequest({...feather,arguments:{...feather.arguments,keyframes:[{time:0,value:[-1,0]},{time:1,value:[12,12]}]}}));
+  const blur={...base(),operation:'layer.addGaussianBlur',arguments:{context:randomUUID(),compositionId:1,layerId:2,blurriness:16}};
+  assert.doesNotThrow(()=>validateRequest(blur));
+  assert.throws(()=>validateRequest({...blur,arguments:{...blur.arguments,blurriness:501}}));
+});
 test('allowlist accepts temporal easing only for keyed transform properties',()=>{
   const request={...base(),operation:'layer.setTemporalEase',arguments:{context:randomUUID(),compositionId:1,layerId:2,property:'position',influence:66}};
   assert.doesNotThrow(()=>validateRequest(request));

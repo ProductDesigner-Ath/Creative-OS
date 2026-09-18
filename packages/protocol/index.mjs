@@ -33,6 +33,9 @@ export function validateRequest(r) {
     case 'layer.setBlendMode': keys(a,['context','compositionId','layerId','mode']); break;
     case 'text.addTrackingReveal': keys(a,['context','compositionId','layerId','startTime','endTime','tracking']); break;
     case 'layer.setTemporalEase': keys(a,['context','compositionId','layerId','property','influence']); break;
+    case 'text.addPositionReveal': keys(a,['context','compositionId','layerId','startTime','endTime','offset']); break;
+    case 'layer.animateMaskFeather': keys(a,['context','compositionId','layerId','maskIndex','keyframes']); break;
+    case 'layer.addGaussianBlur': keys(a,['context','compositionId','layerId','blurriness']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
@@ -76,6 +79,9 @@ export function validateRequest(r) {
   if (r.operation === 'layer.setBlendMode' && !['normal','multiply','screen','add'].includes(a.mode)) fail('Unsupported blend mode');
   if (r.operation === 'text.addTrackingReveal' && (![a.startTime,a.endTime, a.tracking].every(v=>Number.isFinite(v)) || a.startTime<0 || a.endTime<=a.startTime || Math.abs(a.tracking)>1000)) fail('Invalid tracking reveal settings');
   if (r.operation === 'layer.setTemporalEase' && (!['position','opacity','scale','rotation'].includes(a.property) || !Number.isFinite(a.influence) || a.influence<0.1 || a.influence>100)) fail('Invalid temporal ease settings');
+  if (r.operation === 'text.addPositionReveal' && (![a.startTime,a.endTime].every(v=>Number.isFinite(v) && v>=0) || a.endTime<=a.startTime || !Array.isArray(a.offset) || a.offset.length!==2 || !a.offset.every(v=>Number.isFinite(v) && Math.abs(v)<=10000))) fail('Invalid text position reveal');
+  if (r.operation === 'layer.animateMaskFeather' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.keyframes) || a.keyframes.length!==2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.length===2 && k.value.every(v=>Number.isFinite(v) && v>=0 && v<=10000)) || a.keyframes[1].time<=a.keyframes[0].time)) fail('Invalid mask feather keyframes');
+  if (r.operation === 'layer.addGaussianBlur' && (!Number.isFinite(a.blurriness) || a.blurriness<0 || a.blurriness>500)) fail('Invalid Gaussian blur amount');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');
@@ -83,7 +89,7 @@ export function validateRequest(r) {
   if ('property' in a && !['position','opacity','scale','rotation'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.setBezierKeyframes' && !['position','opacity','scale','rotation','anchorPoint'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.addTransformKeyframes' && !['scale','rotation'].includes(a.property)) fail('Transform property is not allowlisted');
-  if ('keyframes' in a && r.operation !== 'layer.animateRectMask' && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
+  if ('keyframes' in a && r.operation !== 'layer.animateRectMask' && r.operation !== 'layer.animateMaskFeather' && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
   return r;
 }
 export function failure(requestId, code, message, extra={}) {
