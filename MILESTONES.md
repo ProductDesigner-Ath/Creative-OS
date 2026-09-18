@@ -27,5 +27,12 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Frame-specific visible-layer inventory is implemented as the first render-safe visual-check building block.
 - Automatic AE host connection is verified in AE 26.3x87; one host start is needed after each AE launch.
 - Layer parenting is implemented and verified live, with readable hierarchy inspection.
+- Exact-frame composition markers are implemented and verified live for visible animation timing notes.
+- Controlled layer stacking is implemented and verified live for foreground/background scene order.
+- Approved local image, video, and Illustrator asset import is implemented and verified live; placing imported footage in a composition is the next batch.
+- Imported footage placement and deterministic composition activation are implemented and verified live.
+- Alpha and Luma track-matte compositing is implemented and verified live.
+- Animated rectangular-mask reveals, mask feathering, and a basic per-character text-opacity reveal are implemented and verified live.
+- Controlled Normal, Multiply, Screen, and Add blend modes are implemented and verified live.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

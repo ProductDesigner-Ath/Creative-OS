@@ -269,3 +269,46 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added the fixed `layer.setParent` operation and `ae_set_parent` MCP tool. It accepts only an existing, distinct parent layer ID in the current active composition and rejects locked target layers.
 - Layer inventory now returns each layer's `parentLayerId`, making the resulting hierarchy readable through the bridge.
 - Live AE verification passed through the automatic host: text layer 71 (`Creative OS`) in `Creative OS Capability Test` (composition 59) was parented to rectangle layer 74. The visible project change is retained for review.
+
+## 2026-09-18 — M2 composition marker authoring
+
+- Added the fixed `composition.addMarker` operation and `ae_add_composition_marker` MCP tool. It adds one labelled marker at an exact whole-number frame, with a 1–100 character safe label.
+- Frame bounds are checked against the open composition, and marker creation is retained for visual timeline review. The bridge cannot remove markers, save the project, or execute arbitrary script content.
+- Live AE verification passed through the automatic host: `Creative OS Capability Test` (composition 59) now has the retained `Text arrives` marker at frame 24 / 1 second. Readback reports one marker with the same label and time.
+
+## 2026-09-18 — M2 controlled layer stacking
+
+- Added the fixed `layer.moveBefore` operation and `ae_move_layer_before` MCP tool. It accepts only two distinct existing layer IDs in the active composition and rejects a locked layer being moved.
+- This gives scene recipes a safe foreground/background ordering control without exposing arbitrary property paths or deletion operations.
+- Live AE verification passed through the automatic host: rectangle layer 74 was moved before ellipse layer 75 in `Creative OS Capability Test` (composition 59). AE reported the retained resulting indices as Rectangle 1 and Ellipse 2.
+
+## 2026-09-18 — M2 controlled local asset import
+
+- Added the fixed `project.importAsset` operation and `ae_import_local_asset` MCP tool. It imports only PNG, JPG, JPEG, MP4, or AI files beneath the approved local `01_ASSETS` folder; absolute paths, traversal, scripts, project files, and other extensions are rejected.
+- This batch only imports into the AE Project panel. It does not yet add imported footage to a composition, relink files, save projects, render, or expose filesystem access beyond the approved asset root.
+- Live AE verification passed through the automatic host: `AE_icon.png` was imported as retained footage item 76. All 29 automated checks pass.
+
+## 2026-09-18 — M2 composition activation and footage placement
+
+- Added controlled composition activation by project item ID to resolve AE panel-focus mismatches. It opens only an existing composition and returns a fresh short-lived context.
+- Added `layer.addProjectItem` and `ae_add_project_item_layer`. It places an existing imported footage or composition item with explicit two-dimensional position and scale; no file path is accepted at this stage.
+- Live AE verification passed: the bridge activated `Creative OS Capability Test` (composition 59) directly, then added imported footage item 76 (`AE_icon.png`) as retained layer 77 at [960,540], scale [50,50,100].
+- During verification, the adapter was corrected for AE ExtendScript's lack of an `AVItem` constructor. It now accepts only `FootageItem` or `CompItem` explicitly.
+
+## 2026-09-18 — M2 controlled track mattes
+
+- Added the fixed `layer.setTrackMatte` operation and `ae_set_track_matte` MCP tool. It connects two existing layers using only Alpha, inverted Alpha, Luma, or inverted Luma matte types.
+- The implementation uses AE's current `setTrackMatte()` API, which does not depend on layer order in AE 23+.
+- Live AE verification passed: imported icon layer 77 now uses rectangle layer 74 as an Alpha track matte in `Creative OS Capability Test` (composition 59). The change remains visible and retained. All 31 automated checks pass.
+
+## 2026-09-18 — M2 mask reveals and text reveal
+
+- Added `layer.addRectMask`, `layer.animateRectMask`, and `layer.setMaskFeather`, with matching MCP tools. Rectangular masks use explicit layer-space bounds; animation is limited to exactly two increasing bounds keyframes; feathering accepts a bounded horizontal/vertical pixel pair.
+- Live AE verification passed on icon layer 77: a retained rectangular mask was added, animated from a near-zero width at 0 seconds to 512 pixels at 1 second, then given a 12px feather in both directions.
+- Added `text.addOpacityReveal` and `ae_add_text_opacity_reveal`. It creates a fixed AE text animator with an opacity range selector that reveals characters from 0 to 1 second. It does not accept expressions, arbitrary selector settings, or script paths.
+- Live AE verification passed on text layer 71 (`Creative OS`): retained `Animator 1` was created with a 0–1 second per-character opacity reveal.
+
+## 2026-09-18 — M2 controlled blend modes
+
+- Added `layer.setBlendMode` and `ae_set_blend_mode`. The allowlist supports only Normal, Multiply, Screen, and Add; unsupported compositing modes and locked layers are rejected.
+- Live AE verification passed: icon layer 77 uses retained Screen blending in `Creative OS Capability Test` (composition 59). All 33 automated checks pass.

@@ -27,10 +27,46 @@ test('allowlist accepts frame-specific visual inspection',()=>{
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
 });
 test('allowlist accepts composition-marker inspection',()=>assert.doesNotThrow(()=>validateRequest({...base(),operation:'composition.getMarkers',arguments:{context:randomUUID(),compositionId:1}})));
+test('allowlist accepts a bounded exact-frame marker',()=>{
+  const request={...base(),operation:'composition.addMarker',arguments:{context:randomUUID(),compositionId:1,frame:24,comment:'Text arrives'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,comment:''}}));
+});
+test('allowlist accepts only safe approved-media asset paths',()=>{
+  const request={...base(),operation:'project.importAsset',arguments:{context:randomUUID(),compositionId:1,assetPath:'AE_icon.png'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,assetPath:'..\\secret.txt'}}));
+});
+test('allowlist accepts explicit project-item layer placement',()=>{
+  const request={...base(),operation:'layer.addProjectItem',arguments:{context:randomUUID(),compositionId:1,itemId:2,position:[960,540],scale:[50,50]}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,scale:[0,50]}}));
+});
+test('allowlist accepts explicit alpha and luma track mattes',()=>{
+  const request={...base(),operation:'layer.setTrackMatte',arguments:{context:randomUUID(),compositionId:1,layerId:2,matteLayerId:1,type:'alpha'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,type:'unsupported'}}));
+});
+test('allowlist accepts bounded animated masks and text reveals',()=>{
+  const mask={...base(),operation:'layer.animateRectMask',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,keyframes:[{time:0,x:0,y:0,width:1,height:100},{time:1,x:0,y:0,width:100,height:100}]}};
+  assert.doesNotThrow(()=>validateRequest(mask));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.setMaskFeather',arguments:{context:randomUUID(),compositionId:1,layerId:2,maskIndex:1,feather:[12,12]}}));
+  assert.doesNotThrow(()=>validateRequest({...base(),operation:'text.addOpacityReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1}}));
+});
+test('allowlist accepts only the controlled compositing blend modes',()=>{
+  const request={...base(),operation:'layer.setBlendMode',arguments:{context:randomUUID(),compositionId:1,layerId:2,mode:'screen'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,mode:'overlay'}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,parentLayerId:2}}));
+});
+test('allowlist accepts layer reordering only between distinct valid layer IDs',()=>{
+  const request={...base(),operation:'layer.moveBefore',arguments:{context:randomUUID(),compositionId:1,layerId:2,targetLayerId:1}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,targetLayerId:2}}));
 });
 for(const [label,change] of [
   ['arbitrary code',r=>({...r,operation:'eval',arguments:{script:'app.quit()'}})],

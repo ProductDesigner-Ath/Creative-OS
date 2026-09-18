@@ -16,17 +16,28 @@ export function validateRequest(r) {
     case 'layer.createRectangle': keys(a,['context','compositionId','name','width','height','position','color']); break;
     case 'layer.createEllipse': keys(a,['context','compositionId','name','width','height','position','color']); break;
     case 'composition.getActive': keys(a,[]); break;
+    case 'composition.openById': keys(a,['compositionId']); break;
     case 'composition.getLayers': keys(a,['context','compositionId']); break;
     case 'composition.getState': keys(a,['context','compositionId']); break;
     case 'composition.setCurrentFrame': keys(a,['context','compositionId','frame']); break;
     case 'composition.getVisibleLayersAtFrame': keys(a,['context','compositionId','frame']); break;
     case 'composition.getMarkers': keys(a,['context','compositionId']); break;
+    case 'composition.addMarker': keys(a,['context','compositionId','frame','comment']); break;
+    case 'project.importAsset': keys(a,['context','compositionId','assetPath']); break;
+    case 'layer.addProjectItem': keys(a,['context','compositionId','itemId','position','scale']); break;
+    case 'layer.setTrackMatte': keys(a,['context','compositionId','layerId','matteLayerId','type']); break;
+    case 'layer.addRectMask': keys(a,['context','compositionId','layerId','x','y','width','height']); break;
+    case 'layer.animateRectMask': keys(a,['context','compositionId','layerId','maskIndex','keyframes']); break;
+    case 'layer.setMaskFeather': keys(a,['context','compositionId','layerId','maskIndex','feather']); break;
+    case 'text.addOpacityReveal': keys(a,['context','compositionId','layerId','startTime','endTime']); break;
+    case 'layer.setBlendMode': keys(a,['context','compositionId','layerId','mode']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setTextStyle': keys(a,['context','compositionId','layerId','fontSize','fillColor','justification']); break;
     case 'layer.getAnimationState': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setParent': keys(a,['context','compositionId','layerId','parentLayerId']); break;
+    case 'layer.moveBefore': keys(a,['context','compositionId','layerId','targetLayerId']); break;
     case 'layer.createText': keys(a,['context','compositionId','text']); break;
     case 'layer.getPosition': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setPosition': keys(a,['context','compositionId','layerId','value']); break;
@@ -43,13 +54,24 @@ export function validateRequest(r) {
   if (r.operation === 'layer.createSolid') { if(typeof a.name!=='string'||!a.name.length||a.name.length>100||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid solid settings'); }
   if (r.operation === 'layer.createRectangle') { if(typeof a.name!=='string'||!a.name.length||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.position)||a.position.length!==2||!a.position.every(Number.isFinite)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid rectangle settings'); }
   if (r.operation === 'layer.createEllipse') { if(typeof a.name!=='string'||!a.name.length||![a.width,a.height].every(v=>Number.isFinite(v)&&v>0)||!Array.isArray(a.position)||a.position.length!==2||!a.position.every(Number.isFinite)||!Array.isArray(a.color)||a.color.length!==3||!a.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1)) fail('Invalid ellipse settings'); }
-  if (r.operation !== 'composition.getActive') {
+  if (r.operation !== 'composition.getActive' && r.operation !== 'composition.openById') {
     if (typeof a.context !== 'string' || !/^[a-f0-9-]{36}$/.test(a.context)) fail('Invalid context');
     if (!Number.isSafeInteger(a.compositionId) || a.compositionId < 1) fail('Invalid compositionId');
   }
+  if (r.operation === 'composition.openById' && (!Number.isSafeInteger(a.compositionId) || a.compositionId < 1)) fail('Invalid compositionId');
   if ('layerId' in a && (!Number.isSafeInteger(a.layerId) || a.layerId < 1)) fail('Invalid layerId');
   if (r.operation === 'layer.setParent' && (!Number.isSafeInteger(a.parentLayerId) || a.parentLayerId < 1 || a.parentLayerId === a.layerId)) fail('Invalid parentLayerId');
-  if ((r.operation === 'composition.setCurrentFrame' || r.operation === 'composition.getVisibleLayersAtFrame') && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
+  if (r.operation === 'layer.moveBefore' && (!Number.isSafeInteger(a.targetLayerId) || a.targetLayerId < 1 || a.targetLayerId === a.layerId)) fail('Invalid targetLayerId');
+  if ((r.operation === 'composition.setCurrentFrame' || r.operation === 'composition.getVisibleLayersAtFrame' || r.operation === 'composition.addMarker') && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
+  if (r.operation === 'composition.addMarker' && (typeof a.comment !== 'string' || !a.comment.length || a.comment.length > 100 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.comment))) fail('Marker comment must contain 1–100 characters without control codes');
+  if (r.operation === 'project.importAsset' && (typeof a.assetPath !== 'string' || !/^(?:[A-Za-z0-9 _.-]+\\)*[A-Za-z0-9 _.-]+\.(?:png|jpg|jpeg|mp4|ai)$/i.test(a.assetPath) || /(^|\\)\.\.?($|\\)/.test(a.assetPath))) fail('Asset path must be a safe relative approved-media path');
+  if (r.operation === 'layer.addProjectItem' && (!Number.isSafeInteger(a.itemId) || a.itemId < 1 || !Array.isArray(a.position) || a.position.length !== 2 || !a.position.every(v=>Number.isFinite(v) && Math.abs(v)<=100000) || !Array.isArray(a.scale) || a.scale.length !== 2 || !a.scale.every(v=>Number.isFinite(v) && v>0 && v<=10000))) fail('Invalid project-item layer placement');
+  if (r.operation === 'layer.setTrackMatte' && (!Number.isSafeInteger(a.matteLayerId) || a.matteLayerId < 1 || a.matteLayerId === a.layerId || !['alpha','alphaInverted','luma','lumaInverted'].includes(a.type))) fail('Invalid track matte settings');
+  if (r.operation === 'layer.addRectMask' && ![a.x,a.y,a.width,a.height].every(v=>Number.isFinite(v) && Math.abs(v)<=100000) || r.operation === 'layer.addRectMask' && (a.width<=0 || a.height<=0)) fail('Invalid rectangular mask bounds');
+  if (r.operation === 'layer.animateRectMask' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.keyframes) || a.keyframes.length!==2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && [k.x,k.y,k.width,k.height].every(v=>Number.isFinite(v) && Math.abs(v)<=100000) && k.width>0 && k.height>0) || a.keyframes[1].time<=a.keyframes[0].time)) fail('Invalid rectangular mask keyframes');
+  if (r.operation === 'layer.setMaskFeather' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.feather) || a.feather.length!==2 || !a.feather.every(v=>Number.isFinite(v) && v>=0 && v<=10000))) fail('Invalid mask feather');
+  if (r.operation === 'text.addOpacityReveal' && (![a.startTime,a.endTime].every(v=>Number.isFinite(v) && v>=0) || a.endTime<=a.startTime)) fail('Invalid text reveal timing');
+  if (r.operation === 'layer.setBlendMode' && !['normal','multiply','screen','add'].includes(a.mode)) fail('Unsupported blend mode');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');
@@ -57,7 +79,7 @@ export function validateRequest(r) {
   if ('property' in a && !['position','opacity','scale','rotation'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.setBezierKeyframes' && !['position','opacity','scale','rotation','anchorPoint'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.addTransformKeyframes' && !['scale','rotation'].includes(a.property)) fail('Transform property is not allowlisted');
-  if ('keyframes' in a && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
+  if ('keyframes' in a && r.operation !== 'layer.animateRectMask' && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
   return r;
 }
 export function failure(requestId, code, message, extra={}) {

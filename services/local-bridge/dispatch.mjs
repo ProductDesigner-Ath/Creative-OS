@@ -30,7 +30,7 @@ export async function dispatch(request) {
     const responsePath=path.join(dir,'response.json');
     const scriptPath=path.join(dir,'command.jsx');
     const source=await readFile(path.join(root,'adapters/after-effects/command.jsx'),'utf8');
-    const config=JSON.stringify({request,contextToken:randomUUID(),startedPath:path.join(dir,'started.json').replaceAll('\\','/'),responsePath:responsePath.replaceAll('\\','/')}).replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
+    const config=JSON.stringify({request,contextToken:randomUUID(),assetRoot:path.join(root,'After-effect-assets','AF-1 Creative OS test animation assets','FOUNDATION_L00','01_ASSETS').replaceAll('\\','/'),startedPath:path.join(dir,'started.json').replaceAll('\\','/'),responsePath:responsePath.replaceAll('\\','/')}).replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
     await writeFile(scriptPath,source.replace('__COMMAND_CONFIG__',()=>config));
     const exe=process.env.AE_EXE || 'C:\\Program Files\\Adobe\\Adobe After Effects 2026\\Support Files\\AfterFX.exe';
     if(process.env.AE_HOST==='1') await writeFile(path.join(stateDir,'pending-command.json'),JSON.stringify({commandPath:scriptPath.replaceAll('\\','/'),requestId:request.requestId}));

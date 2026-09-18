@@ -23,7 +23,7 @@
     try {
         write(cfg.startedPath,{requestId:r.requestId,started:true,version:app.version});
         var comp=app.project && app.project.activeItem;
-        if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
+        if(!(comp instanceof CompItem) && r.operation!=='composition.create' && r.operation!=='composition.openById') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
         if(r.operation==='layer.createEllipse') {
             var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), eg=ec.addProperty('ADBE Vector Group'), el=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Ellipse'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); var ef=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
@@ -37,6 +37,11 @@
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
             response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,version:app.version};
+        } else if(r.operation==='composition.openById') {
+            var requestedComp=app.project.itemByID(a.compositionId);
+            if(!requestedComp || !(requestedComp instanceof CompItem)) fail('COMPOSITION_NOT_FOUND','Composition ID was not found.');
+            requestedComp.openInViewer(); comp=requestedComp; ctx={token:cfg.contextToken,project:app.project,comp:comp}; $.global.__creativeOSContext=ctx;
+            response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,retained:true};
         } else if(r.operation==='composition.getLayers') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layers=[], li, item;
@@ -63,6 +68,24 @@
             var markerProp=comp.markerProperty, markers=[], mi, markerValue;
             for(mi=1;mi<=markerProp.numKeys;mi++) { markerValue=markerProp.keyValue(mi); markers.push({time:markerProp.keyTime(mi),comment:markerValue.comment,duration:markerValue.duration}); }
             response.result={compositionId:comp.id,markerCount:markers.length,markers:markers};
+        } else if(r.operation==='composition.addMarker') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var markerTime=a.frame*comp.frameDuration;
+            if(markerTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            app.beginUndoGroup('Creative OS: Add Marker'); group=true; comp.markerProperty.setValueAtTime(markerTime,new MarkerValue(a.comment)); changed=true;
+            response.result={compositionId:comp.id,frame:a.frame,time:markerTime,comment:a.comment,retained:true};
+        } else if(r.operation==='project.importAsset') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var assetFile=new File(cfg.assetRoot+'/'+a.assetPath);
+            if(!assetFile.exists) fail('ASSET_NOT_FOUND','The approved local asset does not exist.');
+            app.beginUndoGroup('Creative OS: Import Asset'); group=true; var imported=app.project.importFile(new ImportOptions(assetFile)); changed=true;
+            response.result={itemId:imported.id,name:imported.name,type:imported instanceof FootageItem?'footage':'project-item',assetPath:a.assetPath,retained:true};
+        } else if(r.operation==='layer.addProjectItem') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var projectItem=app.project.itemByID(a.itemId);
+            if(!projectItem || (!(projectItem instanceof FootageItem) && !(projectItem instanceof CompItem))) fail('PROJECT_ITEM_NOT_FOUND','Imported footage or composition item was not found.');
+            app.beginUndoGroup('Creative OS: Add Project Item'); group=true; var footageLayer=comp.layers.add(projectItem); footageLayer.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); footageLayer.property('ADBE Transform Group').property('ADBE Scale').setValue([a.scale[0],a.scale[1],100]); changed=true;
+            response.result={compositionId:comp.id,itemId:projectItem.id,layerId:footageLayer.id,name:footageLayer.name,position:a.position,scale:footageLayer.property('ADBE Transform Group').property('ADBE Scale').value,retained:true};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;
@@ -105,6 +128,49 @@
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
                     app.beginUndoGroup('Creative OS: Set Parent'); group=true; layer.parent=parentLayer; changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,parentLayerId:layer.parent.id,retained:true};
+                } else if(r.operation==='layer.moveBefore') {
+                    var targetLayer=null, ti; for(ti=1;ti<=comp.numLayers;ti++) if(comp.layer(ti).id===a.targetLayerId) {targetLayer=comp.layer(ti);break;}
+                    if(!targetLayer) fail('LAYER_NOT_FOUND','Target layer ID is not in this composition.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    app.beginUndoGroup('Creative OS: Move Layer'); group=true; layer.moveBefore(targetLayer); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,index:layer.index,targetLayerId:targetLayer.id,targetIndex:targetLayer.index,retained:true};
+                } else if(r.operation==='layer.setTrackMatte') {
+                    var matteLayer=null, mti; for(mti=1;mti<=comp.numLayers;mti++) if(comp.layer(mti).id===a.matteLayerId) {matteLayer=comp.layer(mti);break;}
+                    if(!matteLayer) fail('LAYER_NOT_FOUND','Matte layer ID is not in this composition.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var matteType=a.type==='alpha'?TrackMatteType.ALPHA:a.type==='alphaInverted'?TrackMatteType.ALPHA_INVERTED:a.type==='luma'?TrackMatteType.LUMA:TrackMatteType.LUMA_INVERTED;
+                    app.beginUndoGroup('Creative OS: Set Track Matte'); group=true; layer.setTrackMatte(matteLayer,matteType); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,matteLayerId:layer.trackMatteLayer?layer.trackMatteLayer.id:null,type:a.type,retained:true};
+                } else if(r.operation==='layer.addRectMask') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var masks=layer.property('ADBE Mask Parade'), mask=masks.addProperty('ADBE Mask Atom'), pathProp=mask.property('ADBE Mask Shape'), shape=new Shape();
+                    shape.vertices=[[a.x,a.y],[a.x+a.width,a.y],[a.x+a.width,a.y+a.height],[a.x,a.y+a.height]]; shape.inTangents=[[0,0],[0,0],[0,0],[0,0]]; shape.outTangents=[[0,0],[0,0],[0,0],[0,0]]; shape.closed=true;
+                    app.beginUndoGroup('Creative OS: Add Rectangle Mask'); group=true; pathProp.setValue(shape); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:mask.propertyIndex,bounds:{x:a.x,y:a.y,width:a.width,height:a.height},retained:true};
+                } else if(r.operation==='layer.animateRectMask') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var maskGroup=layer.property('ADBE Mask Parade').property(a.maskIndex), animatedPath=maskGroup && maskGroup.property('ADBE Mask Shape');
+                    if(!animatedPath) fail('MASK_NOT_FOUND','Mask index is not on this layer.');
+                    function rectShape(k){var s=new Shape();s.vertices=[[k.x,k.y],[k.x+k.width,k.y],[k.x+k.width,k.y+k.height],[k.x,k.y+k.height]];s.inTangents=[[0,0],[0,0],[0,0],[0,0]];s.outTangents=[[0,0],[0,0],[0,0],[0,0]];s.closed=true;return s;}
+                    app.beginUndoGroup('Creative OS: Animate Rectangle Mask'); group=true; animatedPath.setValueAtTime(a.keyframes[0].time,rectShape(a.keyframes[0])); animatedPath.setValueAtTime(a.keyframes[1].time,rectShape(a.keyframes[1])); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:a.maskIndex,keyframeCount:animatedPath.numKeys,retained:true};
+                } else if(r.operation==='layer.setMaskFeather') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var featherMask=layer.property('ADBE Mask Parade').property(a.maskIndex), featherProp=featherMask && featherMask.property('ADBE Mask Feather');
+                    if(!featherProp) fail('MASK_NOT_FOUND','Mask index is not on this layer.');
+                    app.beginUndoGroup('Creative OS: Set Mask Feather'); group=true; featherProp.setValue(a.feather); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,maskIndex:a.maskIndex,feather:featherProp.value,retained:true};
+                } else if(r.operation==='text.addOpacityReveal') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var animator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), animatorProps=animator.property('ADBE Text Animator Properties'), opacityProp=animatorProps.addProperty('ADBE Text Opacity'), selector=animator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), endProp=selector.property('ADBE Text Percent End');
+                    opacityProp.setValue(0); app.beginUndoGroup('Creative OS: Text Opacity Reveal'); group=true; endProp.setValueAtTime(a.startTime,100); endProp.setValueAtTime(a.endTime,0); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,animatorName:animator.name,startTime:a.startTime,endTime:a.endTime,retained:true};
+                } else if(r.operation==='layer.setBlendMode') {
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var blend=a.mode==='normal'?BlendingMode.NORMAL:a.mode==='multiply'?BlendingMode.MULTIPLY:a.mode==='screen'?BlendingMode.SCREEN:BlendingMode.ADD;
+                    app.beginUndoGroup('Creative OS: Set Blend Mode'); group=true; layer.blendingMode=blend; changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,mode:a.mode,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
