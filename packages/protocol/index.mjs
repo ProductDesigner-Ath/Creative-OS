@@ -31,6 +31,8 @@ export function validateRequest(r) {
     case 'layer.setMaskFeather': keys(a,['context','compositionId','layerId','maskIndex','feather']); break;
     case 'text.addOpacityReveal': keys(a,['context','compositionId','layerId','startTime','endTime']); break;
     case 'layer.setBlendMode': keys(a,['context','compositionId','layerId','mode']); break;
+    case 'text.addTrackingReveal': keys(a,['context','compositionId','layerId','startTime','endTime','tracking']); break;
+    case 'layer.setTemporalEase': keys(a,['context','compositionId','layerId','property','influence']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
@@ -72,6 +74,8 @@ export function validateRequest(r) {
   if (r.operation === 'layer.setMaskFeather' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.feather) || a.feather.length!==2 || !a.feather.every(v=>Number.isFinite(v) && v>=0 && v<=10000))) fail('Invalid mask feather');
   if (r.operation === 'text.addOpacityReveal' && (![a.startTime,a.endTime].every(v=>Number.isFinite(v) && v>=0) || a.endTime<=a.startTime)) fail('Invalid text reveal timing');
   if (r.operation === 'layer.setBlendMode' && !['normal','multiply','screen','add'].includes(a.mode)) fail('Unsupported blend mode');
+  if (r.operation === 'text.addTrackingReveal' && (![a.startTime,a.endTime, a.tracking].every(v=>Number.isFinite(v)) || a.startTime<0 || a.endTime<=a.startTime || Math.abs(a.tracking)>1000)) fail('Invalid tracking reveal settings');
+  if (r.operation === 'layer.setTemporalEase' && (!['position','opacity','scale','rotation'].includes(a.property) || !Number.isFinite(a.influence) || a.influence<0.1 || a.influence>100)) fail('Invalid temporal ease settings');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');

@@ -171,6 +171,18 @@
                     var blend=a.mode==='normal'?BlendingMode.NORMAL:a.mode==='multiply'?BlendingMode.MULTIPLY:a.mode==='screen'?BlendingMode.SCREEN:BlendingMode.ADD;
                     app.beginUndoGroup('Creative OS: Set Blend Mode'); group=true; layer.blendingMode=blend; changed=true;
                     response.result={compositionId:comp.id,layerId:layer.id,mode:a.mode,retained:true};
+                } else if(r.operation==='text.addTrackingReveal') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var trackingAnimator=layer.property('ADBE Text Properties').property('ADBE Text Animators').addProperty('ADBE Text Animator'), trackingProps=trackingAnimator.property('ADBE Text Animator Properties'), trackingProp=trackingProps.addProperty('ADBE Text Tracking Amount'), trackingSelector=trackingAnimator.property('ADBE Text Selectors').addProperty('ADBE Text Selector'), trackingEnd=trackingSelector.property('ADBE Text Percent End');
+                    trackingProp.setValue(a.tracking); app.beginUndoGroup('Creative OS: Text Tracking Reveal'); group=true; trackingEnd.setValueAtTime(a.startTime,100); trackingEnd.setValueAtTime(a.endTime,0); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,animatorName:trackingAnimator.name,startTime:a.startTime,endTime:a.endTime,tracking:a.tracking,retained:true};
+                } else if(r.operation==='layer.setTemporalEase') {
+                    var easeTransform=layer.property('ADBE Transform Group'), easeProp=a.property==='position'?easeTransform.property('ADBE Position'):a.property==='opacity'?easeTransform.property('ADBE Opacity'):a.property==='scale'?easeTransform.property('ADBE Scale'):easeTransform.property('ADBE Rotate Z');
+                    if(easeProp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
+                    var easeDim=easeProp.value instanceof Array?easeProp.value.length:1, easeIn=[], easeOut=[], ei; for(ei=0;ei<easeDim;ei++){easeIn.push(new KeyframeEase(0,a.influence));easeOut.push(new KeyframeEase(0,a.influence));}
+                    app.beginUndoGroup('Creative OS: Set Temporal Ease'); group=true; for(ei=1;ei<=easeProp.numKeys;ei++) easeProp.setTemporalEaseAtKey(ei,easeIn,easeOut); changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:easeProp.numKeys,influence:a.influence,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {

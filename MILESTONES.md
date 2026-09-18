@@ -34,5 +34,6 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Alpha and Luma track-matte compositing is implemented and verified live.
 - Animated rectangular-mask reveals, mask feathering, and a basic per-character text-opacity reveal are implemented and verified live.
 - Controlled Normal, Multiply, Screen, and Add blend modes are implemented and verified live.
+- Controlled temporal easing and explicit footage/video sequencing are implemented and verified live.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

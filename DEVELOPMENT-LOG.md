@@ -312,3 +312,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 
 - Added `layer.setBlendMode` and `ae_set_blend_mode`. The allowlist supports only Normal, Multiply, Screen, and Add; unsupported compositing modes and locked layers are rejected.
 - Live AE verification passed: icon layer 77 uses retained Screen blending in `Creative OS Capability Test` (composition 59). All 33 automated checks pass.
+
+## 2026-09-18 — M2 temporal easing and footage sequencing
+
+- Added `layer.setTemporalEase` and `ae_set_temporal_ease`. It applies a bounded uniform ease influence to existing Position, Opacity, Scale, or Rotation keyframes; it cannot create expressions or change arbitrary graph settings.
+- Live AE verification passed: Creative OS text layer 71 Position keys received retained 66% temporal ease influence. The automated suite passes 35/35.
+- Verified footage sequencing using the established import, placement, and layer-timing controls: supplied `Ocean_Drone.mp4` was imported as footage item 78, placed as layer 79, and retained with an explicit 1–4 second window in `Creative OS Capability Test` (composition 59).

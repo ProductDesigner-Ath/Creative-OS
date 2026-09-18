@@ -58,6 +58,16 @@ test('allowlist accepts only the controlled compositing blend modes',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,mode:'overlay'}}));
 });
+test('allowlist accepts bounded text tracking reveals',()=>{
+  const request={...base(),operation:'text.addTrackingReveal',arguments:{context:randomUUID(),compositionId:1,layerId:2,startTime:0,endTime:1,tracking:50}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,tracking:1001}}));
+});
+test('allowlist accepts temporal easing only for keyed transform properties',()=>{
+  const request={...base(),operation:'layer.setTemporalEase',arguments:{context:randomUUID(),compositionId:1,layerId:2,property:'position',influence:66}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,influence:101}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));
