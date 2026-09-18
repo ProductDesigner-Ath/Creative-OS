@@ -23,7 +23,7 @@
     try {
         write(cfg.startedPath,{requestId:r.requestId,started:true,version:app.version});
         var comp=app.project && app.project.activeItem;
-        if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
+        if(!(comp instanceof CompItem) && r.operation!=='composition.create' && r.operation!=='composition.openById') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
         if(r.operation==='layer.createEllipse') {
             var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), eg=ec.addProperty('ADBE Vector Group'), el=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Ellipse'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); var ef=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
@@ -37,6 +37,11 @@
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
             response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,version:app.version};
+        } else if(r.operation==='composition.openById') {
+            var requestedComp=app.project.itemByID(a.compositionId);
+            if(!requestedComp || !(requestedComp instanceof CompItem)) fail('COMPOSITION_NOT_FOUND','Composition ID was not found.');
+            requestedComp.openInViewer(); comp=requestedComp; ctx={token:cfg.contextToken,project:app.project,comp:comp}; $.global.__creativeOSContext=ctx;
+            response.result={context:ctx.token,compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,layerCount:comp.numLayers,retained:true};
         } else if(r.operation==='composition.getLayers') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layers=[], li, item;
@@ -75,6 +80,12 @@
             if(!assetFile.exists) fail('ASSET_NOT_FOUND','The approved local asset does not exist.');
             app.beginUndoGroup('Creative OS: Import Asset'); group=true; var imported=app.project.importFile(new ImportOptions(assetFile)); changed=true;
             response.result={itemId:imported.id,name:imported.name,type:imported instanceof FootageItem?'footage':'project-item',assetPath:a.assetPath,retained:true};
+        } else if(r.operation==='layer.addProjectItem') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var projectItem=app.project.itemByID(a.itemId);
+            if(!projectItem || (!(projectItem instanceof FootageItem) && !(projectItem instanceof CompItem))) fail('PROJECT_ITEM_NOT_FOUND','Imported footage or composition item was not found.');
+            app.beginUndoGroup('Creative OS: Add Project Item'); group=true; var footageLayer=comp.layers.add(projectItem); footageLayer.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); footageLayer.property('ADBE Transform Group').property('ADBE Scale').setValue([a.scale[0],a.scale[1],100]); changed=true;
+            response.result={compositionId:comp.id,itemId:projectItem.id,layerId:footageLayer.id,name:footageLayer.name,position:a.position,scale:footageLayer.property('ADBE Transform Group').property('ADBE Scale').value,retained:true};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;

@@ -37,6 +37,11 @@ test('allowlist accepts only safe approved-media asset paths',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,assetPath:'..\\secret.txt'}}));
 });
+test('allowlist accepts explicit project-item layer placement',()=>{
+  const request={...base(),operation:'layer.addProjectItem',arguments:{context:randomUUID(),compositionId:1,itemId:2,position:[960,540],scale:[50,50]}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,scale:[0,50]}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));

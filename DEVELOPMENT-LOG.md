@@ -287,3 +287,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added the fixed `project.importAsset` operation and `ae_import_local_asset` MCP tool. It imports only PNG, JPG, JPEG, MP4, or AI files beneath the approved local `01_ASSETS` folder; absolute paths, traversal, scripts, project files, and other extensions are rejected.
 - This batch only imports into the AE Project panel. It does not yet add imported footage to a composition, relink files, save projects, render, or expose filesystem access beyond the approved asset root.
 - Live AE verification passed through the automatic host: `AE_icon.png` was imported as retained footage item 76. All 29 automated checks pass.
+
+## 2026-09-18 — M2 composition activation and footage placement
+
+- Added controlled composition activation by project item ID to resolve AE panel-focus mismatches. It opens only an existing composition and returns a fresh short-lived context.
+- Added `layer.addProjectItem` and `ae_add_project_item_layer`. It places an existing imported footage or composition item with explicit two-dimensional position and scale; no file path is accepted at this stage.
+- Live AE verification passed: the bridge activated `Creative OS Capability Test` (composition 59) directly, then added imported footage item 76 (`AE_icon.png`) as retained layer 77 at [960,540], scale [50,50,100].
+- During verification, the adapter was corrected for AE ExtendScript's lack of an `AVItem` constructor. It now accepts only `FootageItem` or `CompItem` explicitly.
