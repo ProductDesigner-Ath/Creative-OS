@@ -20,6 +20,7 @@ export function validateRequest(r) {
     case 'composition.getState': keys(a,['context','compositionId']); break;
     case 'composition.setCurrentFrame': keys(a,['context','compositionId','frame']); break;
     case 'composition.getVisibleLayersAtFrame': keys(a,['context','compositionId','frame']); break;
+    case 'composition.getMarkers': keys(a,['context','compositionId']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;

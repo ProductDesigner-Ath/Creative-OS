@@ -251,3 +251,8 @@ The two unpublished asset add/remove commits had no net code changes relative to
 
 - Started the local bridge and issued a read-only active-composition request before the full capability pass. AE did not return within the bridge's 30-second safety window, so the outcome is recorded as unresolved and no mutation was attempted.
 - Next live step: restart the bridge/AE connection cleanly, obtain a fresh context, then create one dedicated retained test composition and exercise the allowlist there.
+
+## 2026-09-18 — M2 composition marker inspection
+
+- Added read-only composition-marker inspection for timing-recipe verification. It returns marker time, comment, and duration without changing AE.
+- This code batch is awaiting the separate AE command-line handoff repair; no live AE mutation or verification is claimed.

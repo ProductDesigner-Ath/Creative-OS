@@ -62,6 +62,11 @@
             var visible=[], vi, vl;
             for(vi=1;vi<=comp.numLayers;vi++) { vl=comp.layer(vi); if(vl.enabled && !vl.guideLayer && inspectTime>=vl.inPoint && inspectTime<vl.outPoint) visible.push({id:vl.id,index:vl.index,name:vl.name,matchName:vl.matchName,inPoint:vl.inPoint,outPoint:vl.outPoint,enabled:vl.enabled,guideLayer:vl.guideLayer}); }
             response.result={compositionId:comp.id,frame:a.frame,time:inspectTime,visibleLayerCount:visible.length,layers:visible};
+        } else if(r.operation==='composition.getMarkers') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var markerProp=comp.markerProperty, markers=[], mi, markerValue;
+            for(mi=1;mi<=markerProp.numKeys;mi++) { markerValue=markerProp.keyValue(mi); markers.push({time:markerProp.keyTime(mi),comment:markerValue.comment,duration:markerValue.duration}); }
+            response.result={compositionId:comp.id,markerCount:markers.length,markers:markers};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;
