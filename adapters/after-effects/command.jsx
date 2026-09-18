@@ -69,6 +69,12 @@
             if(markerTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
             app.beginUndoGroup('Creative OS: Add Marker'); group=true; comp.markerProperty.setValueAtTime(markerTime,new MarkerValue(a.comment)); changed=true;
             response.result={compositionId:comp.id,frame:a.frame,time:markerTime,comment:a.comment,retained:true};
+        } else if(r.operation==='project.importAsset') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var assetFile=new File(cfg.assetRoot+'/'+a.assetPath);
+            if(!assetFile.exists) fail('ASSET_NOT_FOUND','The approved local asset does not exist.');
+            app.beginUndoGroup('Creative OS: Import Asset'); group=true; var imported=app.project.importFile(new ImportOptions(assetFile)); changed=true;
+            response.result={itemId:imported.id,name:imported.name,type:imported instanceof FootageItem?'footage':'project-item',assetPath:a.assetPath,retained:true};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;

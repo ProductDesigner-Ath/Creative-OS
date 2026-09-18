@@ -281,3 +281,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added the fixed `layer.moveBefore` operation and `ae_move_layer_before` MCP tool. It accepts only two distinct existing layer IDs in the active composition and rejects a locked layer being moved.
 - This gives scene recipes a safe foreground/background ordering control without exposing arbitrary property paths or deletion operations.
 - Live AE verification passed through the automatic host: rectangle layer 74 was moved before ellipse layer 75 in `Creative OS Capability Test` (composition 59). AE reported the retained resulting indices as Rectangle 1 and Ellipse 2.
+
+## 2026-09-18 — M2 controlled local asset import
+
+- Added the fixed `project.importAsset` operation and `ae_import_local_asset` MCP tool. It imports only PNG, JPG, JPEG, MP4, or AI files beneath the approved local `01_ASSETS` folder; absolute paths, traversal, scripts, project files, and other extensions are rejected.
+- This batch only imports into the AE Project panel. It does not yet add imported footage to a composition, relink files, save projects, render, or expose filesystem access beyond the approved asset root.
+- Live AE verification passed through the automatic host: `AE_icon.png` was imported as retained footage item 76. All 29 automated checks pass.

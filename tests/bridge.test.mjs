@@ -32,6 +32,11 @@ test('allowlist accepts a bounded exact-frame marker',()=>{
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,comment:''}}));
 });
+test('allowlist accepts only safe approved-media asset paths',()=>{
+  const request={...base(),operation:'project.importAsset',arguments:{context:randomUUID(),compositionId:1,assetPath:'AE_icon.png'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,assetPath:'..\\secret.txt'}}));
+});
 test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
   const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
   assert.doesNotThrow(()=>validateRequest(request));
