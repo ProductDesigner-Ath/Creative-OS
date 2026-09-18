@@ -22,6 +22,7 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Text styling and alignment.
 - Text styling and alignment (font size, fill color, left/center/right paragraph alignment) are implemented; live AE verification is pending the current adapter process.
 - Frame-accurate timing recipes.
+- Frame-accurate review control is implemented; recipes can now target an exact composition frame.
 - Render-safe verification and documented visual checks.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

@@ -49,6 +49,12 @@
         } else if(r.operation==='composition.getState') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             response.result={compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,pixelAspect:comp.pixelAspect,duration:comp.duration,frameDuration:comp.frameDuration,frameRate:1/comp.frameDuration,currentTime:comp.time,workAreaStart:comp.workAreaStart,workAreaDuration:comp.workAreaDuration,displayStartTime:comp.displayStartTime,layerCount:comp.numLayers};
+        } else if(r.operation==='composition.setCurrentFrame') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var targetTime=a.frame*comp.frameDuration;
+            if(targetTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            var previousTime=comp.time; comp.time=targetTime; changed=true;
+            response.result={compositionId:comp.id,frame:a.frame,currentTime:comp.time,previousTime:previousTime,frameDuration:comp.frameDuration,retained:true};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;

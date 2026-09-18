@@ -15,6 +15,12 @@ test('allowlist accepts bounded text styling and rejects unsafe values',()=>{
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,fontSize:1001}}));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,justification:'justifyAll'}}));
 });
+test('allowlist accepts an exact composition frame and rejects invalid frames',()=>{
+  const request={...base(),operation:'composition.setCurrentFrame',arguments:{context:randomUUID(),compositionId:1,frame:24}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:1.5}}));
+});
 for(const [label,change] of [
   ['arbitrary code',r=>({...r,operation:'eval',arguments:{script:'app.quit()'}})],
   ['undo',r=>({...r,operation:'undo'})],

@@ -234,3 +234,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Removed duplicate ellipse/rectangle MCP registrations left by the preceding shape batch; the MCP test now verifies the exact tool names rather than only a tool count.
 - Automated protocol and MCP checks cover valid styling, invalid bounds, invalid alignment, and the exact public allowlist. Live AE verification has not been run in this batch, so no project state changed.
 - Next: frame-accurate timing recipes and a live inspection/verification pass once the local bridge is known to load this adapter version.
+
+## 2026-09-18 — M2 frame-accurate review control
+
+- Added `composition.setCurrentFrame` and `ae_set_current_frame`, which position the active composition playhead at an exact nonnegative frame and return both the old and resulting times.
+- The command is bounded to the composition duration and leaves all layers, keyframes, and project files unchanged. It is intended for deterministic visual review rather than rendering or playback automation.
+- Protocol checks cover valid whole frames and reject negative or fractional values. Live AE verification is pending, so this batch made no change in After Effects.
