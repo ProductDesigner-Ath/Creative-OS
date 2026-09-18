@@ -24,5 +24,6 @@ GitHub contains implementation code and milestone documentation only. Adobe Afte
 - Frame-accurate timing recipes.
 - Frame-accurate review control is implemented; recipes can now target an exact composition frame.
 - Render-safe verification and documented visual checks.
+- Frame-specific visible-layer inventory is implemented as the first render-safe visual-check building block.
 
 Every milestone records its implementation, tests, results, limitations, and blockers in `DEVELOPMENT-LOG.md`.

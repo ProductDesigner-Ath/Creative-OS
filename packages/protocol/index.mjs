@@ -19,6 +19,7 @@ export function validateRequest(r) {
     case 'composition.getLayers': keys(a,['context','compositionId']); break;
     case 'composition.getState': keys(a,['context','compositionId']); break;
     case 'composition.setCurrentFrame': keys(a,['context','compositionId','frame']); break;
+    case 'composition.getVisibleLayersAtFrame': keys(a,['context','compositionId','frame']); break;
     case 'layer.getTransform': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
@@ -45,7 +46,7 @@ export function validateRequest(r) {
     if (!Number.isSafeInteger(a.compositionId) || a.compositionId < 1) fail('Invalid compositionId');
   }
   if ('layerId' in a && (!Number.isSafeInteger(a.layerId) || a.layerId < 1)) fail('Invalid layerId');
-  if (r.operation === 'composition.setCurrentFrame' && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
+  if ((r.operation === 'composition.setCurrentFrame' || r.operation === 'composition.getVisibleLayersAtFrame') && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
   if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');

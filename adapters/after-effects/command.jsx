@@ -55,6 +55,13 @@
             if(targetTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
             var previousTime=comp.time; comp.time=targetTime; changed=true;
             response.result={compositionId:comp.id,frame:a.frame,currentTime:comp.time,previousTime:previousTime,frameDuration:comp.frameDuration,retained:true};
+        } else if(r.operation==='composition.getVisibleLayersAtFrame') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var inspectTime=a.frame*comp.frameDuration;
+            if(inspectTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            var visible=[], vi, vl;
+            for(vi=1;vi<=comp.numLayers;vi++) { vl=comp.layer(vi); if(vl.enabled && !vl.guideLayer && inspectTime>=vl.inPoint && inspectTime<vl.outPoint) visible.push({id:vl.id,index:vl.index,name:vl.name,matchName:vl.matchName,inPoint:vl.inPoint,outPoint:vl.outPoint,enabled:vl.enabled,guideLayer:vl.guideLayer}); }
+            response.result={compositionId:comp.id,frame:a.frame,time:inspectTime,visibleLayerCount:visible.length,layers:visible};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;

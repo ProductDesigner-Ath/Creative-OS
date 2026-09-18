@@ -240,3 +240,14 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added `composition.setCurrentFrame` and `ae_set_current_frame`, which position the active composition playhead at an exact nonnegative frame and return both the old and resulting times.
 - The command is bounded to the composition duration and leaves all layers, keyframes, and project files unchanged. It is intended for deterministic visual review rather than rendering or playback automation.
 - Protocol checks cover valid whole frames and reject negative or fractional values. Live AE verification is pending, so this batch made no change in After Effects.
+
+## 2026-09-18 — M2 frame-specific visual inventory
+
+- Added `composition.getVisibleLayersAtFrame` and `ae_get_visible_layers_at_frame`. It reports the enabled, non-guide layers whose in/out timing includes an exact frame.
+- This is read-only and is designed for visual-check recipes: identify expected layers at a frame, move the playhead with the preceding batch, then let the user inspect the canvas. It does not render, save, or alter After Effects.
+- Automated request validation covers valid and invalid frames. Live AE verification is pending, so the open project was not changed.
+
+### Live-test status
+
+- Started the local bridge and issued a read-only active-composition request before the full capability pass. AE did not return within the bridge's 30-second safety window, so the outcome is recorded as unresolved and no mutation was attempted.
+- Next live step: restart the bridge/AE connection cleanly, obtain a fresh context, then create one dedicated retained test composition and exercise the allowlist there.

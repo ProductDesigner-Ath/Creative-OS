@@ -21,6 +21,11 @@ test('allowlist accepts an exact composition frame and rejects invalid frames',(
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:1.5}}));
 });
+test('allowlist accepts frame-specific visual inspection',()=>{
+  const request={...base(),operation:'composition.getVisibleLayersAtFrame',arguments:{context:randomUUID(),compositionId:1,frame:0}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
+});
 for(const [label,change] of [
   ['arbitrary code',r=>({...r,operation:'eval',arguments:{script:'app.quit()'}})],
   ['undo',r=>({...r,operation:'undo'})],
