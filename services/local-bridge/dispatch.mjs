@@ -33,8 +33,9 @@ export async function dispatch(request) {
     const config=JSON.stringify({request,contextToken:randomUUID(),startedPath:path.join(dir,'started.json').replaceAll('\\','/'),responsePath:responsePath.replaceAll('\\','/')}).replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
     await writeFile(scriptPath,source.replace('__COMMAND_CONFIG__',()=>config));
     const exe=process.env.AE_EXE || 'C:\\Program Files\\Adobe\\Adobe After Effects 2026\\Support Files\\AfterFX.exe';
-    const child=spawn(exe,['-r',scriptPath],{shell:false,windowsHide:true,stdio:'ignore'});
-    let launchError; child.on('error',e=>{launchError=e;}); child.unref();
+    if(process.env.AE_HOST==='1') await writeFile(path.join(stateDir,'pending-command.json'),JSON.stringify({commandPath:scriptPath.replaceAll('\\','/'),requestId:request.requestId}));
+    const child=process.env.AE_HOST==='1'?null:spawn(exe,['-r',scriptPath],{shell:false,windowsHide:true,stdio:'ignore'});
+    let launchError; if(child) { child.on('error',e=>{launchError=e;}); child.unref(); }
     const deadline=Date.now()+30000;
     while(Date.now()<deadline) {
       if(launchError) { resolved=true; const result=failure(request.requestId,'LAUNCH_FAILED',launchError.message); await writeFile(responsePath,JSON.stringify(result)); return result; }

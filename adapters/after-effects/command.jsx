@@ -26,19 +26,13 @@
         if(!(comp instanceof CompItem) && r.operation!=='composition.create') fail('NO_ACTIVE_COMPOSITION','Open a composition in AE.');
         var ctx=$.global.__creativeOSContext;
         if(r.operation==='layer.createEllipse') {
-            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), ep=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); ep.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
-        } else if(r.operation==='layer.createEllipse') {
-            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), el=ec.addProperty('ADBE Vector Shape - Ellipse'), ef=ec.addProperty('ADBE Vector Graphic - Fill'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+            var es=comp.layers.addShape(), ec=es.property('ADBE Root Vectors Group'), eg=ec.addProperty('ADBE Vector Group'), el=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Ellipse'); el.property('ADBE Vector Ellipse Size').setValue([a.width,a.height]); var ef=eg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); ef.property('ADBE Vector Fill Color').setValue(a.color); es.name=a.name; es.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:es.id,name:es.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createRectangle') {
-            var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rect=contents.addProperty('ADBE Vector Shape - Rect'), fill=contents.addProperty('ADBE Vector Graphic - Fill'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
+            var sh=comp.layers.addShape(), contents=sh.property('ADBE Root Vectors Group'), rg=contents.addProperty('ADBE Vector Group'), rect=rg.property('ADBE Vectors Group').addProperty('ADBE Vector Shape - Rect'); rect.property('ADBE Vector Rect Size').setValue([a.width,a.height]); var fill=rg.property('ADBE Vectors Group').addProperty('ADBE Vector Graphic - Fill'); fill.property('ADBE Vector Fill Color').setValue(a.color); sh.name=a.name; sh.property('ADBE Transform Group').property('ADBE Position').setValue(a.position); changed=true; response.result={compositionId:comp.id,layerId:sh.id,name:sh.name,width:a.width,height:a.height,position:a.position,color:a.color,retained:true};
         } else if(r.operation==='layer.createSolid') {
             var solid=comp.layers.addSolid(a.color,a.name,a.width,a.height,1,comp.duration); changed=true; response.result={compositionId:comp.id,layerId:solid.id,name:solid.name,width:a.width,height:a.height,color:a.color,retained:true};
-        } else if(r.operation==='layer.setBezierKeyframes') {
-            var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):bt.property('ADBE Anchor Point');
-            if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
-            app.beginUndoGroup('Creative OS: Bezier Keyframes'); group=true; for(var bi=1;bi<=bp.numKeys;bi++) bp.setInterpolationTypeAtKey(bi,KeyframeInterpolationType.BEZIER,KeyframeInterpolationType.BEZIER); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:bp.numKeys,interpolation:'bezier',retained:true};
         } else if(r.operation==='composition.create') {
-            var created=app.project.items.addComp(a.name,a.width,a.height,1,a.duration,1/a.frameRate); app.project.activeItem=created; response.result={compositionId:created.id,name:created.name,width:created.width,height:created.height,duration:created.duration,frameRate:a.frameRate,layerCount:created.numLayers,retained:true}; changed=true;
+            var created=app.project.items.addComp(a.name,a.width,a.height,1,a.duration,a.frameRate); created.openInViewer(); response.result={compositionId:created.id,name:created.name,width:created.width,height:created.height,duration:created.duration,frameRate:a.frameRate,layerCount:created.numLayers,retained:true}; changed=true;
         } else if(r.operation==='composition.getActive') {
             ctx={token:cfg.contextToken,project:app.project,comp:comp};
             $.global.__creativeOSContext=ctx;
@@ -46,11 +40,29 @@
         } else if(r.operation==='composition.getLayers') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layers=[], li, item;
-            for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer}); }
+            for(li=1;li<=comp.numLayers;li++) { item=comp.layer(li); layers.push({id:item.id,index:item.index,name:item.name,matchName:item.matchName,inPoint:item.inPoint,outPoint:item.outPoint,selected:item.selected,locked:item.locked,enabled:item.enabled,threeDLayer:item.threeDLayer,parentLayerId:item.parent?item.parent.id:null}); }
             response.result={compositionId:comp.id,name:comp.name,layerCount:layers.length,layers:layers};
         } else if(r.operation==='composition.getState') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             response.result={compositionId:comp.id,name:comp.name,width:comp.width,height:comp.height,pixelAspect:comp.pixelAspect,duration:comp.duration,frameDuration:comp.frameDuration,frameRate:1/comp.frameDuration,currentTime:comp.time,workAreaStart:comp.workAreaStart,workAreaDuration:comp.workAreaDuration,displayStartTime:comp.displayStartTime,layerCount:comp.numLayers};
+        } else if(r.operation==='composition.setCurrentFrame') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var targetTime=a.frame*comp.frameDuration;
+            if(targetTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            var previousTime=comp.time; comp.time=targetTime; changed=true;
+            response.result={compositionId:comp.id,frame:a.frame,currentTime:comp.time,previousTime:previousTime,frameDuration:comp.frameDuration,retained:true};
+        } else if(r.operation==='composition.getVisibleLayersAtFrame') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var inspectTime=a.frame*comp.frameDuration;
+            if(inspectTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            var visible=[], vi, vl;
+            for(vi=1;vi<=comp.numLayers;vi++) { vl=comp.layer(vi); if(vl.enabled && !vl.guideLayer && inspectTime>=vl.inPoint && inspectTime<vl.outPoint) visible.push({id:vl.id,index:vl.index,name:vl.name,matchName:vl.matchName,inPoint:vl.inPoint,outPoint:vl.outPoint,enabled:vl.enabled,guideLayer:vl.guideLayer}); }
+            response.result={compositionId:comp.id,frame:a.frame,time:inspectTime,visibleLayerCount:visible.length,layers:visible};
+        } else if(r.operation==='composition.getMarkers') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var markerProp=comp.markerProperty, markers=[], mi, markerValue;
+            for(mi=1;mi<=markerProp.numKeys;mi++) { markerValue=markerProp.keyValue(mi); markers.push({time:markerProp.keyTime(mi),comment:markerValue.comment,duration:markerValue.duration}); }
+            response.result={compositionId:comp.id,markerCount:markers.length,markers:markers};
         } else {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var layer=null,i;
@@ -70,6 +82,15 @@
                 } else if(r.operation==='layer.getSourceInfo') {
                     var src=layer.source;
                     response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,matchName:layer.matchName,sourceName:src?src.name:null,sourceType:src?(src instanceof CompItem?'composition':(src.mainSource?'footage':'unknown')):null,sourceId:src?src.id:null};
+                } else if(r.operation==='layer.setTextStyle') {
+                    if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    var textProp=layer.property('ADBE Text Properties').property('ADBE Text Document'), style=textProp.value;
+                    style.fontSize=a.fontSize; style.applyFill=true; style.fillColor=a.fillColor;
+                    style.justification=a.justification==='left'?ParagraphJustification.LEFT_JUSTIFY:(a.justification==='center'?ParagraphJustification.CENTER_JUSTIFY:ParagraphJustification.RIGHT_JUSTIFY);
+                    app.beginUndoGroup('Creative OS: Text Style'); group=true; textProp.setValue(style); changed=true;
+                    var styled=textProp.value;
+                    response.result={compositionId:comp.id,layerId:layer.id,fontSize:styled.fontSize,fillColor:styled.fillColor,justification:a.justification,retained:true};
                 } else if(r.operation==='layer.getTextDocument') {
                     if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
                     var td=layer.property('ADBE Text Properties').property('ADBE Text Document').value;
@@ -78,6 +99,12 @@
                     var ag=layer.property('ADBE Transform Group'), names=['anchorPoint','position','scale','rotation','opacity'], props=[ag.property('ADBE Anchor Point'),ag.property('ADBE Position'),ag.property('ADBE Scale'),ag.property('ADBE Rotate Z'),ag.property('ADBE Opacity')], anim={}, ai, aj, ap, af=[];
                     for(ai=0;ai<props.length;ai++){ap=props[ai];af=[];for(aj=1;aj<=ap.numKeys;aj++)af.push({time:ap.keyTime(aj),value:ap.keyValue(aj)});anim[names[ai]]={value:ap.value,numKeys:ap.numKeys,keyframes:af};}
                     response.result={compositionId:comp.id,layerId:layer.id,name:layer.name,animation:anim};
+                } else if(r.operation==='layer.setParent') {
+                    var parentLayer=null, pi; for(pi=1;pi<=comp.numLayers;pi++) if(comp.layer(pi).id===a.parentLayerId) {parentLayer=comp.layer(pi);break;}
+                    if(!parentLayer) fail('LAYER_NOT_FOUND','Parent layer ID is not in this composition.');
+                    if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
+                    app.beginUndoGroup('Creative OS: Set Parent'); group=true; layer.parent=parentLayer; changed=true;
+                    response.result={compositionId:comp.id,layerId:layer.id,parentLayerId:layer.parent.id,retained:true};
                 } else
                 if(r.operation==='layer.getPosition') response.result={compositionId:comp.id,layerId:layer.id,value:before};
                 else if(r.operation==='layer.setPosition') {
@@ -118,6 +145,10 @@
                     app.beginUndoGroup('Creative OS: Position Keyframes'); group=true;
                     for(j=0;j<k.length;j++) p.setValueAtTime(k[j].time,k[j].value);
                     changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:[{time:k[0].time,value:p.valueAtTime(k[0].time,false)},{time:k[1].time,value:p.valueAtTime(k[1].time,false)}],retained:true}; }
+                } else if(r.operation==='layer.setBezierKeyframes') {
+                    var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):a.property==='rotation'?bt.property('ADBE Rotate Z'):bt.property('ADBE Anchor Point');
+                    if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
+                    app.beginUndoGroup('Creative OS: Bezier Keyframes'); group=true; for(var bi=1;bi<=bp.numKeys;bi++) bp.setInterpolationTypeAtKey(bi,KeyframeInterpolationType.BEZIER,KeyframeInterpolationType.BEZIER); changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:a.property,keyframeCount:bp.numKeys,interpolation:'bezier',retained:true};
                 } else if(r.operation==='layer.getKeyframes') {
                     var prop=a.property==='position'?p:layer.property('ADBE Transform Group').property('ADBE Opacity'), frames=[], q;
                     for(q=1;q<=prop.numKeys;q++) frames.push({time:prop.keyTime(q),value:prop.keyValue(q)});

@@ -9,6 +9,29 @@ test('allowlist accepts inspection and treats quoted text as data',()=>{
   assert.doesNotThrow(()=>validateRequest(base()));
   assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.createText',arguments:{context:randomUUID(),compositionId:1,text:'"; app.quit(); //'}}));
 });
+test('allowlist accepts bounded text styling and rejects unsafe values',()=>{
+  const request={...base(),operation:'layer.setTextStyle',arguments:{context:randomUUID(),compositionId:1,layerId:1,fontSize:72,fillColor:[1,0.5,0],justification:'center'}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,fontSize:1001}}));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,justification:'justifyAll'}}));
+});
+test('allowlist accepts an exact composition frame and rejects invalid frames',()=>{
+  const request={...base(),operation:'composition.setCurrentFrame',arguments:{context:randomUUID(),compositionId:1,frame:24}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:1.5}}));
+});
+test('allowlist accepts frame-specific visual inspection',()=>{
+  const request={...base(),operation:'composition.getVisibleLayersAtFrame',arguments:{context:randomUUID(),compositionId:1,frame:0}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
+});
+test('allowlist accepts composition-marker inspection',()=>assert.doesNotThrow(()=>validateRequest({...base(),operation:'composition.getMarkers',arguments:{context:randomUUID(),compositionId:1}})));
+test('allowlist accepts parenting only between distinct valid layer IDs',()=>{
+  const request={...base(),operation:'layer.setParent',arguments:{context:randomUUID(),compositionId:1,layerId:2,parentLayerId:1}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,parentLayerId:2}}));
+});
 for(const [label,change] of [
   ['arbitrary code',r=>({...r,operation:'eval',arguments:{script:'app.quit()'}})],
   ['undo',r=>({...r,operation:'undo'})],

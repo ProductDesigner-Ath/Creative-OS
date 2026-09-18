@@ -226,3 +226,46 @@ This file is updated after each development step with changes, verification, lim
 ## 2026-09-18 — GitHub checkpoint recovery
 
 The two unpublished asset add/remove commits had no net code changes relative to 050cd26. Preserved their history in a local backup branch and replaced them with a code/documentation-only checkpoint. Added an explicit ignore rule for After-effect-assets. No AE or local asset files changed. This checkpoint does not claim new feature validation.
+
+## 2026-09-18 — M2 text styling and alignment
+
+- Added the fixed `layer.setTextStyle` operation and `ae_set_text_style` MCP tool. It allows only font size (1–1000px), normalized RGB fill color, and left, center, or right paragraph alignment.
+- It only applies to unlocked AE text layers and confirms the resulting style through AE before reporting success. No arbitrary font names, scripts, property paths, or paragraph options are accepted.
+- Removed duplicate ellipse/rectangle MCP registrations left by the preceding shape batch; the MCP test now verifies the exact tool names rather than only a tool count.
+- Automated protocol and MCP checks cover valid styling, invalid bounds, invalid alignment, and the exact public allowlist. Live AE verification has not been run in this batch, so no project state changed.
+- Next: frame-accurate timing recipes and a live inspection/verification pass once the local bridge is known to load this adapter version.
+
+## 2026-09-18 — M2 frame-accurate review control
+
+- Added `composition.setCurrentFrame` and `ae_set_current_frame`, which position the active composition playhead at an exact nonnegative frame and return both the old and resulting times.
+- The command is bounded to the composition duration and leaves all layers, keyframes, and project files unchanged. It is intended for deterministic visual review rather than rendering or playback automation.
+- Protocol checks cover valid whole frames and reject negative or fractional values. Live AE verification is pending, so this batch made no change in After Effects.
+
+## 2026-09-18 — M2 frame-specific visual inventory
+
+- Added `composition.getVisibleLayersAtFrame` and `ae_get_visible_layers_at_frame`. It reports the enabled, non-guide layers whose in/out timing includes an exact frame.
+- This is read-only and is designed for visual-check recipes: identify expected layers at a frame, move the playhead with the preceding batch, then let the user inspect the canvas. It does not render, save, or alter After Effects.
+- Automated request validation covers valid and invalid frames. Live AE verification is pending, so the open project was not changed.
+
+### Live-test status
+
+- Started the local bridge and issued a read-only active-composition request before the full capability pass. AE did not return within the bridge's 30-second safety window, so the outcome is recorded as unresolved and no mutation was attempted.
+- Next live step: restart the bridge/AE connection cleanly, obtain a fresh context, then create one dedicated retained test composition and exercise the allowlist there.
+
+## 2026-09-18 — M2 composition marker inspection
+
+- Added read-only composition-marker inspection for timing-recipe verification. It returns marker time, comment, and duration without changing AE.
+- This code batch is awaiting the separate AE command-line handoff repair; no live AE mutation or verification is claimed.
+
+## 2026-09-18 — Automatic host connection and full capability pass
+
+- Replaced the unreliable command-line launch path with a local polling host. After Effects runs `adapters/after-effects/bridge-host.jsx` once per AE launch; it reads only a single pending, generated command from the local bridge and returns its response. The bridge remains loopback-only, bearer-token protected, and allowlisted.
+- The host was adapted for AE ExtendScript, which does not provide the browser-style `JSON` global used by the first version. It now accepts only the bridge's fixed local command-path format.
+- A retained composition named `Creative OS Capability Test` (ID 59) was created and verified live in AE 26.3x87. It contains a styled `Creative OS` text layer plus background, rectangle, and ellipse layers. Text styling, Position, Opacity, Scale, Rotation, Anchor Point, timing, Bezier interpolation, frame selection, and visible-layer inspection all returned successful AE readback.
+- Nothing was undone, deleted, saved, or closed. Earlier retained test compositions also remain available for review.
+
+## 2026-09-18 — M2 layer-parenting control
+
+- Added the fixed `layer.setParent` operation and `ae_set_parent` MCP tool. It accepts only an existing, distinct parent layer ID in the current active composition and rejects locked target layers.
+- Layer inventory now returns each layer's `parentLayerId`, making the resulting hierarchy readable through the bridge.
+- Live AE verification passed through the automatic host: text layer 71 (`Creative OS`) in `Creative OS Capability Test` (composition 59) was parented to rectangle layer 74. The visible project change is retained for review.
