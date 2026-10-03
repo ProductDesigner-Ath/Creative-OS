@@ -1,7 +1,7 @@
 /* Creative OS trusted local host. Run once per AE session. */
 $.global.__creativeOSHost=true;
 $.global.__creativeOSHostPoll=function () {
-    var root=(new File($.fileName)).parent.parent.parent.fsName.replace(/\\/g,'/')+'/.local';
+    var root='D:/Creative-OS/.local';
     var status=new File(root+'/ae-host-status.json'), errors=new File(root+'/ae-host-error.txt'), pending=new File(root+'/pending-command.json');
     try {
         if(status.open('w')) { status.writeln('{"running":true,"version":"0.1"}'); status.close(); }
@@ -16,3 +16,4 @@ $.global.__creativeOSHostPoll=function () {
 };
 app.scheduleTask('$.global.__creativeOSHost && $.global.__creativeOSHostPoll()',500,true);
 $.global.__creativeOSHostPoll();
+

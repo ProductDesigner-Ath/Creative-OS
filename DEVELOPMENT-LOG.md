@@ -404,3 +404,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Installed the Creative OS startup loader in the supported user-level AE scripts folder: `C:\Users\athar\AppData\Roaming\Adobe\After Effects\26.3\Scripts\Startup\creative-os-bridge-host.jsx`.
 - It loads only the checked-in `D:\Creative-OS\adapters\after-effects\bridge-host.jsx` on AE startup. This removes the need to manually run the host script after each AE launch. The Program Files startup folder was not modified.
 - The currently open AE session needs one restart before the loader can take effect. No AE project content was changed.
+
+## 2026-10-03 — Startup loader path correction
+
+- The user-level startup loader correctly ran at AE launch, but the host derived its runtime root from the loader context rather than its checked-in D: location. This left D: bridge requests unresolved.
+- Updated `bridge-host.jsx` to use the explicit trusted runtime path `D:/Creative-OS/.local`, which is appropriate for this local installation and loader design.
+- One final AE restart is required to load the corrected host. No AE project content has been created or changed during connection recovery.
