@@ -410,3 +410,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - The user-level startup loader correctly ran at AE launch, but the host derived its runtime root from the loader context rather than its checked-in D: location. This left D: bridge requests unresolved.
 - Updated `bridge-host.jsx` to use the explicit trusted runtime path `D:/Creative-OS/.local`, which is appropriate for this local installation and loader design.
 - One final AE restart is required to load the corrected host. No AE project content has been created or changed during connection recovery.
+
+## 2026-10-03 — Corrected self-scheduling AE host
+
+- Replaced the non-persistent AE repeating callback with a single self-scheduled host evaluation after each poll. The host now schedules its successor whether or not a request is pending, avoiding AE 2026 callback loss.
+- The startup loader remains a one-line trusted local loader and no AE project content has been modified while this connection issue is repaired.
+- A restart is required to load this revised host into the current AE session; after it starts, the pending read-only connection check will be retried before any reconstruction changes.
