@@ -251,7 +251,7 @@
                     } else {
                     if(p.isTimeVarying || p.expressionEnabled || p.dimensionsSeparated) fail('UNSUPPORTED_POSITION','Position already has keyframes, an expression, or separated dimensions. Create a new layer for a revised motion path.');
                     var k=a.keyframes, j, returnedKeys=[];
-                    if(k.length<2 || k.length>8) fail('INVALID_KEYFRAMES','Use 2–8 Position keyframes.');
+                    if(k.length<2 || k.length>12) fail('INVALID_KEYFRAMES','Use 2–12 Position keyframes.');
                     for(j=0;j<k.length;j++) { if(k[j].value.length!==p.value.length || (j>0 && k[j].time<=k[j-1].time)) fail('INVALID_KEYFRAMES','Use strictly increasing times and matching Position dimensions.'); }
                     app.beginUndoGroup('Creative OS: Position Keyframes'); group=true;
                     for(j=0;j<k.length;j++) p.setValueAtTime(k[j].time,k[j].value);
@@ -278,4 +278,5 @@
     try { write(cfg.responsePath,response); }
     catch(e) { alert('Creative OS could not write its response. Any changes remain for inspection.\n'+String(e)); }
 }());
+
 

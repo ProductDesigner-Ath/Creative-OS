@@ -434,3 +434,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - User feedback correctly identified the first reconstruction as too static. Added bounded 2–8 Position-key support and created retained reconstruction v3 (ID 36), leaving earlier versions unchanged.
 - v3 has five verified keys for each circle: side hold, central merge, center hold, and return to the sides. It also adds text opacity and per-character position reveals.
 - Verified expected layer states throughout the loop at frames 0, 30, 72, 120, 150, and 177. Left the composition open at frame 72.
+
+## 2026-10-03 — Reference 1 opacity and smoothing refinement
+
+- User requested non-static circle movement and text opacity from 0 to 100. Created retained v4 (ID 54) rather than overwriting previous work.
+- Both text layers now have verified 0→100 opacity keyframes. Both circle layers now use 12 verified Position keys sampling slow-in/fast-middle/slow-out movement into and out of the center.
+- The direct Bezier/temporal-ease bridge operations remain defective; readback confirms their target keyframes exist, so a sampled motion curve is used until that bridge defect is resolved.

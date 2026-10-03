@@ -43,3 +43,12 @@ The initial reconstruction felt static because its circle layers only had an inc
 - Added opacity and per-character position reveals to both text states.
 - Timeline verification at frames 0, 30, 72, 120, 150, and 177 confirms the intended title, message, merged-circle, and outward-return phases. The composition is left open at frame 72.
 - The optional Bezier interpolation call remains blocked by a bridge readback limitation, so the verified loop currently uses linear interpolation. Exact font selection and full frame-by-frame typography matching remain future capabilities.
+
+## Version 4 — opacity and sampled smoothing refinement
+
+Version 4 is retained as `Reference 1 — Circle Typography Reconstruction v4` (composition ID 54).
+
+- Added full-layer opacity fades: `BE THE CHANGE.` is 0 at 0 seconds and 100 at 0.55 seconds; `YOU EXPECT FROM OTHERS.` is 0 at 2.35 seconds and 100 at 2.9 seconds.
+- Expanded the controlled Position path limit from 8 to 12 keys. Each circle uses 12 verified samples to approximate a smooth slow-in/fast-middle/slow-out curve for both the inward and outward passes.
+- Direct AE Bezier/temporal-ease application continues to return a false `NO_KEYFRAMES` response despite readback showing the keys. The sampled curve is the reliable current fallback; direct interpolation control remains a bridge defect to repair.
+- v4 is open at frame 72 for review. Earlier retained compositions were not changed or removed.
