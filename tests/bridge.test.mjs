@@ -128,3 +128,10 @@ test('HTTP authentication, origin, host, schema and serialization boundaries',as
     assert.equal(calls,2);
   } finally {release?.();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 });
+
+test('allowlist accepts bounded multi-key position motion and rejects excessive keys',()=>{
+  const keyframes=[{time:0,value:[0,0,0]},{time:1,value:[10,0,0]},{time:2,value:[0,0,0]}];
+  const request={...base(),operation:'layer.addPositionKeyframes',arguments:{context:randomUUID(),compositionId:1,layerId:2,keyframes}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,keyframes:Array.from({length:9},(_,i)=>({time:i,value:[0,0,0]}))}}));
+});

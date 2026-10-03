@@ -428,3 +428,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 ## 2026-10-03 — Standing test authorization
 
 - The user granted standing authorization for the active local video-to-AE test. Routine implementation, AE construction, validation, documentation, commits, and pushes proceed without approval prompts.
+
+## 2026-10-03 — Reference 1 motion refinement
+
+- User feedback correctly identified the first reconstruction as too static. Added bounded 2–8 Position-key support and created retained reconstruction v3 (ID 36), leaving earlier versions unchanged.
+- v3 has five verified keys for each circle: side hold, central merge, center hold, and return to the sides. It also adds text opacity and per-character position reveals.
+- Verified expected layer states throughout the loop at frames 0, 30, 72, 120, 150, and 177. Left the composition open at frame 72.

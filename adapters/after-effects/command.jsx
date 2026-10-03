@@ -249,12 +249,14 @@
                         for(oi=0;oi<ok.length;oi++) op.setValueAtTime(ok[oi].time,ok[oi].value[0]);
                         changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'opacity',keyframes:[{time:ok[0].time,value:op.valueAtTime(ok[0].time,false)},{time:ok[1].time,value:op.valueAtTime(ok[1].time,false)}],retained:true};
                     } else {
-                    if(p.isTimeVarying || p.expressionEnabled || p.dimensionsSeparated) fail('UNSUPPORTED_POSITION','Animated, expression-driven, or separated Position is not supported.');
-                    var k=a.keyframes, j;
-                    if(k[0].value.length!==p.value.length || k[1].value.length!==p.value.length || k[1].time<=k[0].time) fail('INVALID_KEYFRAMES','Use two increasing times and matching Position dimensions.');
+                    if(p.isTimeVarying || p.expressionEnabled || p.dimensionsSeparated) fail('UNSUPPORTED_POSITION','Position already has keyframes, an expression, or separated dimensions. Create a new layer for a revised motion path.');
+                    var k=a.keyframes, j, returnedKeys=[];
+                    if(k.length<2 || k.length>8) fail('INVALID_KEYFRAMES','Use 2–8 Position keyframes.');
+                    for(j=0;j<k.length;j++) { if(k[j].value.length!==p.value.length || (j>0 && k[j].time<=k[j-1].time)) fail('INVALID_KEYFRAMES','Use strictly increasing times and matching Position dimensions.'); }
                     app.beginUndoGroup('Creative OS: Position Keyframes'); group=true;
                     for(j=0;j<k.length;j++) p.setValueAtTime(k[j].time,k[j].value);
-                    changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:[{time:k[0].time,value:p.valueAtTime(k[0].time,false)},{time:k[1].time,value:p.valueAtTime(k[1].time,false)}],retained:true}; }
+                    for(j=1;j<=p.numKeys;j++) returnedKeys.push({time:p.keyTime(j),value:p.keyValue(j)});
+                    changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'position',keyframes:returnedKeys,retained:true}; }
                 } else if(r.operation==='layer.setBezierKeyframes') {
                     var bt=layer.property('ADBE Transform Group'), bp=a.property==='position'?bt.property('ADBE Position'):a.property==='opacity'?bt.property('ADBE Opacity'):a.property==='scale'?bt.property('ADBE Scale'):a.property==='rotation'?bt.property('ADBE Rotate Z'):bt.property('ADBE Anchor Point');
                     if(!bp || bp.numKeys<2) fail('NO_KEYFRAMES','The selected property needs at least two keyframes.');
@@ -276,3 +278,4 @@
     try { write(cfg.responsePath,response); }
     catch(e) { alert('Creative OS could not write its response. Any changes remain for inspection.\n'+String(e)); }
 }());
+

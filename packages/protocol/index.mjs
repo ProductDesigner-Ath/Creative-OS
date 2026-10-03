@@ -93,9 +93,11 @@ export function validateRequest(r) {
   if ('property' in a && !['position','opacity','scale','rotation'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.setBezierKeyframes' && !['position','opacity','scale','rotation','anchorPoint'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.addTransformKeyframes' && !['scale','rotation'].includes(a.property)) fail('Transform property is not allowlisted');
-  if ('keyframes' in a && r.operation !== 'layer.animateRectMask' && r.operation !== 'layer.animateMaskFeather' && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
+  if (r.operation === 'layer.addPositionKeyframes') { if(!Array.isArray(a.keyframes) || a.keyframes.length<2 || a.keyframes.length>8 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && [2,3].includes(k.value.length) && k.value.every(v=>Number.isFinite(v) && Math.abs(v)<=100000)) || !a.keyframes.slice(1).every((k,i)=>k.time>a.keyframes[i].time)) fail('Position needs 2–8 strictly increasing finite keyframes.'); }
+  else if ('keyframes' in a && r.operation !== 'layer.animateRectMask' && r.operation !== 'layer.animateMaskFeather' && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
   return r;
 }
 export function failure(requestId, code, message, extra={}) {
   return {version:'0.1',requestId:requestId ?? null,success:false,error:{code,message,...extra}};
 }
+

@@ -33,3 +33,13 @@ The sampled frames show a looping editorial animation: a yellow field, two off-c
 ## Current fidelity limits
 
 This is the first controlled reconstruction pass, not a frame-perfect replica. The bridge currently supports two-key position movement per layer, which captures the incoming-circle beat but not the return-to-edge loop. It also does not yet select an exact serif/sans font family, edit text content after creation, or infer exact typography from pixels. Those are the next reconstruction capabilities.
+
+## Version 3 — animated loop refinement
+
+The initial reconstruction felt static because its circle layers only had an incoming two-key motion. Version 3 is retained separately as `Reference 1 — Circle Typography Reconstruction v3` (composition ID 36), so prior versions remain inspectable.
+
+- Added a controlled `layer.addPositionKeyframes` capability: 2–8 finite, strictly increasing Position keys, all bounded by the existing allowlisted bridge.
+- `Circle — Left Loop` and `Circle — Right Loop` each have five verified keys: side hold at 0–1 seconds, merge at 2.35 seconds, center hold to 4 seconds, and outward return at 5.9 seconds.
+- Added opacity and per-character position reveals to both text states.
+- Timeline verification at frames 0, 30, 72, 120, 150, and 177 confirms the intended title, message, merged-circle, and outward-return phases. The composition is left open at frame 72.
+- The optional Bezier interpolation call remains blocked by a bridge readback limitation, so the verified loop currently uses linear interpolation. Exact font selection and full frame-by-frame typography matching remain future capabilities.
