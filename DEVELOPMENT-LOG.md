@@ -440,3 +440,12 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - User requested non-static circle movement and text opacity from 0 to 100. Created retained v4 (ID 54) rather than overwriting previous work.
 - Both text layers now have verified 0→100 opacity keyframes. Both circle layers now use 12 verified Position keys sampling slow-in/fast-middle/slow-out movement into and out of the center.
 - The direct Bezier/temporal-ease bridge operations remain defective; readback confirms their target keyframes exist, so a sampled motion curve is used until that bridge defect is resolved.
+
+## 2026-10-03 — Circle-over-type refinement and visual verification
+
+- Rebuilt the reference study as successive retained compositions rather than changing or removing prior AE work. The current reviewed composition is `Reference 1 — Circle Typography v10` (ID 165).
+- Its layer order now reflects the intended design: yellow background; the opening and closing `BE THE CHANGE.` titles behind the circles; two cream foreground circles; and the serif `YOU EXPECT FROM OTHERS.` line above them only during the joined-circle phase.
+- The inward circle path was accelerated and sampled with 12 Position keys so the circles meet before the serif message reaches full opacity. The opening title fades out as the circles close; the serif line fades away as the circles begin to separate; the closing title fades in behind the departing circles.
+- Added a safe local `composition.exportFramePng` bridge operation for visual QA. Exports are restricted to `.local/ae-frame-checks`; callers cannot select arbitrary output paths. AE requires each exported PNG to settle before the next export, so the verification harness exports frames sequentially with a short delay.
+- Visually checked settled frames at the opening, inward transition, joined-circle message state, outward transition, and closing title state. Earlier rapid exports that appeared blank were incomplete files caused by back-to-back AE frame saves, not missing layer content.
+- The active AE composition remains open at the joined-circle state. No existing comp was undone, deleted, saved, or closed.

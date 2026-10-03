@@ -22,6 +22,7 @@ export function validateRequest(r) {
     case 'composition.getState': keys(a,['context','compositionId']); break;
     case 'composition.setCurrentFrame': keys(a,['context','compositionId','frame']); break;
     case 'composition.getVisibleLayersAtFrame': keys(a,['context','compositionId','frame']); break;
+    case 'composition.exportFramePng': keys(a,['context','compositionId','frame']); break;
     case 'composition.getMarkers': keys(a,['context','compositionId']); break;
     case 'composition.addMarker': keys(a,['context','compositionId','frame','comment']); break;
     case 'project.importAsset': keys(a,['context','compositionId','assetPath']); break;
@@ -41,7 +42,7 @@ export function validateRequest(r) {
     case 'layer.getSourceInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getConstructionInfo': keys(a,['context','compositionId','layerId']); break;
     case 'layer.getTextDocument': keys(a,['context','compositionId','layerId']); break;
-    case 'layer.setTextStyle': keys(a,['context','compositionId','layerId','fontSize','fillColor','justification']); break;
+    case 'layer.setTextStyle': keys(a,['context','compositionId','layerId','font','fontSize','fillColor','justification']); break;
     case 'layer.getAnimationState': keys(a,['context','compositionId','layerId']); break;
     case 'layer.setParent': keys(a,['context','compositionId','layerId','parentLayerId']); break;
     case 'layer.moveBefore': keys(a,['context','compositionId','layerId','targetLayerId']); break;
@@ -70,7 +71,7 @@ export function validateRequest(r) {
   if ('layerId' in a && (!Number.isSafeInteger(a.layerId) || a.layerId < 1)) fail('Invalid layerId');
   if (r.operation === 'layer.setParent' && (!Number.isSafeInteger(a.parentLayerId) || a.parentLayerId < 1 || a.parentLayerId === a.layerId)) fail('Invalid parentLayerId');
   if (r.operation === 'layer.moveBefore' && (!Number.isSafeInteger(a.targetLayerId) || a.targetLayerId < 1 || a.targetLayerId === a.layerId)) fail('Invalid targetLayerId');
-  if ((r.operation === 'composition.setCurrentFrame' || r.operation === 'composition.getVisibleLayersAtFrame' || r.operation === 'composition.addMarker') && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
+  if ((r.operation === 'composition.setCurrentFrame' || r.operation === 'composition.getVisibleLayersAtFrame' || r.operation === 'composition.exportFramePng' || r.operation === 'composition.addMarker') && (!Number.isSafeInteger(a.frame) || a.frame < 0 || a.frame > 1000000)) fail('Frame must be a nonnegative safe integer');
   if (r.operation === 'composition.addMarker' && (typeof a.comment !== 'string' || !a.comment.length || a.comment.length > 100 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.comment))) fail('Marker comment must contain 1–100 characters without control codes');
   if (r.operation === 'project.importAsset' && (typeof a.assetPath !== 'string' || !/^(?:[A-Za-z0-9 _.-]+\\)*[A-Za-z0-9 _.-]+\.(?:png|jpg|jpeg|mp4|ai)$/i.test(a.assetPath) || /(^|\\)\.\.?($|\\)/.test(a.assetPath))) fail('Asset path must be a safe relative approved-media path');
   if (r.operation === 'layer.addProjectItem' && (!Number.isSafeInteger(a.itemId) || a.itemId < 1 || !Array.isArray(a.position) || a.position.length !== 2 || !a.position.every(v=>Number.isFinite(v) && Math.abs(v)<=100000) || !Array.isArray(a.scale) || a.scale.length !== 2 || !a.scale.every(v=>Number.isFinite(v) && v>0 && v<=10000))) fail('Invalid project-item layer placement');
@@ -86,7 +87,7 @@ export function validateRequest(r) {
   if (r.operation === 'layer.animateMaskFeather' && (!Number.isSafeInteger(a.maskIndex) || a.maskIndex<1 || !Array.isArray(a.keyframes) || a.keyframes.length!==2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.length===2 && k.value.every(v=>Number.isFinite(v) && v>=0 && v<=10000)) || a.keyframes[1].time<=a.keyframes[0].time)) fail('Invalid mask feather keyframes');
   if (r.operation === 'layer.addGaussianBlur' && (!Number.isFinite(a.blurriness) || a.blurriness<0 || a.blurriness>500)) fail('Invalid Gaussian blur amount');
   if ('text' in a && (typeof a.text !== 'string' || !a.text.length || a.text.length > 200 || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(a.text))) fail('Text must contain 1–200 characters without control codes');
-  if (r.operation === 'layer.setTextStyle' && (!Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
+  if (r.operation === 'layer.setTextStyle' && (typeof a.font!=='string' || !/^[A-Za-z0-9 _-]{1,100}$/.test(a.font) || !Number.isFinite(a.fontSize) || a.fontSize < 1 || a.fontSize > 1000 || !Array.isArray(a.fillColor) || a.fillColor.length !== 3 || !a.fillColor.every(v => Number.isFinite(v) && v >= 0 && v <= 1) || !['left','center','right'].includes(a.justification))) fail('Invalid text style settings');
   if ('value' in a && (!Array.isArray(a.value) || ![2,3].includes(a.value.length) || !a.value.every(v=>typeof v==='number' && Number.isFinite(v) && Math.abs(v)<=100000))) fail('Position must contain 2 or 3 finite numbers within +/-100000');
   if (r.operation === 'layer.setTiming' && (![a.inPoint,a.outPoint].every(v=>typeof v==='number' && Number.isFinite(v) && v>=0) || a.outPoint<=a.inPoint)) fail('Timing requires nonnegative increasing inPoint and outPoint');
   if (r.operation === 'layer.setEnabled' && a.enabled!==true) fail('Only enabling an existing layer is supported');
@@ -94,11 +95,16 @@ export function validateRequest(r) {
   if (r.operation === 'layer.setBezierKeyframes' && !['position','opacity','scale','rotation','anchorPoint'].includes(a.property)) fail('Property is not allowlisted');
   if (r.operation === 'layer.addTransformKeyframes' && !['scale','rotation'].includes(a.property)) fail('Transform property is not allowlisted');
   if (r.operation === 'layer.addPositionKeyframes') { if(!Array.isArray(a.keyframes) || a.keyframes.length<2 || a.keyframes.length>12 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && [2,3].includes(k.value.length) && k.value.every(v=>Number.isFinite(v) && Math.abs(v)<=100000)) || !a.keyframes.slice(1).every((k,i)=>k.time>a.keyframes[i].time)) fail('Position needs 2–12 strictly increasing finite keyframes.'); }
+  else if (r.operation === 'layer.addOpacityKeyframes') { if(!Array.isArray(a.keyframes) || a.keyframes.length<2 || a.keyframes.length>6 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.length===1 && Number.isFinite(k.value[0]) && k.value[0]>=0 && k.value[0]<=100) || !a.keyframes.slice(1).every((k,i)=>k.time>a.keyframes[i].time)) fail('Opacity needs 2–6 strictly increasing values from 0 to 100.'); }
   else if ('keyframes' in a && r.operation !== 'layer.animateRectMask' && r.operation !== 'layer.animateMaskFeather' && (!Array.isArray(a.keyframes) || a.keyframes.length !== 2 || !a.keyframes.every(k=>k && Number.isFinite(k.time) && k.time>=0 && Array.isArray(k.value) && k.value.every(v=>Number.isFinite(v))))) fail('Exactly two finite keyframes are required');
   return r;
 }
 export function failure(requestId, code, message, extra={}) {
   return {version:'0.1',requestId:requestId ?? null,success:false,error:{code,message,...extra}};
 }
+
+
+
+
 
 

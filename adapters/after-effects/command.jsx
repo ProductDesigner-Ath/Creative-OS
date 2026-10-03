@@ -67,6 +67,12 @@
             var visible=[], vi, vl;
             for(vi=1;vi<=comp.numLayers;vi++) { vl=comp.layer(vi); if(vl.enabled && !vl.guideLayer && inspectTime>=vl.inPoint && inspectTime<vl.outPoint) visible.push({id:vl.id,index:vl.index,name:vl.name,matchName:vl.matchName,inPoint:vl.inPoint,outPoint:vl.outPoint,enabled:vl.enabled,guideLayer:vl.guideLayer}); }
             response.result={compositionId:comp.id,frame:a.frame,time:inspectTime,visibleLayerCount:visible.length,layers:visible};
+        } else if(r.operation==='composition.exportFramePng') {
+            if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
+            var exportTime=a.frame*comp.frameDuration; if(exportTime>comp.duration) fail('FRAME_OUT_OF_RANGE','Frame must be within the composition duration.');
+            var exportFolder=new Folder('D:/Creative-OS/.local/ae-frame-checks'); if(!exportFolder.exists && !exportFolder.create()) fail('EXPORT_UNAVAILABLE','Cannot create local frame-check folder.');
+            var exportFile=new File(exportFolder.fsName+'/frame-'+a.frame+'-'+r.requestId+'.png'); comp.saveFrameToPng(exportTime,exportFile);
+            response.result={compositionId:comp.id,frame:a.frame,time:exportTime,localPath:exportFile.fsName,retained:true};
         } else if(r.operation==='composition.getMarkers') {
             if(!ctx || ctx.token!==a.context || ctx.project!==app.project || ctx.comp!==comp || comp.id!==a.compositionId) fail('STALE_CONTEXT','Active project or composition changed; query the active composition again.');
             var markerProp=comp.markerProperty, markers=[], mi, markerValue;
@@ -119,11 +125,11 @@
                     if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
                     if(layer.locked) fail('LAYER_LOCKED','Unlock the layer before editing.');
                     var textProp=layer.property('ADBE Text Properties').property('ADBE Text Document'), style=textProp.value;
-                    style.fontSize=a.fontSize; style.applyFill=true; style.fillColor=a.fillColor;
+                    style.font=a.font; style.fontSize=a.fontSize; style.applyFill=true; style.fillColor=a.fillColor;
                     style.justification=a.justification==='left'?ParagraphJustification.LEFT_JUSTIFY:(a.justification==='center'?ParagraphJustification.CENTER_JUSTIFY:ParagraphJustification.RIGHT_JUSTIFY);
                     app.beginUndoGroup('Creative OS: Text Style'); group=true; textProp.setValue(style); changed=true;
                     var styled=textProp.value;
-                    response.result={compositionId:comp.id,layerId:layer.id,fontSize:styled.fontSize,fillColor:styled.fillColor,justification:a.justification,retained:true};
+                    response.result={compositionId:comp.id,layerId:layer.id,font:styled.font,fontSize:styled.fontSize,fillColor:styled.fillColor,justification:a.justification,retained:true};
                 } else if(r.operation==='layer.getTextDocument') {
                     if(layer.matchName!=='ADBE Text Layer') fail('NOT_TEXT_LAYER','Layer is not an After Effects text layer.');
                     var td=layer.property('ADBE Text Properties').property('ADBE Text Document').value;
@@ -244,10 +250,12 @@
                         var op=layer.property('ADBE Transform Group').property('ADBE Opacity'), ok=a.keyframes, oi;
                         var invalidOpacity=false;
                         for(oi=0;oi<ok.length;oi++) if(ok[oi].value[0]<0 || ok[oi].value[0]>100) invalidOpacity=true;
-                        if(op.isTimeVarying || op.expressionEnabled || ok.length!==2 || ok[1].time<=ok[0].time || ok[0].value.length!==1 || ok[1].value.length!==1 || invalidOpacity) fail('INVALID_KEYFRAMES','Opacity needs two increasing times and values from 0 to 100.');
+                        if(op.isTimeVarying || op.expressionEnabled || ok.length<2 || ok.length>6 || invalidOpacity) fail('INVALID_KEYFRAMES','Opacity needs 2–6 increasing times and values from 0 to 100.');
+                        for(oi=0;oi<ok.length;oi++) if(ok[oi].value.length!==1 || (oi>0 && ok[oi].time<=ok[oi-1].time)) fail('INVALID_KEYFRAMES','Opacity keyframes must have one value and strictly increasing times.');
                         app.beginUndoGroup('Creative OS: Opacity Keyframes'); group=true;
                         for(oi=0;oi<ok.length;oi++) op.setValueAtTime(ok[oi].time,ok[oi].value[0]);
-                        changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'opacity',keyframes:[{time:ok[0].time,value:op.valueAtTime(ok[0].time,false)},{time:ok[1].time,value:op.valueAtTime(ok[1].time,false)}],retained:true};
+                        var opacityKeys=[]; for(oi=1;oi<=op.numKeys;oi++) opacityKeys.push({time:op.keyTime(oi),value:op.keyValue(oi)});
+                        changed=true; response.result={compositionId:comp.id,layerId:layer.id,property:'opacity',keyframes:opacityKeys,retained:true};
                     } else {
                     if(p.isTimeVarying || p.expressionEnabled || p.dimensionsSeparated) fail('UNSUPPORTED_POSITION','Position already has keyframes, an expression, or separated dimensions. Create a new layer for a revised motion path.');
                     var k=a.keyframes, j, returnedKeys=[];
@@ -278,5 +286,8 @@
     try { write(cfg.responsePath,response); }
     catch(e) { alert('Creative OS could not write its response. Any changes remain for inspection.\n'+String(e)); }
 }());
+
+
+
 
 

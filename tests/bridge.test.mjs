@@ -12,7 +12,7 @@ test('allowlist accepts inspection and treats quoted text as data',()=>{
   assert.doesNotThrow(()=>validateRequest({...base(),operation:'layer.createText',arguments:{context:randomUUID(),compositionId:1,text:'"; app.quit(); //'}}));
 });
 test('allowlist accepts bounded text styling and rejects unsafe values',()=>{
-  const request={...base(),operation:'layer.setTextStyle',arguments:{context:randomUUID(),compositionId:1,layerId:1,fontSize:72,fillColor:[1,0.5,0],justification:'center'}};
+  const request={...base(),operation:'layer.setTextStyle',arguments:{context:randomUUID(),compositionId:1,layerId:1,font:'Arial-BoldMT',fontSize:72,fillColor:[1,0.5,0],justification:'center'}};
   assert.doesNotThrow(()=>validateRequest(request));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,fontSize:1001}}));
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,justification:'justifyAll'}}));
@@ -136,3 +136,17 @@ test('allowlist accepts bounded multi-key position motion and rejects excessive 
   assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,keyframes:Array.from({length:13},(_,i)=>({time:i,value:[0,0,0]}))}}));
 });
 
+
+
+test('allowlist accepts bounded multi-key opacity and rejects excessive keys',()=>{
+  const keyframes=[{time:0,value:[100]},{time:0.5,value:[100]},{time:1,value:[0]}];
+  const request={...base(),operation:'layer.addOpacityKeyframes',arguments:{context:randomUUID(),compositionId:1,layerId:2,keyframes}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,keyframes:Array.from({length:7},(_,i)=>({time:i,value:[100]}))}}));
+});
+
+test('allowlist accepts bounded local frame export',()=>{
+  const request={...base(),operation:'composition.exportFramePng',arguments:{context:randomUUID(),compositionId:1,frame:24}};
+  assert.doesNotThrow(()=>validateRequest(request));
+  assert.throws(()=>validateRequest({...request,arguments:{...request.arguments,frame:-1}}));
+});

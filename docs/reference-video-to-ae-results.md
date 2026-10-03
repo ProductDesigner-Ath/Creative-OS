@@ -52,3 +52,22 @@ Version 4 is retained as `Reference 1 — Circle Typography Reconstruction v4` (
 - Expanded the controlled Position path limit from 8 to 12 keys. Each circle uses 12 verified samples to approximate a smooth slow-in/fast-middle/slow-out curve for both the inward and outward passes.
 - Direct AE Bezier/temporal-ease application continues to return a false `NO_KEYFRAMES` response despite readback showing the keys. The sampled curve is the reliable current fallback; direct interpolation control remains a bridge defect to repair.
 - v4 is open at frame 72 for review. Earlier retained compositions were not changed or removed.
+
+## Version 10 — foreground-circle typography handoff
+
+The current retained study is `Reference 1 — Circle Typography v10` (composition ID 165). It implements the requested hierarchy and transition rather than using a simple crossfade between two text layers.
+
+- **Layer stack:** yellow background; opening and closing `BE THE CHANGE.` title layers; foreground left and right cream circles; foreground `YOU EXPECT FROM OTHERS.` serif message.
+- **Opening:** the large black title is visible while both circles sit outside the frame.
+- **Inward handoff:** the circles travel inward on a 12-key sampled path. The large title fades as they cover the center; the serif message fades in only as the two circles meet.
+- **Middle:** the serif message is fully visible over the joined cream circles.
+- **Return:** the serif message fades out while the circles begin separating, exposing the closing large title behind them.
+- **Closing:** the circles return off-canvas and the large title remains visible.
+
+### Visual QA method
+
+`composition.exportFramePng` writes only to `.local/ae-frame-checks`, which is ignored by Git. Each image is exported and allowed to settle before inspecting it; rapid back-to-back AE PNG saves can produce incomplete preview files. Settled verification frames covered the opening, approach, overlap, joined message, separation, and closing states.
+
+### Remaining fidelity work
+
+The version now matches the requested layer hierarchy and timing behavior. Exact pixel-for-pixel matching still needs automated typography measurement and reliable native temporal-ease support; the current motion uses verified sampled Position points as the reliable bridge fallback.
