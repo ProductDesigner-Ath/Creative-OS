@@ -416,3 +416,11 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Replaced the non-persistent AE repeating callback with a single self-scheduled host evaluation after each poll. The host now schedules its successor whether or not a request is pending, avoiding AE 2026 callback loss.
 - The startup loader remains a one-line trusted local loader and no AE project content has been modified while this connection issue is repaired.
 - A restart is required to load this revised host into the current AE session; after it starts, the pending read-only connection check will be retried before any reconstruction changes.
+
+## 2026-10-03 — Reference 1 reconstruction built and retained
+
+- Valid local job `1791013701292-98abf962` was analyzed and automatically moved into AE construction after bridge reconnect.
+- Created `Reference 1 — Circle Typography Reconstruction` (ID 1): 544×306, 6 seconds, 30 fps. It contains the yellow background, left/right cream circle shape layers, and two timed text states from the reference evidence.
+- Verified both circle Position animations and expected visible layers at frames 0, 30, 75, 120, and 150. Left the composition open at frame 75 (2.5 seconds) with the central message state visible.
+- The first pass retains the reference's design structure and timing states. It is not yet a frame-perfect duplicate because the controlled bridge currently limits each transform to two Position keyframes and has no explicit font-family or text-replacement operation.
+- Detailed result: `docs/reference-video-to-ae-results.md`.
