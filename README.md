@@ -17,3 +17,8 @@ The original G0 spike performs five operations in one synchronous script:
 See [setup and decisions](ae-spike/README.md) and [actual test results](ae-spike/RESULTS.md).
 
 No third-party dependencies to install. The next step adds an authenticated loopback-only bridge. MCP, cloud connectivity, ChatGPT integration, and a polished UI are not included.
+
+## Local video intake
+
+Upload and automatically sample a local reference video through the [video intake service](services/video-intake/README.md). It is separate from the AE bridge and stores media only under ignored .local/ data.
+

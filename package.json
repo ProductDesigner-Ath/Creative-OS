@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "start": "node services/local-bridge/server.mjs",
-    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs tests/scene-recipe.test.mjs",
+    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs tests/scene-recipe.test.mjs tests/video-intake.test.mjs",
     "inspect": "node services/local-bridge/client.mjs composition.getActive",
     "demo:retain": "node examples/retain-for-review.mjs",
-    "demo:animate": "node examples/animate-review.mjs"
-    ,"mcp": "node services/mcp-server/server.mjs"
+    "demo:animate": "node examples/animate-review.mjs",
+    "mcp": "node services/mcp-server/server.mjs",
+    "start:video-intake": "node services/video-intake/server.mjs"
   },
-  "engines": {"node": ">=22"}
+  "engines": {
+    "node": ">=22"
+  }
 }

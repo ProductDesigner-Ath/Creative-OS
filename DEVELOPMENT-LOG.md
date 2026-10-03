@@ -374,3 +374,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added a local AE reference-frame extractor at `adapters/after-effects/extract-reference-frames.jsx`. It selects one compatible video under `assets/reference`, imports it into a dedicated `Creative OS Reference Analysis` composition, and saves seven evenly distributed PNG frames under `.local/reference-frames` for visual analysis.
 - When an original and converted copy are both present, the extractor selects the uniquely named H.264, H.265, or ProRes copy. This makes AV1 source files safe to retain locally while After Effects analyzes the compatible conversion.
 - The source video, extracted frames, analysis composition, and all rendered output remain ignored local files. The Pinterest reference link is https://in.pinterest.com/pin/1092052609660208925/.
+
+## 2026-10-03 — Local video intake prototype (in progress)
+
+- Added `services/video-intake`: a loopback-only upload screen at `http://127.0.0.1:47832`, launched with `npm.cmd run start:video-intake`.
+- The user selects one video; the page uploads it locally, samples 8–24 frames automatically, stores frame PNGs and a timing/visual-change report in `.local/video-intake/jobs`, and keeps every media artifact ignored by Git.
+- It does not call After Effects for ingestion or analysis. Current analysis detects major full-frame visual changes and creates an AE reconstruction-plan stub. Object, typography, effect, and per-layer motion recognition are deliberately pending.
