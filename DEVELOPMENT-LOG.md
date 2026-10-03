@@ -368,3 +368,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Created retained `Creative OS Recreation` (257) in the D: converted project. It stages the three original source scenes at the reference timing and exact 100% centered placement. Readback confirms one scene at frame 0, two at frame 24, and all three at frame 48 and frame 96.
 - Added a narrow `layer.setEnabled` operation because AE added the nested source scenes disabled. It accepts only `enabled:true` for an existing unlocked layer; it cannot disable, remove, save, or alter arbitrary properties. Live verification enabled recreation layers 270 and 271 successfully.
 - This passes the top-level timeline recreation check. It uses the original source scene precompositions as controlled inputs, so it proves the local bridge can reproduce the final staging exactly but does not yet claim independent reconstruction of every inner scene or effect.
+
+## 2026-10-03 — Local video reference analysis (in progress)
+
+- Added a local AE reference-frame extractor at `adapters/after-effects/extract-reference-frames.jsx`. It selects one compatible video under `assets/reference`, imports it into a dedicated `Creative OS Reference Analysis` composition, and saves seven evenly distributed PNG frames under `.local/reference-frames` for visual analysis.
+- When an original and converted copy are both present, the extractor selects the uniquely named H.264, H.265, or ProRes copy. This makes AV1 source files safe to retain locally while After Effects analyzes the compatible conversion.
+- The source video, extracted frames, analysis composition, and all rendered output remain ignored local files. The Pinterest reference link is https://in.pinterest.com/pin/1092052609660208925/.
