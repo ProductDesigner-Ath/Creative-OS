@@ -1,6 +1,6 @@
 import http from 'node:http';
-import {createWriteStream} from 'node:fs';
-import {mkdir, readFile, rename, rm, writeFile} from 'node:fs/promises';
+import {createReadStream,createWriteStream} from 'node:fs';
+import {mkdir, readFile, rename, rm, stat, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -42,8 +42,21 @@ export function createVideoIntake({port=47832}={}) {
         return reply(res,201,{id,filename,uploadUrl:`/api/jobs/${id}/video`});
       }
       const videoMatch=url.pathname.match(/^\/api\/jobs\/([a-z0-9-]+)\/video$/);
-      if(req.method==='GET' && videoMatch) { const job=JSON.parse(await readFile(path.join(dataRoot,videoMatch[1],'job.json'),'utf8')); const video=await readFile(job.source); res.writeHead(200,{'Content-Type':'video/mp4','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}); return res.end(video); }
-      const frameMatch=url.pathname.match(/^\/api\/jobs\/([a-z0-9-]+)\/frames\/(\d+)\.png$/);
+      if(req.method==='GET' && videoMatch) {
+        const job=JSON.parse(await readFile(path.join(dataRoot,videoMatch[1],'job.json'),'utf8'));
+        const info=await stat(job.source), total=info.size, range=req.headers.range;
+        const type=path.extname(job.filename).toLowerCase()==='.webm'?'video/webm':'video/mp4';
+        if(range) {
+          const match=/^bytes=(\d*)-(\d*)$/.exec(range);
+          if(!match) { res.writeHead(416,{'Content-Range':'bytes */'+total}); return res.end(); }
+          const start=match[1]?Number(match[1]):0, end=match[2]?Math.min(Number(match[2]),total-1):total-1;
+          if(start>end || start>=total) { res.writeHead(416,{'Content-Range':'bytes */'+total}); return res.end(); }
+          res.writeHead(206,{'Content-Type':type,'Content-Length':end-start+1,'Content-Range':'bytes '+start+'-'+end+'/'+total,'Accept-Ranges':'bytes','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+          return createReadStream(job.source,{start,end}).pipe(res);
+        }
+        res.writeHead(200,{'Content-Type':type,'Content-Length':total,'Accept-Ranges':'bytes','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+        return createReadStream(job.source).pipe(res);
+      }      const frameMatch=url.pathname.match(/^\/api\/jobs\/([a-z0-9-]+)\/frames\/(\d+)\.png$/);
       if(req.method==='POST' && frameMatch) { const folder=path.join(dataRoot,frameMatch[1],'frames'); await mkdir(folder,{recursive:true}); const chunks=[]; for await(const chunk of req) chunks.push(chunk); const image=Buffer.concat(chunks); if(image.length>8*1024*1024) throw Object.assign(new Error('Frame exceeds 8 MB.'),{code:'TOO_LARGE'}); await writeFile(path.join(folder,`${frameMatch[2]}.png`),image); return reply(res,201,{saved:true}); }
       const reportMatch=url.pathname.match(/^\/api\/jobs\/([a-z0-9-]+)\/report$/);
       if(req.method==='POST' && reportMatch) { const chunks=[]; for await(const chunk of req) chunks.push(chunk); const report=JSON.parse(Buffer.concat(chunks).toString('utf8')); await writeFile(path.join(dataRoot,reportMatch[1],'report.json'),JSON.stringify(report,null,2)); return reply(res,201,{saved:true}); }
@@ -52,5 +65,7 @@ export function createVideoIntake({port=47832}={}) {
   });
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)) { const server=createVideoIntake(); server.listen(47832,'127.0.0.1',()=>console.log('Creative OS video intake: http://127.0.0.1:47832')); }
+
+
 
 

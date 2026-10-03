@@ -391,3 +391,16 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - The first uploaded-video report completed, but integrity checking showed all 24 saved PNG samples were identical. The report is not used for AE reconstruction.
 - Corrected the browser sampler to wait for decoded data and each seek before capturing. A re-analysis will replace the invalid evidence once the page is refreshed and the video is submitted again.
 - After Effects is currently not connected to the local bridge, so no AE composition has been created or changed.
+
+## 2026-10-03 — Valid reference analysis and reconstruction handoff
+
+- Validated the retry for local job `1791013701292-98abf962`: 24 unique sampled PNG frames from a 6-second 544×306 video. The original analysis run is marked invalid because it produced duplicate frames and is not used.
+- Representative-frame review identifies a looping editorial typography animation: solid yellow field, off-screen white circular forms, a centered merged double-circle interval, and alternating black sans-serif / serif messages. There are no hard full-frame cuts at the 4-samples-per-second analysis rate.
+- Reconstruction target: new 6-second AE composition with a yellow solid, two white circular shape layers driven from off-canvas to merged center and back, plus timed text states. This will remain visibly retained for review.
+- Restarted the local bridge. The AE host has not yet answered a read-only composition request, so no AE composition or layer has been created in this phase.
+
+## 2026-10-03 — Automatic AE bridge startup
+
+- Installed the Creative OS startup loader in the supported user-level AE scripts folder: `C:\Users\athar\AppData\Roaming\Adobe\After Effects\26.3\Scripts\Startup\creative-os-bridge-host.jsx`.
+- It loads only the checked-in `D:\Creative-OS\adapters\after-effects\bridge-host.jsx` on AE startup. This removes the need to manually run the host script after each AE launch. The Program Files startup folder was not modified.
+- The currently open AE session needs one restart before the loader can take effect. No AE project content was changed.
