@@ -424,3 +424,7 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Verified both circle Position animations and expected visible layers at frames 0, 30, 75, 120, and 150. Left the composition open at frame 75 (2.5 seconds) with the central message state visible.
 - The first pass retains the reference's design structure and timing states. It is not yet a frame-perfect duplicate because the controlled bridge currently limits each transform to two Position keyframes and has no explicit font-family or text-replacement operation.
 - Detailed result: `docs/reference-video-to-ae-results.md`.
+
+## 2026-10-03 — Standing test authorization
+
+- The user granted standing authorization for the active local video-to-AE test. Routine implementation, AE construction, validation, documentation, commits, and pushes proceed without approval prompts.

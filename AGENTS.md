@@ -13,3 +13,8 @@
 
 - After a locally uploaded reference video finishes analysis, automatically move into the After Effects reconstruction phase. Create a new composition, build from the saved analysis evidence and controlled recipe, verify it, and retain all AE changes for user review.
 - Ask only when AE is not open, an AE modal dialog blocks scripting, or another indispensable local user action is required.
+
+## Standing test authorization
+
+- For the active local video-to-AE reconstruction test, proceed autonomously with implementation, local media analysis, AE construction, validation, documentation, Git commits, and GitHub pushes.
+- Do not request approval for routine steps. Report only material technical blockers that require direct user intervention.
