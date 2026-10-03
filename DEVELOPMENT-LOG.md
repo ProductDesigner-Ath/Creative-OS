@@ -380,3 +380,14 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added `services/video-intake`: a loopback-only upload screen at `http://127.0.0.1:47832`, launched with `npm.cmd run start:video-intake`.
 - The user selects one video; the page uploads it locally, samples 8–24 frames automatically, stores frame PNGs and a timing/visual-change report in `.local/video-intake/jobs`, and keeps every media artifact ignored by Git.
 - It does not call After Effects for ingestion or analysis. Current analysis detects major full-frame visual changes and creates an AE reconstruction-plan stub. Object, typography, effect, and per-layer motion recognition are deliberately pending.
+
+## 2026-10-03 — Video-to-AE workflow rule
+
+- Confirmed the standing workflow: after a local reference-video analysis finishes, Creative OS automatically proceeds to a new After Effects reconstruction composition, verification, and retained visible result. It does not wait for a second user instruction.
+- AE work is still not started if After Effects is unavailable or blocked by a modal dialog; those are the only required local actions.
+
+## 2026-10-03 — Intake sampling correction
+
+- The first uploaded-video report completed, but integrity checking showed all 24 saved PNG samples were identical. The report is not used for AE reconstruction.
+- Corrected the browser sampler to wait for decoded data and each seek before capturing. A re-analysis will replace the invalid evidence once the page is refreshed and the video is submitted again.
+- After Effects is currently not connected to the local bridge, so no AE composition has been created or changed.
