@@ -283,3 +283,8 @@ Dates follow the user’s local timezone; scheduled sends show the timezone. Unk
 ### Current prototype limitations to retain in release notes
 
 The layout uses the actual shadcn registry Button, Badge, Card, Input, Textarea, Label, Dialog, Sheet, Table, Tabs, Native Select, Checkbox and Progress. Source provenance is recorded in apps/outreach/COMPONENTS.md. Local browser storage and manual stage editing only. No Gmail OAuth, sends, automated warm-up, reply detection, suppression worker, background scheduler or live Claude synchronisation. The CSV path is an integration boundary, not a claim that all existing Lead Desk records have already migrated. The table paginates at 25 records per page. Production-scale board virtualisation, comprehensive import mapping, audited contrast and full accessibility evaluation remain follow-up work until explicitly verified.
+
+
+### Hosted prototype persistence addition — 2026-11-14
+
+The hosted prototype adds an email/password sign-in form using the shared Card, Label, Input and Button primitives. Credentials are submitted only to the configured Supabase project. No public registration form is included. The cloud workspace starts empty and is private per login; a shared team workspace is not implemented. Saves show a blocking progress state and preserve unsaved documents behind a retry/export screen on failure. Revision conflicts never automatically overwrite newer records. Cloud records load on sign-in/reload rather than live subscriptions. Local preview retains browser storage only when no cloud environment is configured on loopback. Hosted builds with missing configuration fail closed. Existing Gmail and sending limitations continue to apply.

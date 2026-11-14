@@ -1,5 +1,7 @@
 # Creative OS — Email & Leads
 
+**Hosted prototype setup:** [DEPLOYMENT.md](DEPLOYMENT.md). Supabase login and private per-user persistence are implemented but require applying the SQL migration, creating a login and deploying the correct Git branch. Gmail remains disconnected. Local preview without cloud configuration retains the browser-local layout.
+
 A full-window local layout for Satavue’s acquisition workflow. Built with React, Tailwind and actual shadcn/ui registry components. See [DESIGN.md](../../DESIGN.md) and [component provenance](COMPONENTS.md).
 
 ## Run on your desktop

@@ -393,3 +393,17 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - AE state: not accessed, changed, undone, saved or closed. Private runtime data and credentials remain excluded from Git.
 - Remaining boundaries: browser-local persistence, manual stage labels and CSV exchange only. No Gmail connection, live mailbox checking, sender automation, artificial warm-up, live Claude sync or background worker. Desktop Windows execution and full assistive-technology/responsive audit remain to verify there.
 - Local preview branch: codex/outreach-layout. No GitHub push performed. Next: user layout review, then publish the reviewed branch and verify on the Windows desktop.
+
+
+### 2026-11-14 — Hosted prototype login and persistence preparation
+
+- User created a Google Web OAuth client, Supabase project and Vercel account; supplied public Supabase connection details. Prepared hosting integration locally; no Google secrets, real leads or user passwords were requested, stored or published.
+- Added Supabase email/password login, session restoration/refresh through official SDK, sign-out, empty cloud workspaces, cloud persistence and explicit cloud/local copy. Local browser data is not automatically uploaded. Hosted builds fail closed if cloud config is missing; loopback without config preserves local mode.
+- Added SQL migration with per-user read RLS, authenticated owner-bound save RPC, direct write denial, expected revision checks and 8 MiB document bounds. Conflicting or failed saves preserve an exportable in-memory document, block further workspace interaction and offer retry; browser close warns while a save is pending. Manual refresh/reconciliation replaces realtime syncing for this prototype.
+- Added Vercel configuration (root apps/outreach), frontend-only public env template, ignored private env/deployment files, and DEPLOYMENT.md with SQL, private test user setup, disabled signups, env variables, branch selection and acceptance checks. Google credentials are not used in frontend.
+- Validation: 47 existing tests passed; 3 new cloud tests passed, including executing the actual SQL in PGlite/PostgreSQL to check anonymous denial, owner isolation, direct-write denial, conflicts and invalid/oversize documents. Production build passed; Vite reports a 606 kB JS bundle size warning (not a build failure).
+- Browser verification was attempted but the in-app browser could not connect to localhost even after starting the server. No updated visual, live sign-in or hosted end-to-end verification is claimed.
+- AE state: not accessed or changed. No hosted database migration, remote account modification or Vercel deployment was performed. Gmail OAuth, sending, warm-up and background tasks remain unimplemented.
+- Next: user applies SQL and creates a private test login; push branch when remote access is available, deploy with public env values, then verify live auth/save across devices before implementing Gmail callback/token storage.
+
+- Git sync attempt: local commit created, but GitHub rejected the branch push with HTTP 403: the authenticated Kraftelite account does not have write access to ProductDesigner-Ath/Creative-OS. Source remains committed locally; Vercel must wait for an authorised push.
