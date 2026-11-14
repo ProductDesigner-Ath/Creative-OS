@@ -368,3 +368,48 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Created retained `Creative OS Recreation` (257) in the D: converted project. It stages the three original source scenes at the reference timing and exact 100% centered placement. Readback confirms one scene at frame 0, two at frame 24, and all three at frame 48 and frame 96.
 - Added a narrow `layer.setEnabled` operation because AE added the nested source scenes disabled. It accepts only `enabled:true` for an existing unlocked layer; it cannot disable, remove, save, or alter arbitrary properties. Live verification enabled recreation layers 270 and 271 successfully.
 - This passes the top-level timeline recreation check. It uses the original source scene precompositions as controlled inputs, so it proves the local bridge can reproduce the final staging exactly but does not yet claim independent reconstruction of every inner scene or effect.
+
+## 2026-11-14 — Email & Leads layout and design direction
+
+- Read the existing After Effects/MCP implementation without changing AE, compositions or local runtime credentials.
+- Inspected the user’s existing Satavue Lead Desk in the browser: Today, lead table, market/source/status filters, evidence review, owner and next-action patterns. No real lead export was added to Git.
+- Added an independent local layout preview with synthetic sample leads, separate sales/email stages, draft editing, table/board views, local persistence, categorised tags and process plans, CSV import preview/deduplication and full JSON backup/restore.
+- Browser verified lead editing, save/reload persistence, tag creation, bulk tag assignment and import preview. Seven model/server tests and 40 existing repository tests passed at this stage.
+- Added DESIGN.md as the design baseline after reviewing DesignerHQ’s public product previews and the user’s visual references. Covers component selection, tokens, typography, density, tag semantics, SaaS interaction conventions, accessibility targets and honest preview/integration states.
+- User requested shadcn/ui; moving the interface onto React with committed shadcn primitives. This replaces bespoke dialog/control behaviour while preserving the existing AE services.
+- Limitations: no Google connection, mail sending, background warm-up, reply automation or live Claude sync. Local storage is per browser/device. Existing Windows AE state was not accessed or changed. Layout work is local on codex/outreach-layout, not pushed.
+- Next: finish the shared-component migration, review visual and keyboard behaviour, document the desktop run command, then obtain layout feedback before a GitHub push.
+
+### 2026-11-14 — Shared components and custom workspace revision
+
+- Replaced the first custom-control preview with React and actual shadcn/ui New York v4 registry primitives: Button, Badge, Card, Input, Textarea, Label, Dialog, Sheet, Table, Tabs, Native Select, Checkbox and Progress. Kept MIT attribution and upstream commit provenance. The shadcn registry CLI endpoint was inaccessible, so official registry sources were retrieved from the upstream GitHub repository; TypeScript was transpiled to JSX and imports mapped locally.
+- Reworked the composition after user feedback: full-window 52px workspace rail and 216px grouped navigation; concise object titles; review/follow-up/replied tabs; lead-focused table without KPI cards; quiet neutral tags and compact metadata. Removed the decorative outer frame, generic headings and repeated colour blocks.
+- DESIGN.md now captures the full-window requirement, shadcn component reuse, independent lead/email states, neutral tags, explicit data provenance, accessible interaction targets and screen acceptance criteria. AGENTS.md points future UI work to this file.
+- Added 25-row table pagination; clear/reset filters; imported source-field retention; safe duplicate handling; full JSON export/restore with explicit replace acknowledgement. No real leads were migrated in this session.
+- Added a loopback-only production preview server at 127.0.0.1:47832 with an asset allowlist, no API/send endpoints, unexpected Host rejection, no external connections in its production CSP and no access to AE tokens. React development preview uses a separate port 47833.
+- Browser verification of the revised app: actual shadcn Sheet focus/record editing; unsaved-change close protection; Checkbox/FormData save; save/reload persistence; review tabs filter records and expose a labelled results panel; tag Dialog focus; dark/light layout review at the available 1280px viewport. A viewport override request did not change the observed 1280px surface, so narrow-screen visual verification is not claimed; the override was reset.
+- Measured eight key text/surface pairs: dark body 15.57:1, dark metadata 7.23:1, dark positive 7.78:1, dark attention 8.07:1; light body 14.69:1, light metadata 5.41:1, light positive 6.29:1, light attention 6.34:1. This is a limited colour check, not a complete accessibility audit.
+- Validation: production build passed; all 47 automated tests passed; git diff whitespace check passed. Tests run with temporary server fixtures and do not require a frontend build or AE installation.
+- AE state: not accessed, changed, undone, saved or closed. Private runtime data and credentials remain excluded from Git.
+- Remaining boundaries: browser-local persistence, manual stage labels and CSV exchange only. No Gmail connection, live mailbox checking, sender automation, artificial warm-up, live Claude sync or background worker. Desktop Windows execution and full assistive-technology/responsive audit remain to verify there.
+- Local preview branch: codex/outreach-layout. No GitHub push performed. Next: user layout review, then publish the reviewed branch and verify on the Windows desktop.
+
+
+### 2026-11-14 — Hosted prototype login and persistence preparation
+
+- User created a Google Web OAuth client, Supabase project and Vercel account; supplied public Supabase connection details. Prepared hosting integration locally; no Google secrets, real leads or user passwords were requested, stored or published.
+- Added Supabase email/password login, session restoration/refresh through official SDK, sign-out, empty cloud workspaces, cloud persistence and explicit cloud/local copy. Local browser data is not automatically uploaded. Hosted builds fail closed if cloud config is missing; loopback without config preserves local mode.
+- Added SQL migration with per-user read RLS, authenticated owner-bound save RPC, direct write denial, expected revision checks and 8 MiB document bounds. Conflicting or failed saves preserve an exportable in-memory document, block further workspace interaction and offer retry; browser close warns while a save is pending. Manual refresh/reconciliation replaces realtime syncing for this prototype.
+- Added Vercel configuration (root apps/outreach), frontend-only public env template, ignored private env/deployment files, and DEPLOYMENT.md with SQL, private test user setup, disabled signups, env variables, branch selection and acceptance checks. Google credentials are not used in frontend.
+- Validation: 47 existing tests passed; 3 new cloud tests passed, including executing the actual SQL in PGlite/PostgreSQL to check anonymous denial, owner isolation, direct-write denial, conflicts and invalid/oversize documents. Production build passed; Vite reports a 606 kB JS bundle size warning (not a build failure).
+- Browser verification was attempted but the in-app browser could not connect to localhost even after starting the server. No updated visual, live sign-in or hosted end-to-end verification is claimed.
+- AE state: not accessed or changed. No hosted database migration, remote account modification or Vercel deployment was performed. Gmail OAuth, sending, warm-up and background tasks remain unimplemented.
+- Next: user applies SQL and creates a private test login; push branch when remote access is available, deploy with public env values, then verify live auth/save across devices before implementing Gmail callback/token storage.
+
+- Git sync attempt: local commit created, but GitHub rejected the branch push with HTTP 403: the authenticated Kraftelite account does not have write access to ProductDesigner-Ath/Creative-OS. Source remains committed locally; Vercel must wait for an authorised push.
+
+### 2026-11-14 — GitHub access resolved
+
+- User confirmed write access. Retried push successfully: codex/outreach-layout is now on origin, tracking origin/codex/outreach-layout. Hosted prototype implementation commit: 4c15c8d.
+- User reports the SQL migration succeeded and private login setup was completed in Supabase; these remote steps have not been independently verified. No source changes or new test runs were required for this push.
+- Next: deploy the branch on Vercel with apps/outreach as root and the two public Supabase environment values, then verify live login and persistence. No Vercel deployment or Gmail connection has been performed. AE state unchanged.

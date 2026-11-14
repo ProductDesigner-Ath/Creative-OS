@@ -5,11 +5,18 @@
   "type": "module",
   "scripts": {
     "start": "node services/local-bridge/server.mjs",
-    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs tests/scene-recipe.test.mjs",
+    "test": "node --test tests/bridge.test.mjs ae-spike/validate.test.mjs tests/mcp-server.test.mjs tests/scene-recipe.test.mjs tests/outreach.test.mjs",
     "inspect": "node services/local-bridge/client.mjs composition.getActive",
     "demo:retain": "node examples/retain-for-review.mjs",
-    "demo:animate": "node examples/animate-review.mjs"
-    ,"mcp": "node services/mcp-server/server.mjs"
+    "demo:animate": "node examples/animate-review.mjs",
+    "mcp": "node services/mcp-server/server.mjs",
+    "outreach": "node apps/outreach/server.mjs",
+    "test:outreach": "node --test tests/outreach.test.mjs",
+    "outreach:install": "npm --prefix apps/outreach ci",
+    "outreach:build": "npm --prefix apps/outreach run build",
+    "outreach:dev": "npm --prefix apps/outreach run dev"
   },
-  "engines": {"node": ">=22"}
+  "engines": {
+    "node": ">=22"
+  }
 }

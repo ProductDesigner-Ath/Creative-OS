@@ -8,3 +8,5 @@
 - Current next milestone: a small local bridge with structured, allowlisted AE commands. Keep results visible. No cloud or ChatGPT integration unless requested.
 - Update `DEVELOPMENT-LOG.md` after every development step: changes, tests/results, limitations/blockers, visible AE state, and next step. Provide a documentation link in the response.
 - The user wants development synchronized to `https://github.com/ProductDesigner-Ath/Creative-OS.git`. Preserve existing remote history. Never publish `.local/` tokens or private runtime data.
+
+- Before UI work, read and follow DESIGN.md. Use the committed shadcn/ui primitives, semantic tokens and full-window shell. Record intentional deviations.

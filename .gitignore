@@ -9,3 +9,13 @@ assets/output/*
 *.aep
 *.aepx
 /After-effect-assets/
+
+# Local interface dependencies and generated build
+node_modules/
+apps/outreach/dist/
+
+# Deployment credentials and local configuration
+.env
+.env.*
+!.env.example
+.vercel/
