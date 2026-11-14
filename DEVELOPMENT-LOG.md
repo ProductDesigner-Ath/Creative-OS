@@ -407,3 +407,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Next: user applies SQL and creates a private test login; push branch when remote access is available, deploy with public env values, then verify live auth/save across devices before implementing Gmail callback/token storage.
 
 - Git sync attempt: local commit created, but GitHub rejected the branch push with HTTP 403: the authenticated Kraftelite account does not have write access to ProductDesigner-Ath/Creative-OS. Source remains committed locally; Vercel must wait for an authorised push.
+
+### 2026-11-14 — GitHub access resolved
+
+- User confirmed write access. Retried push successfully: codex/outreach-layout is now on origin, tracking origin/codex/outreach-layout. Hosted prototype implementation commit: 4c15c8d.
+- User reports the SQL migration succeeded and private login setup was completed in Supabase; these remote steps have not been independently verified. No source changes or new test runs were required for this push.
+- Next: deploy the branch on Vercel with apps/outreach as root and the two public Supabase environment values, then verify live login and persistence. No Vercel deployment or Gmail connection has been performed. AE state unchanged.
