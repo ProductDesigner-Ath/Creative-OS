@@ -1,0 +1,285 @@
+# Creative OS — Design system
+
+Status: v0.1, implementation baseline for Email & Leads. Updated 14 November 2026.
+
+Read this file before adding or changing a user-facing screen. This is the shared design direction for the local prototype and the Windows desktop installation. Prefer existing patterns; change these rules deliberately when product evidence calls for it. Do not create a parallel set of tokens or components in a new feature.
+
+## 1. Product purpose and scope
+
+Creative OS is Satavue’s workspace for managing work. The current product surface is **email and leads**: research a company, identify a contact, draft a relevant message, review it, and maintain a clear next action through conversion.
+
+Current navigation: Overview, Lead desk, Pipeline, Email workspace, Mailboxes, Processes & systems, Tags. Data and appearance settings live in Settings. Do not add creative production, billing, finance, calendars or speculative features to the current navigation.
+
+The existing After Effects bridge remains a separate capability. This interface must not start, alter or weaken that bridge to display a screen.
+
+## 2. Reference and interpretation
+
+Primary reference: [DesignerHQ](https://designerhq.app/), reviewed through its public website and animated product previews on 14 November 2026. The signed-in application has not been audited.
+
+Observed in the public preview: dark neutral work surfaces, persistent navigation, compact task/board layouts, explicit owners and stages, and work organised around processes rather than decorative metrics.
+
+Additional references: the user-supplied light workspace, monochrome dark dashboards and restrained writing-panel examples in this conversation.
+
+**Creative OS decisions below are our specification, not measurements or extracted tokens from DesignerHQ.** Do not copy its branding, content, client records, proprietary artwork or trade dress.
+
+Use the references for hierarchy, density and restraint. Keep Creative OS recognisable through quiet orange accents, consistent typography and domain-specific workflows.
+
+## 3. Visual principles
+
+1. Work first. Tables, conversations, evidence and next actions occupy the main canvas.
+2. Neutral foundations. Use colour for meaning, focus and ownership, not for filling space.
+3. Quiet hierarchy. Surface contrast, typography and spacing establish importance before borders and shadows.
+4. Predictable controls. The same action uses the same label, component, location and confirmation behaviour.
+5. Honest state. A saved draft is not sent; an authenticated domain is not a connected mailbox; a plan is not running automation.
+6. Data earns its place. Every metric must inform a decision and have an identifiable source and timeframe.
+7. Keep context. Reviewing a lead opens a side panel and preserves the table’s filters, position and selection.
+
+### Avoid
+
+- Gradient hero sections, decorative glows, glass panels, oversized greetings or marketing slogans inside the app.
+- Repeated four-card KPI rows on every screen. A count strip belongs only in Overview when it helps triage; Lead desk opens directly into working views.
+- Sparkles, AI badges, fake assistant avatars and generic “AI-powered” language.
+- Arbitrary percentage growth, fabricated revenue graphs, invented warm-up/health scores or decorative charts.
+- An icon beside every label, rainbow tags, excessive pill shapes or nested cards around ordinary text.
+- Placeholder buttons that appear to perform real operations. Use a labelled preview state or explain the connection step.
+- Text below 11px as a way of fitting more data. Prefer column choice, scrolling or a detail panel.
+
+## 4. Component foundation
+
+Use **React + shadcn/ui + Tailwind CSS**, with Lucide icons. shadcn components are committed source code under `apps/outreach/src/components/ui/`, not a hosted dependency on Vercel. The app runs locally.
+
+| Need | Foundation | Creative OS rule |
+| --- | --- | --- |
+| Action | Button | One primary action per section; label with a verb |
+| Text input | Input, Textarea, Label | Visible labels; help and validation tied to the field |
+| Modal | Dialog | A short, bounded task such as import or tag creation |
+| Record details | Sheet | Lead evidence, next action and email draft in one panel |
+| Status | Badge | Text plus optional dot; colour never carries the meaning alone |
+| Content grouping | Card | Only for a distinct object, grouped summary or section |
+| Bulk selection | shadcn Checkbox | Show selection scope and action count |
+| Data table | shadcn Table with semantic headers | Real headers, explicit selection labels, horizontal overflow |
+| Small finite choice | shadcn Native Select | Keyboard-compatible and labelled; do not fake a listbox |
+| Future complex menu | Dropdown Menu / Command | Add when the workflow needs it; avoid bespoke keyboard logic |
+| Toast | Single live-region notification initially | No critical errors only in a disappearing toast |
+
+Component primitives supply behaviour; design tokens supply identity. Do not copy a full shadcn dashboard template and fill it with unrelated metrics. Do not remove focus management or accessible names when restyling components.
+
+## 5. Colour tokens
+
+Semantic colour tokens are mandatory. Raw values belong in the central theme files, not feature components.
+
+| Role | Light | Dark | Use |
+| --- | --- | --- | --- |
+| App background | `#FAFAFA` | `#111213` | Main working canvas |
+| Sidebar | `#F3F4F4` | `#141617` | Persistent navigation |
+| Panel | `#FFFFFF` | `#191B1D` | Table container, editor, grouped content |
+| Raised panel | `#FFFFFF` | `#202326` | Dialogs, popovers |
+| Hover / muted surface | `#F0F1F2` | `#24272A` | Hover and secondary grouping |
+| Primary text | `#222426` | `#ECEEED` | Main content and titles |
+| Secondary text | `#4F555B` | `#BAC0C5` | Supporting content |
+| Muted text | `#64686D` | `#A5AAAF` | Metadata, hints, descriptions |
+| Divider | `#DFE1E4` | `#34383C` | Decorative section and row separators |
+| Input boundary | `#858B92` | `#737B84` | Essential control boundaries where needed |
+| Orange / focus | `#AD4D1C` | `#F39B67` | Selected icon, focus ring, restrained accent |
+| Orange surface | `#FFF0E6` | `#32261F` | Small contextual notice |
+| Positive text / surface | `#286447` / `#EBF5EF` | `#A0D2B5` / `#20362A` | Successful state |
+| Attention text / surface | `#78500D` / `#FFF4DC` | `#E4C184` / `#382E1D` | Action needed |
+| Error text / surface | `#A83232` / `#FCEEEE` | `#F0A5A5` / `#3A2426` | Failure or destructive state |
+
+Primary buttons use a high-contrast neutral fill. Orange is not required on every action. Never communicate success merely with orange or green decoration.
+
+Use WCAG 2.2 AA targets: 4.5:1 for ordinary text, 3:1 for large text and meaningful UI boundaries/focus indicators. Check actual foreground/background pairs, including hover and disabled states. Decorative dividers may be subtle; essential input boundaries cannot rely on them. No claim of a full accessibility audit until measured and keyboard/screen-reader testing is complete.
+
+## 6. Typography
+
+Use one system sans-serif stack initially: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`. Inter is only used if installed; do not silently fetch fonts from a CDN. On Windows the system fallback is Segoe UI. A bundled licensed font can be added as a separate deliberate decision.
+
+| Role | Size / line height | Weight | Rule |
+| --- | --- | --- | --- |
+| Page title | 24 / 32px | 550–600 | Short object/view name: “Lead desk” |
+| Section title | 16 / 24px | 550–600 | Names the content |
+| Panel title | 18 / 26px | 550–600 | Lead or process name |
+| Body, form values | 14 / 21px | 400 | Primary reading size |
+| Navigation, table primary content, buttons | 13 / 20px | 400–500 | Compact but readable |
+| Metadata, tag, table heading | 12 / 18px | 400–500 | No tiny all-caps labels |
+| Exceptional secondary annotation | 11 / 16px | 400 | Never for important information or controls |
+| Numeric summary | 24 / 30px | 500 | Tabular numerals; meaningful counts only |
+
+Sentence case throughout. Prefer normal letter spacing; headings may use -0.4px. Avoid decorative uppercase eyebrows, extreme negative tracking and excessive weight changes. Truncate only with an accessible way to read the full value.
+
+## 7. Spacing, shape and density
+
+Spacing scale: **4, 8, 12, 16, 20, 24, 32, 40, 48px**. Use 4px only for small inline gaps. Use 8px within control groups, 16px within sections, 24px between related sections and 32px between larger groups.
+
+| Element | Specification |
+| --- | --- |
+| Workspace rail + sidebar | 52px workspace rail + 216px navigation desktop; compact rails on narrow screens |
+| Topbar | 56–64px; breadcrumb and relevant controls only |
+| Page padding | 24px desktop, 16px narrow |
+| Control height | 36px default; 32px compact; >=44px touch mode |
+| Icon | 16px in compact controls; 18px in navigation; 1.5px consistent stroke |
+| Radius | 6px small controls, 8px buttons/inputs, 12px panels, 16px dialogs |
+| Table row | Minimum 56px; 64–72px for two-line contact rows |
+| Board column | 264px minimum; horizontal board scroll within the content region |
+| Lead panel | 600–680px desktop; full width on small screens |
+| Modal | 480–640px; bounded height with internal scrolling |
+| Shadow | None for table rows/cards; subtle only for floating content |
+
+The application is full-window at every viewport size. No outer body padding, max-width presentation frame, rounded outer corners, landscape backdrop or inset desktop mockup. The sidebar and main canvas reach the viewport edges. Internal page padding still follows the spacing scale. This applies to the local preview as well as the desktop installation.
+
+## 8. Information architecture
+
+| View | User’s question | Primary action |
+| --- | --- | --- |
+| Overview | What needs attention? | Open the next lead/action |
+| Lead desk | Who should we approach and why? | Add/import, then review a lead |
+| Pipeline | Where is each opportunity? | Review a lead and change its sales stage |
+| Email workspace | What needs drafting or review? | Open the relevant lead draft |
+| Mailboxes | Which identity is connected and able to send? | Inspect connection/setup |
+| Processes & systems | How do we repeat this work consistently? | Create/edit a process |
+| Tags | How do we group and find the work? | Create a categorised label |
+| Settings | Where is data stored and how do I move it? | Export/restore a full backup |
+
+Use the same lead record in all views. Do not duplicate lead state inside campaign, inbox and pipeline objects without a stable ID relationship.
+
+## 9. Lead stage, email stage and tags
+
+These are separate dimensions, not interchangeable colours on a card.
+
+### Lead stage — one current sales state
+
+New → Approved → Pitched → Replied → Call booked → Proposal → Won.
+
+Lost and Skipped are alternatives. Permit corrections without erasing history. A lead can reply negatively; “Replied” is not evidence of a qualified opportunity. In production, moving to Won should require a clear outcome record rather than inferring it from email activity.
+
+### Email stage — one current communication state
+
+Not started, Researching, Draft, Ready for review, Approved to send, Sent, Follow-up due, Replied, Bounced, Unsubscribed.
+
+In the layout preview, stage changes are manual labels. They must not create network activity. In a future sending system, Sent/Replied/Bounced must be supported by provider events and timestamps, and manual corrections must be distinguishable.
+
+### Tags — many reusable classifications
+
+| Category | Examples | Meaning |
+| --- | --- | --- |
+| Email | Personalisation, Follow-up 01 | Message context |
+| Process | UX audit, Lead qualification | Reusable method or service |
+| System | Lead Desk, Gmail integration | Tool/system association |
+| Segment | SaaS, Agency partners | Audience grouping |
+
+Tags are searchable/filterable and usable on leads and process records. Tags use a neutral outlined treatment; the tag manager groups their categories explicitly, and category is available on the tag. Do not assign random hues. Use the label before colour. Tags do not trigger automation unless an explicit rule explains the trigger and effect.
+
+Unsubscribe and bounce suppression are future first-class contact restrictions, not removable marketing tags. Removing a tag or changing sales stage must never clear a suppression rule.
+
+## 10. SaaS interaction patterns
+
+### Navigation and views
+
+- Persistent active navigation and a single page title; back/close returns to context.
+- Keep table and board views over the same filters and record set.
+- Lead tables paginate at 25 records per page and show the current range. Selection scope stays explicit across pages. Large boards still need virtualisation before production-scale use.
+- Preserve search and filters while opening/closing a lead. Future routing should preserve view/filter state in URLs where safe.
+- Icon-only navigation on narrow screens needs accessible names; tooltips can enhance, not replace, names.
+
+### Search and filtering
+
+- Search company, contact, email, owner, opportunity and tags.
+- Separate source, market, lead stage, email stage and tag filters as needed. Do not present nonfunctional filters.
+- Show zero-result state with the current context and a clear reset path.
+- Bulk actions display the number and scope of selected records, including offscreen selection. “Select all” means all filtered records unless explicitly stated otherwise.
+- Table sort and pagination must be real features before visual affordances advertise them.
+
+### Forms and saving
+
+- Visible labels, optional examples, explicit required fields, sensible defaults.
+- Validate on submission and after relevant field interaction. Preserve entered text on errors.
+- Use an explicit Save for multi-field lead edits. Editing a draft is not sending it.
+- For production editors, track dirty state and warn before discarding unsaved changes. Never silently lose an email draft on navigation.
+- Saved confirmation names the result. Critical validation/storage errors remain visible near the editor; a toast alone is insufficient.
+- Disable duplicate submissions while pending. Save errors preserve the draft for retry/export.
+
+### Import and portability
+
+- Import is a preview-first flow: choose/paste → map/inspect → review duplicates → confirm.
+- A company name is required; unknown source fields are retained for review.
+- Existing records are not overwritten by a duplicate import. Report imported, skipped and failed counts.
+- Distinguish company funding from an estimated project/deal value. Never treat funding as pipeline revenue.
+- A full JSON backup preserves IDs, tags, drafts, process plans and history. CSV is an exchange view, not a complete workspace backup.
+- State clearly that browser storage is local, not GitHub/Claude/Google sync. Export is needed to move records between computers until persistence/sync is implemented.
+
+### Record and process panels
+
+Lead panel sections: identity → contact/owner → sales and email stages → next action/date → evidence → tags → draft → save.
+
+Process panel sections: name → steps/description → lifecycle status → assigned tags → notes. Planned/In progress/Ready/Paused describes the process’s implementation readiness, not an execution state.
+
+### Destructive and consequential actions
+
+- Prefer archive and undo for record removal. Confirm irreversible actions with the object and consequence named.
+- Full-backup restore explicitly states it replaces local state; offer export first.
+- Real email sending is a separate future action: sender, recipient count, content, schedule and opt-out behaviour must be reviewable before launch.
+- Do not connect the main `satavue.com` mailbox for outreach. Sender allowlist: `sagorika@satavuestudio.com`, `sagorika@withsatavue.com`.
+- Never label a simulated network as guaranteed “warm-up.” Authentication is identity verification, not an inbox guarantee.
+
+## 11. Standard UI states
+
+| State | Required treatment |
+| --- | --- |
+| Loading | Stable skeleton only when real asynchronous work is pending; never simulate waiting for effect |
+| Empty workspace | Explain the purpose and offer add/import |
+| No search results | State that filters found no matches and provide reset |
+| Save pending | Button shows progress, retains context, prevents duplicates |
+| Saved | Short confirmation, no modal interruption |
+| Validation failure | Inline field error with accessible association; focus first error |
+| Storage/service failure | Persistent explanation, preserved work, retry/export action |
+| Disconnected | Explicit Not connected; setup action, no green success signal |
+| Preview | Persistent, concise sample/local-only notice; fictional data clearly marked |
+| Partial import | Counts, failed row details, successful records retained |
+| Offline | Distinguish browser-local editing from provider/network actions |
+
+## 12. Accessibility and responsive behaviour
+
+- Target WCAG 2.2 AA; treat it as acceptance criteria, not a certification badge.
+- Use semantic headings, tables, buttons, labels and fieldsets; a clickable div is not a button.
+- Every icon-only control has an accessible name. Form errors use `aria-describedby` and `aria-invalid` in production form components.
+- Full keyboard path: navigation → filters → records → detail panel → actions. Dialog/Sheet traps focus, closes with Escape and restores focus to its trigger.
+- Visible focus ring in both themes. No focus indication removed for aesthetics.
+- Do not expose background content as interactive while a modal is active.
+- Touch targets meet 24px minimum WCAG target-size requirements or spacing exceptions; prefer 44px for touch.
+- Test at 1440, 1280, 768 and 390px widths, 200% zoom and reduced motion.
+- Data tables may scroll horizontally inside their container; the full page must not overflow.
+- Panels become full-width on mobile. Controls wrap in a useful order; do not hide the primary action.
+- No state depends on hover alone. No colour-only tag, error, selection or status.
+
+## 13. Motion and content
+
+Motion: 120–180ms for hover/focus; up to 220ms for modal/panel entry. Use opacity and small translations only. Respect reduced-motion settings; no bounce, pulsing success or continuously animated dashboard decoration.
+
+Content: short, literal, action-oriented. Use “Lead desk”, “Import CSV”, “Save draft”, “Not connected”, “Next action”. Avoid “Your next client starts here”, “Unlock growth”, “Seamless”, “AI magic” and greetings that displace work. Explain consequences at the action, not in a wall of warnings.
+
+Dates follow the user’s local timezone; scheduled sends show the timezone. Unknown values use “Not set” or “Not checked”, not zero. Sample counts must be labelled; do not imply commercial performance.
+
+## 14. Implementation and review contract
+
+- Canonical design direction: this file. Component config: `apps/outreach/components.json`. Theme: `apps/outreach/src/components.css`. Layout styles: `apps/outreach/style.css`.
+- Separate theme colour semantics from layout-specific legacy variables. New components use the semantic shadcn tokens; do not create feature-local palettes.
+- New UI screens use shared Button/Input/Badge/Dialog/Sheet primitives rather than hand-building equivalent controls.
+- No credentials, private lead exports or runtime data in Git. Use synthetic examples in committed fixtures.
+- Update DEVELOPMENT-LOG.md with implemented work, validation, known gaps and the next step. Report AE state explicitly when relevant.
+- Design direction approval does not imply automatic approval of new external connections or mail sending.
+
+### Definition of done for a screen
+
+1. One clear user task and primary action.
+2. Consistent navigation, spacing, typography and theme tokens.
+3. States and data provenance are honest; no unsupported action appears to run.
+4. Keyboard navigation, visible focus and modal behaviour checked.
+5. Both themes and narrow-width layout reviewed.
+6. Important text has measured contrast; table labels and values are readable.
+7. Save/reload, validation, no-results and error recovery checked as applicable.
+8. Shared components reused; intentional exceptions documented.
+9. Private/runtime data excluded from the diff.
+
+### Current prototype limitations to retain in release notes
+
+The layout uses the actual shadcn registry Button, Badge, Card, Input, Textarea, Label, Dialog, Sheet, Table, Tabs, Native Select, Checkbox and Progress. Source provenance is recorded in apps/outreach/COMPONENTS.md. Local browser storage and manual stage editing only. No Gmail OAuth, sends, automated warm-up, reply detection, suppression worker, background scheduler or live Claude synchronisation. The CSV path is an integration boundary, not a claim that all existing Lead Desk records have already migrated. The table paginates at 25 records per page. Production-scale board virtualisation, comprehensive import mapping, audited contrast and full accessibility evaluation remain follow-up work until explicitly verified.

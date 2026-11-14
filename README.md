@@ -1,5 +1,7 @@
 # Creative OS
 
+**Email & Leads interface:** [local setup](apps/outreach/README.md) · [design system](DESIGN.md). Run `npm run outreach:install`, `npm run outreach:build`, then `npm run outreach` and open http://127.0.0.1:47832/. This interface runs separately from After Effects and does not send email.
+
 Current work: [local bridge setup and protocol](services/local-bridge/README.md). Read the [running development log](DEVELOPMENT-LOG.md) for changes and verified status after each step.
 
 **Review preference:** AE changes remain visible. The historic G0 undo test now requires explicit `--verify-undo` opt-in; do not run it without the user's request.
