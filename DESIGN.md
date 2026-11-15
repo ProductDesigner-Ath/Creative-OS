@@ -8,7 +8,7 @@ Read this file before adding or changing a user-facing screen. This is the share
 
 Creative OS is Satavue’s workspace for managing work. The current product surface is **email and leads**: research a company, identify a contact, draft a relevant message, review it, and maintain a clear next action through conversion.
 
-Current navigation: Overview, Lead desk, Pipeline, Email workspace, Mailboxes, Processes & systems, Tags. Data and appearance settings live in Settings. Do not add creative production, billing, finance, calendars or speculative features to the current navigation.
+Current navigation: Overview, Lead desk (Table / Board), Email workspace, Mailboxes, Processes & systems, Tags. Data and appearance settings live in Settings. Do not add creative production, billing, finance, calendars or speculative features to the current navigation.
 
 The existing After Effects bridge remains a separate capability. This interface must not start, alter or weaken that bridge to display a screen.
 
@@ -133,7 +133,7 @@ The application is full-window at every viewport size. No outer body padding, ma
 | --- | --- | --- |
 | Overview | What needs attention? | Open the next lead/action |
 | Lead desk | Who should we approach and why? | Add/import, then review a lead |
-| Pipeline | Where is each opportunity? | Review a lead and change its sales stage |
+| Lead desk → Board | Where is each opportunity? | Switch views without losing lead filters or selection |
 | Email workspace | What needs drafting or review? | Open the relevant lead draft |
 | Mailboxes | Which identity is connected and able to send? | Inspect connection/setup |
 | Processes & systems | How do we repeat this work consistently? | Create/edit a process |
@@ -294,3 +294,9 @@ The hosted prototype adds an email/password sign-in form using the shared Card, 
 Email workspace uses the existing shadcn Card, Native Select, Dialog, Checkbox, Input and Table primitives. A saved draft is selected, reviewed as an immutable server snapshot, and sent only after a separate explicit Send 1 email action. The review includes sender, recipient, subject, complete plain-text message and appended sender-address/opt-out footer. Backend sending is disabled until explicitly activated in Production. Sender selection never includes the main domain. No decorative metrics or new navigation item is introduced.
 
 Send history distinguishes Reviewed, In progress, Accepted by Gmail and Uncertain. Provider acceptance is not delivery. Uncertain attempts have a persistent check-Gmail instruction and no automatic retry. A separate Do not contact section owns persistent opt-out/bounce restrictions; lead stages and tags cannot clear them. Lead/email stages remain manual labels and are not presented as provider events. A reviewed send does not overwrite the whole workspace document. Latest 100 history/restriction rows are displayed with that scope stated. Inbox/bounce sync, scheduled sending, warm-up and full accessibility/visual audit remain unimplemented.
+
+## Lead views and semantic feedback — 15 November 2026
+
+Lead desk is the single navigation destination for lead records. Use the labelled Table / Board toggle in its toolbar. Keep filters, selected records and table pagination when switching; remember view preference locally. Pipeline is a board view, not a separate menu item.
+
+Use the shared shadcn-style Alert primitive through Feedback for errors, warnings, successes and information. Red means failure, amber means caution/action needed or an uncertain send, green means completed success, and blue means information. Use the existing positive/attention/negative tokens and central information tokens (#235B9B on #EDF4FF light; #A8C9F5 on #1C2B40 dark). Pair color with a distinct icon, understandable message and screen-reader severity label. Errors use role=alert; noncritical updates use role=status. Critical failures persist with a recovery action, never just a timed toast. Gmail acceptance is success of submission, not proof of delivery.
