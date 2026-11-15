@@ -60,3 +60,18 @@ test('server-only SQL denies browser roles access to credentials and pending sta
  await assert.rejects(db.query("insert into creative_os_gmail_connections(owner_id,email,refresh_token,scopes) values('00000000-0000-0000-0000-000000000001','hello@satavue.com','encrypted',array['send'])"),/check constraint/);
  }finally{await db.close();}
 });
+
+test('callback diagnostics identify the failed step without exposing provider secrets',async()=>{
+ const warnings=[],oldWarn=console.warn;console.warn=value=>warnings.push(value);
+ try{
+ for(const [providerError,expected] of [['invalid_client','token_invalid_client'],['contains-secret-token','token_exchange_failed']]){
+ const state=randomBytes(32).toString('hex');
+ const db={from:()=>({delete:()=>({eq:()=>({select:()=>({maybeSingle:async()=>({data:{email:'sagorika@satavuestudio.com',owner_id:'owner',verifier:'private-proof',expires_at:new Date(Date.now()+60000).toISOString()}})})})})})};
+ const handler=createHandler({env,makeDb:()=>db,makeOAuth:()=>({getToken:async()=>{throw {message:'private-client-secret',response:{data:{error:providerError,access_token:'private-access-token'}}};}})});
+ const res=response();await handler({method:'GET',query:{action:'callback',state,code:'private-code'},headers:{cookie:'__Secure-creative_os_gmail='+hash(state)}},res);
+ assert.equal(res.headers.Location,env.APP_URL+'/?gmail='+expected);
+ assert.equal(res.body,undefined);
+ }
+ assert.ok(warnings.every(s=>!s.includes('private-')&&!s.includes('contains-secret')));
+ }finally{console.warn=oldWarn;}
+});

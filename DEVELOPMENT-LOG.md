@@ -429,3 +429,28 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Re-ran validation successfully: 47 existing tests + 3 cloud tests + 5 Gmail tests (55 total), production Vite build and git diff --check. The existing 610 kB bundle warning is nonfatal. No provider credentials are included in tracked source or the migration.
 - The installed GitHub CLI is authenticated; no Vercel, Google Cloud or Supabase CLI is installed, no private deployment env file is present in the repository, and browser-control tools are not exposed in this session. Remote configuration and mailbox consent remain unverified and incomplete.
 - AE state: not accessed or changed. Next: push/review this branch, then apply the server-only migration and production secrets and register the exact Google callback before consenting to each outreach mailbox.
+
+- Git sync completed: f93ac1a pushed to codex/gmail-connection. PR #8 (https://github.com/ProductDesigner-Ath/Creative-OS/pull/8) passed Vercel preview checks and was merged into main as 0a686b7d0170c8e4f4081dec27f299996957b2a6. Production rollout and Gmail configuration remain unverified. An immediate post-merge API check returned 404, so no successful production Gmail endpoint is claimed.
+- User requested Chrome plugin access. Rechecked the available tool registry and Browser instructions; browser interaction/connection tools are not exposed in this session. No Vercel secrets, Supabase migration or Google OAuth settings were changed remotely. Next: restore the Browser connection, verify production rollout, then finish configuration and user consent.
+- Follow-up production check reached the deployed Gmail API and returned HTTP 503 with setupRequired=true, confirming the route is live and fails closed until production server secrets are configured. Mailbox consent and connection remain pending.
+
+### 2026-11-15 — Browser access restored; Gmail database prepared
+
+- Chrome Browser plugin became available and connected successfully. Applied 202611140002 Gmail schema through the signed-in Supabase SQL Editor; result: Success. No rows returned.
+- Added APP_URL and SUPABASE_URL to Vercel Production only. Vercel confirmed both saved and a redeployment is required. No provider secrets were copied or configured.
+- Google Cloud opened under parikalpanastudios@gmail.com and reported missing access to creative-os-514710. Left the Google tab for the user to sign in with the Workspace admin account that owns the project. No IAM access request or permission expansion was performed.
+- Remaining: correct Google session, callback/API/scope setup, production-only private credentials/encryption key, redeploy, and user consent for both mailboxes. AE state unchanged.
+
+### 2026-11-15 — Production Gmail secrets saved and OAuth sign-in reached
+
+- User explicitly approved saving SUPABASE_SECRET_KEY and GMAIL_TOKEN_ENCRYPTION_KEY as Production-only Vercel secrets and redeploying. Copied the existing Supabase server key through the browser and generated a cryptographically random 32-byte encryption key; no secret values were displayed, committed or added to frontend variables.
+- Vercel confirmed both secrets saved. User completed Vercel authenticator verification. Production redeployment 6sNwyt5t79dg6Upr59WiLts1H3eR reached Ready, Current, on main merge 0a686b7.
+- In the signed-in Creative OS Mailboxes view, Retry succeeded with no server setup/storage error and both Connect Gmail controls available. Started OAuth for sagorika@satavuestudio.com; Google reached its password sign-in screen with the correct outreach identity. User sign-in and Google consent are pending; no connected mailbox or token refresh is claimed yet.
+- User reports Google callback saved, Gmail API enabled, Audience Internal, and required identity/send scopes selected. These Google settings have not been independently audited. No emails were sent or read. AE state unchanged.
+
+### 2026-11-15 — Gmail callback failure diagnosis
+
+- First real Gmail authorization returned the generic callback failure. Mailboxes remains disconnected. Vercel runtime logs contained platform startup messages only because the callback deliberately suppressed raw provider errors.
+- Added fixed, allowlisted callback diagnostic labels separating token exchange (including invalid_client, invalid_grant and redirect_uri_mismatch), identity verification and encrypted token storage. Logged only the fixed failure reason; provider messages, request codes, proofs and tokens remain excluded. Added user-facing explanations tied to those labels.
+- Added a handler-level regression test proving valid diagnostics while preventing unknown provider text and credentials from reaching redirects or logs. No change to scopes, account restrictions or token validation. AE state unchanged.
+- Next: deploy the diagnostic improvement and retry authorization to identify the provider failure before changing any credentials.

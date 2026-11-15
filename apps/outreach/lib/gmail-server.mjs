@@ -40,6 +40,7 @@ export function createHandler({env=process.env,makeDb=(url,key)=>createClient(ur
   const action=req.query?.action;
   if(!['start','callback','status','check','disconnect'].includes(action))return json(res,404,{error:'Not found.'});
   if(req.method!==(action==='status'||action==='callback'?'GET':'POST'))return json(res,405,{error:'Method not allowed.'});
+  let stage='request';
   try{
    if(action==='callback'){
     const {state,code,error}=req.query;
@@ -49,13 +50,16 @@ export function createHandler({env=process.env,makeDb=(url,key)=>createClient(ur
     const row=dbResult(await db.from('creative_os_gmail_oauth_states').delete().eq('state_hash',hash(state)).select().maybeSingle());
     if(!row||Date.parse(row.expires_at)<=Date.now())return done(res,config.origin,'expired');
     if(error||typeof code!=='string')return done(res,config.origin,'cancelled');
+    stage='token_exchange';
     const {tokens}=await oauth.getToken({code,codeVerifier:row.verifier,redirect_uri:config.callback});
     if(!tokens.id_token||!tokens.refresh_token)return done(res,config.origin,'consent_required');
+    stage='identity_verification';
     const ticket=await oauth.verifyIdToken({idToken:tokens.id_token,audience:env.GOOGLE_CLIENT_ID});
     const identity=ticket.getPayload(),email=identity?.email?.toLowerCase();
     if(!identity?.email_verified||email!==row.email||!MAILBOXES.includes(email))return done(res,config.origin,'wrong_account');
     const granted=(tokens.scope||'').split(' ');
     if(!granted.includes(SCOPES[2]))return done(res,config.origin,'permission_required');
+    stage='token_storage';
     dbResult(await db.from('creative_os_gmail_connections').upsert({owner_id:row.owner_id,email,refresh_token:seal(tokens.refresh_token,config.key,row.owner_id,email),scopes:granted,connected_at:new Date().toISOString(),checked_at:null},{onConflict:'owner_id,email'}));
     return done(res,config.origin,'connected');
    }
@@ -91,9 +95,14 @@ export function createHandler({env=process.env,makeDb=(url,key)=>createClient(ur
    const checked_at=new Date().toISOString();
    dbResult(await db.from('creative_os_gmail_connections').update({checked_at}).eq('owner_id',owner).eq('email',email));
    return json(res,200,{checked_at});
-  }catch{
-   // Provider exceptions can contain tokens/codes: never log or return them.
-   if(action==='callback')return done(res,config.origin,'failed');
+  }catch(error){
+   // Return only fixed diagnostic labels, never provider messages, tokens or codes.
+   if(action==='callback'){
+    const providerError=error?.response?.data?.error;
+    const reason=stage==='token_exchange'&&['invalid_client','invalid_grant','redirect_uri_mismatch'].includes(providerError)?'token_'+providerError:stage==='token_exchange'?'token_exchange_failed':stage==='identity_verification'?'identity_failed':stage==='token_storage'?'storage_failed':'state_failed';
+    console.warn(JSON.stringify({event:'gmail_oauth_failed',reason}));
+    return done(res,config.origin,reason);
+   }
    return json(res,502,{error:'Could not complete the Gmail action. Check server setup or reconnect the mailbox.'});
   }
  };
