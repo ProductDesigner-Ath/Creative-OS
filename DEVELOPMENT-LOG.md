@@ -413,3 +413,19 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - User confirmed write access. Retried push successfully: codex/outreach-layout is now on origin, tracking origin/codex/outreach-layout. Hosted prototype implementation commit: 4c15c8d.
 - User reports the SQL migration succeeded and private login setup was completed in Supabase; these remote steps have not been independently verified. No source changes or new test runs were required for this push.
 - Next: deploy the branch on Vercel with apps/outreach as root and the two public Supabase environment values, then verify live login and persistence. No Vercel deployment or Gmail connection has been performed. AE state unchanged.
+
+### 2026-11-14 — Production deployment and Gmail OAuth implementation
+
+- Confirmed PR #7 merged into main (4687312). Vercel created creative-os with apps/outreach as root, Vite build and the public Supabase configuration. Production URL: https://creative-os-drab-five.vercel.app. Vercel showed Deployed to Production. Final live login check was interrupted by an open Chrome extension popup; no successful cloud login/save is claimed.
+- Added server-side Google Web OAuth flow with official google-auth-library, PKCE, ten-minute single-use database state, Secure HttpOnly SameSite callback cookie, verified Google ID-token mailbox binding, strict two-account allowlist and authenticated Creative OS ownership. Main satavue.com is excluded.
+- Added AES-256-GCM encrypted refresh-token storage, with owner/mailbox authenticated context. Server-only SQL tables deny browser roles access. Status returns metadata only; explicit connection checks refresh credentials without reading or sending mail. Disconnect deletes stored access and pending state, while explaining separate Google grant removal.
+- Added real shadcn Mailboxes connect/check/disconnect states and callback outcomes. Connection requests identity and gmail.send; no inbox read, send endpoint, automated warm-up or background worker is enabled. Updated deployment instructions with exact callback and server-only variables. Existing frontend workspace backups contain no credentials.
+- Validation: production build passed (existing nonfatal >500 kB bundle warning); 47 existing tests, 3 cloud tests and 5 Gmail security/integration tests passed. Gmail SQL tested in PostgreSQL/PGlite for server-only access and mailbox constraints. npm audit found 0 vulnerabilities. Remote OAuth consent, migration and secrets remain pending; no mailbox is connected yet.
+- AE state: not accessed or changed. Next: deploy the Gmail code, apply the Gmail migration, configure production-only secrets and Google callback, then user approves each mailbox connection and verifies refresh/persistence.
+
+### 2026-11-15 — Gmail branch review and validation
+
+- Resumed the existing codex/gmail-connection branch on the laptop; all prior OAuth implementation files were present. Reviewed token encryption, state consumption/PKCE, verified identity binding, owner-filtered queries, production callback, frontend controls and server-only migration.
+- Re-ran validation successfully: 47 existing tests + 3 cloud tests + 5 Gmail tests (55 total), production Vite build and git diff --check. The existing 610 kB bundle warning is nonfatal. No provider credentials are included in tracked source or the migration.
+- The installed GitHub CLI is authenticated; no Vercel, Google Cloud or Supabase CLI is installed, no private deployment env file is present in the repository, and browser-control tools are not exposed in this session. Remote configuration and mailbox consent remain unverified and incomplete.
+- AE state: not accessed or changed. Next: push/review this branch, then apply the server-only migration and production secrets and register the exact Google callback before consenting to each outreach mailbox.

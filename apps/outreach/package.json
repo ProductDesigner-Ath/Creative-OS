@@ -7,12 +7,14 @@
     "dev": "vite --host 127.0.0.1 --port 47833 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 47833 --strictPort",
-    "test:cloud": "node --test tests/cloud.test.mjs"
+    "test:cloud": "node --test tests/cloud.test.mjs",
+    "test:gmail": "node --test tests/gmail.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "google-auth-library": "^11.3.4",
     "lucide-react": "^0.468.0",
     "radix-ui": "^1.8.1",
     "react": "^19.2.0",
