@@ -447,3 +447,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Vercel confirmed both secrets saved. User completed Vercel authenticator verification. Production redeployment 6sNwyt5t79dg6Upr59WiLts1H3eR reached Ready, Current, on main merge 0a686b7.
 - In the signed-in Creative OS Mailboxes view, Retry succeeded with no server setup/storage error and both Connect Gmail controls available. Started OAuth for sagorika@satavuestudio.com; Google reached its password sign-in screen with the correct outreach identity. User sign-in and Google consent are pending; no connected mailbox or token refresh is claimed yet.
 - User reports Google callback saved, Gmail API enabled, Audience Internal, and required identity/send scopes selected. These Google settings have not been independently audited. No emails were sent or read. AE state unchanged.
+
+### 2026-11-15 — Gmail callback failure diagnosis
+
+- First real Gmail authorization returned the generic callback failure. Mailboxes remains disconnected. Vercel runtime logs contained platform startup messages only because the callback deliberately suppressed raw provider errors.
+- Added fixed, allowlisted callback diagnostic labels separating token exchange (including invalid_client, invalid_grant and redirect_uri_mismatch), identity verification and encrypted token storage. Logged only the fixed failure reason; provider messages, request codes, proofs and tokens remain excluded. Added user-facing explanations tied to those labels.
+- Added a handler-level regression test proving valid diagnostics while preventing unknown provider text and credentials from reaching redirects or logs. No change to scopes, account restrictions or token validation. AE state unchanged.
+- Next: deploy the diagnostic improvement and retry authorization to identify the provider failure before changing any credentials.
