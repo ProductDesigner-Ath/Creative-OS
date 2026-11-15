@@ -440,3 +440,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added APP_URL and SUPABASE_URL to Vercel Production only. Vercel confirmed both saved and a redeployment is required. No provider secrets were copied or configured.
 - Google Cloud opened under parikalpanastudios@gmail.com and reported missing access to creative-os-514710. Left the Google tab for the user to sign in with the Workspace admin account that owns the project. No IAM access request or permission expansion was performed.
 - Remaining: correct Google session, callback/API/scope setup, production-only private credentials/encryption key, redeploy, and user consent for both mailboxes. AE state unchanged.
+
+### 2026-11-15 — Production Gmail secrets saved and OAuth sign-in reached
+
+- User explicitly approved saving SUPABASE_SECRET_KEY and GMAIL_TOKEN_ENCRYPTION_KEY as Production-only Vercel secrets and redeploying. Copied the existing Supabase server key through the browser and generated a cryptographically random 32-byte encryption key; no secret values were displayed, committed or added to frontend variables.
+- Vercel confirmed both secrets saved. User completed Vercel authenticator verification. Production redeployment 6sNwyt5t79dg6Upr59WiLts1H3eR reached Ready, Current, on main merge 0a686b7.
+- In the signed-in Creative OS Mailboxes view, Retry succeeded with no server setup/storage error and both Connect Gmail controls available. Started OAuth for sagorika@satavuestudio.com; Google reached its password sign-in screen with the correct outreach identity. User sign-in and Google consent are pending; no connected mailbox or token refresh is claimed yet.
+- User reports Google callback saved, Gmail API enabled, Audience Internal, and required identity/send scopes selected. These Google settings have not been independently audited. No emails were sent or read. AE state unchanged.
