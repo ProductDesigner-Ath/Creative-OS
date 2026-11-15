@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 47833 --strictPort",
     "test:cloud": "node --test tests/cloud.test.mjs",
-    "test:gmail": "node --test tests/gmail.test.mjs"
+    "test:gmail": "node --test tests/gmail.test.mjs",
+    "test:sending": "node --test tests/sending.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
