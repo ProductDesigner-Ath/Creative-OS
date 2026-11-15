@@ -433,3 +433,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Git sync completed: f93ac1a pushed to codex/gmail-connection. PR #8 (https://github.com/ProductDesigner-Ath/Creative-OS/pull/8) passed Vercel preview checks and was merged into main as 0a686b7d0170c8e4f4081dec27f299996957b2a6. Production rollout and Gmail configuration remain unverified. An immediate post-merge API check returned 404, so no successful production Gmail endpoint is claimed.
 - User requested Chrome plugin access. Rechecked the available tool registry and Browser instructions; browser interaction/connection tools are not exposed in this session. No Vercel secrets, Supabase migration or Google OAuth settings were changed remotely. Next: restore the Browser connection, verify production rollout, then finish configuration and user consent.
 - Follow-up production check reached the deployed Gmail API and returned HTTP 503 with setupRequired=true, confirming the route is live and fails closed until production server secrets are configured. Mailbox consent and connection remain pending.
+
+### 2026-11-15 — Browser access restored; Gmail database prepared
+
+- Chrome Browser plugin became available and connected successfully. Applied 202611140002 Gmail schema through the signed-in Supabase SQL Editor; result: Success. No rows returned.
+- Added APP_URL and SUPABASE_URL to Vercel Production only. Vercel confirmed both saved and a redeployment is required. No provider secrets were copied or configured.
+- Google Cloud opened under parikalpanastudios@gmail.com and reported missing access to creative-os-514710. Left the Google tab for the user to sign in with the Workspace admin account that owns the project. No IAM access request or permission expansion was performed.
+- Remaining: correct Google session, callback/API/scope setup, production-only private credentials/encryption key, redeploy, and user consent for both mailboxes. AE state unchanged.
