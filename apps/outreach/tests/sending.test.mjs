@@ -82,7 +82,7 @@ test('sending requires both explicit activation and a real configured sender add
  let authorized=0;const db={auth:{getUser:async()=>({data:{user:{id:owner}}})},from:()=>{throw Error('must not load credentials');}};
  const req={query:{action:'send'},method:'POST',headers:{origin:env.APP_URL,authorization:'Bearer jwt'},body:{id:owner}};
  for(const config of [{...env,REVIEWED_SENDING_ENABLED:''},{...env,OUTREACH_POSTAL_ADDRESS:''}]){
- const handler=createOutreachHandler({env:config,makeDb:()=>db,authorize:async()=>{authorized++;},submit:async()=>{throw Error('must never send');}}),res=response();await handler(req,res);assert.equal(res.statusCode,409);assert.match(res.body,/not enabled|postal address/);
+ const handler=createOutreachHandler({env:config,makeDb:()=>db,authorize:async()=>{authorized++;},submit:async()=>{throw Error('must never send');}}),res=response();await handler(req,res);assert.equal(res.statusCode,409);assert.match(res.body,/not enabled|OUTREACH_POSTAL_ADDRESS/);
  }
  assert.equal(authorized,0);
 });
