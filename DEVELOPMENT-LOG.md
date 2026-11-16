@@ -511,3 +511,11 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Replaced the invisible Create brief status notification with a visible in-page Creative Brief form. It has project name, work type, direction, Save brief, Cancel and Add references actions.
 - Expanded Studio → App bridges to show the agreed local production adapters: After Effects, Blender, Photoshop, Illustrator, InDesign, Figma and Premiere Pro. Each has an explicit Working, Needs setup or Planned state and does not claim a remote command connection.
 - Validation: `npm.cmd run outreach:build` passes. The browser automation session disconnected during the live-preview reload; source compilation is verified and the local preview server remains available at port 47833.
+
+## 2026-11-16 — Projects foundation
+
+- Added a third Projects rail entry. A project is now the durable container for a saved Creative Brief and its connected work context.
+- Saving a Studio brief creates an Active project with its name, work type, direction, timestamps and activity entry, then opens the Projects area.
+- Added a first Projects page with a project list, retained brief direction, task creation, task status, and explicit reference/output counts. These records are part of the workspace document, so hosted workspaces persist them through the existing authenticated workspace save path.
+- Local workspaces continue to save projects in browser storage; hosted access from other devices requires the existing Supabase deployment configuration and authenticated sign-in.
+- Validation: `npm.cmd run outreach:build` passes. App-bridge connection work remains deferred until this project-management foundation is reviewed.

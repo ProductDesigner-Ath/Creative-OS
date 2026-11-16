@@ -8,7 +8,7 @@ export function cloudConfig(env,hostname){
  if(!key.startsWith('sb_publishable_'))return {mode:'error',message:'Use a Supabase publishable key. Never place a secret or service_role key in frontend configuration.'};
  return {mode:'cloud',url,key};
 }
-export function emptyWorkspace(){return {version:1,sample:false,leads:[],tags:[],systems:[],events:[]};}
+export function emptyWorkspace(){return {version:1,sample:false,leads:[],tags:[],systems:[],events:[],projects:[]};}
 export async function readWorkspace(client,userId){
  const {data,error}=await client.from('creative_os_workspaces').select('document,revision').eq('owner_id',userId).maybeSingle();
  if(error)throw error;
