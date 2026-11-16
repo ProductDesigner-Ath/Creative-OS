@@ -498,3 +498,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - `npm.cmd run outreach:build` now passes: Vite completed a production bundle successfully. The only build note is the existing JavaScript chunk-size warning.
 - Started the local Studio preview at `http://127.0.0.1:47833/` and verified the triangle rail button opens the Creative Studio page. The mail rail button remains the entry to Lead desk and email work.
 - The Studio page is a web coordination surface. It intentionally does not execute After Effects commands remotely; those remain on the approved local bridge.
+
+## 2026-11-16 — Studio mode navigation
+
+- Updated the Creative Studio triangle mode so it switches the entire navigation context, not only the main content panel.
+- The Studio sidebar now contains Studio, Reference room, App bridges, and Development log. The email rail icon returns to the lead and email workspace and restores its lead-specific menu.
+- Added clear hosted-workspace screens for reference review, approved app bridges, and Studio implementation notes. They describe the current boundary accurately: web coordinates work; the local bridge handles approved production-app commands.
+- Validation: `npm.cmd run outreach:build` passes. Browser verification confirmed the triangle exposes the Studio-specific sidebar and the main Studio page.
