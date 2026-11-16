@@ -35,8 +35,8 @@ export function createQueueHandler({env=process.env,makeDb=(url,key)=>createClie
  return async(req,res)=>{
   res.setHeader('Cache-Control','no-store');res.setHeader('Referrer-Policy','no-referrer');
   let config;try{config=settings(env);}catch{return json(res,503,{error:'Server setup is incomplete.'});}
-  const action=req.query?.action;if(!['status','draft','slot','schedule','settings','cancel','tick'].includes(action))return json(res,404,{error:'Not found.'});
-  if(req.method!==(action==='status'?'GET':'POST'))return json(res,405,{error:'Method not allowed.'});
+  const action=req.query?.action;if(!['status','drafting-status','draft','slot','schedule','settings','cancel','tick'].includes(action))return json(res,404,{error:'Not found.'});
+  if(req.method!==(['status','drafting-status'].includes(action)?'GET':'POST'))return json(res,405,{error:'Method not allowed.'});
   const db=makeDb(env.SUPABASE_URL,env.SUPABASE_SECRET_KEY);
   try{
    if(action==='tick'){
@@ -80,6 +80,7 @@ export function createQueueHandler({env=process.env,makeDb=(url,key)=>createClie
    if(req.method==='POST'&&req.headers.origin!==config.origin)return json(res,403,{error:'Open this action from Creative OS.'});
    const jwt=req.headers.authorization?.match(/^Bearer (\S+)$/)?.[1];if(!jwt)return json(res,401,{error:'Sign in to Creative OS.'});
    const auth=await db.auth.getUser(jwt);if(auth.error||!auth.data?.user)return json(res,401,{error:'Sign in again.'});const owner=auth.data.user.id;
+   if(action==='drafting-status')return json(res,200,{draftingConfigured:!!(env.OPENAI_API_KEY&&env.OUTREACH_DRAFT_MODEL)});
    if(action==='status'){
     const queue=check(await db.from('creative_os_send_queue').select('*,message:creative_os_outbox(id,lead_id,mailbox,recipient,subject,status)').eq('owner_id',owner).order('scheduled_at',{ascending:false}).limit(100));
     const mailboxes=check(await db.from('creative_os_mailbox_settings').select('mailbox,enabled,daily_limit,last_run_at,last_error').eq('owner_id',owner));

@@ -83,3 +83,18 @@ test('SQL scheduling enforces ownership, exact approval, private roles, due time
  await db.exec('set role service_role');assert.equal((await db.query('select document from creative_os_workspaces')).rows.length,1);await assert.rejects(db.query('select claim_creative_os_send_base($1,$2)',[owner,second]),/permission denied/);
  }finally{await db.close();}
 });
+
+test('draft readiness is authenticated and independent of scheduler schema; no secret values returned',async()=>{
+ const db={auth:{getUser:async()=>({data:{user:{id:owner}}})},from(){throw Error('Queue tables are deliberately unavailable.');}};
+ for(const configured of [false,true]){
+  const handler=createQueueHandler({env:{...env,...(configured?{OPENAI_API_KEY:'private-ai-key',OUTREACH_DRAFT_MODEL:'configured-model'}:{})},makeDb:()=>db});
+  const res=response();await handler({method:'GET',query:{action:'drafting-status'},headers:{authorization:'Bearer user-jwt'}},res);assert.equal(res.statusCode,200);assert.equal(JSON.parse(res.body).draftingConfigured,configured);assert(!res.body.includes('private-ai-key'));
+  const denied=response();await handler({method:'GET',query:{action:'drafting-status'},headers:{}},denied);assert.equal(denied.statusCode,401);
+ }
+});
+
+test('generating a draft reads only the owned workspace and does not require queue tables',async()=>{
+ const db={auth:{getUser:async()=>({data:{user:{id:owner}}})},from(table){assert.equal(table,'creative_os_workspaces');return {select:()=>({eq:(key,value)=>{assert.equal(key,'owner_id');assert.equal(value,owner);return {maybeSingle:async()=>({data:{document:{leads:[{...lead,opportunity:'A verified business opportunity.'}]}}})};}})};}};
+ const handler=createQueueHandler({env,makeDb:()=>db,draft:async evidence=>{assert.equal(evidence.company,lead.company);return {subject:'Specific draft',body:'A proposed relevant message.',warnings:[]};}});
+ const res=response();await handler({method:'POST',query:{action:'draft'},headers:{origin:env.APP_URL,authorization:'Bearer jwt'},body:{leadId:lead.id,owner_id:other}},res);assert.equal(res.statusCode,200);assert.equal(JSON.parse(res.body).draft.subject,'Specific draft');assert.equal(JSON.parse(res.body).baseSubject,lead.subject);
+});
