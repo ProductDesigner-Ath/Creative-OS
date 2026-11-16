@@ -505,3 +505,105 @@ Pushed commits ed4dcc5 and e0048cf to codex/outreach-preparation-scheduler and o
 ## 16 November 2026 — Release drafting independently of scheduler activation
 
 User requested finishing automatic drafting on the live app. Split authenticated draft-readiness status from queue storage and made the UI load both independently. Draft generation uses only the already-existing private workspace and provider configuration, so the scheduler migration is no longer a prerequisite for releasing drafting. Missing queue schema shows a warning and leaves scheduling controls unavailable; automatic sending remains opt-in and untouched. Added regressions proving readiness and owned-workspace generation do not query scheduler tables or expose secrets. Queue suite now has 10 passing cases after this addition; production build/diff checks are the release checks. Provider key/model still require private Vercel configuration; no browser/Vercel connector or CLI is available in this session. No real draft generation expenditure or email sends occurred, and After Effects is unchanged. Next: push, check Creative OS preview, merge the independently usable drafting screen, then complete private provider setup.
+
+## 2026-11-16 — Creative Studio workspace entry
+
+- Started from the current deployed `main` branch, which contains the newer lead-management and email workflow. The older local Creative OS interface was not copied over it.
+- Added a separate Creative Studio entry in the application rail using the triangle icon requested by the user. The email icon now opens the lead and email workspace.
+- Added a Studio page for website, development and motion work. It explicitly separates web-based work coordination from local application execution: After Effects remains available through the approved local bridge and is not exposed as an arbitrary public web command endpoint.
+- This deliberately extends the current navigation scope in `DESIGN.md` at the user's direct request. The existing lead and email workflows remain intact.
+- Validation: `git diff --check` passed. The production Vite build is currently blocked in this clean checkout because `apps/outreach/node_modules/.bin/vite` is absent after the locked dependency install; no build-pass claim is made. Next step: repair the dependency install or run the build in the deployment environment, then publish the branch.
+
+## 2026-11-16 — Studio preview validation
+
+- The Outreach app dependencies were installed with development dependencies included after the environment's production-only npm setting omitted Vite.
+- `npm.cmd run outreach:build` now passes: Vite completed a production bundle successfully. The only build note is the existing JavaScript chunk-size warning.
+- Started the local Studio preview at `http://127.0.0.1:47833/` and verified the triangle rail button opens the Creative Studio page. The mail rail button remains the entry to Lead desk and email work.
+- The Studio page is a web coordination surface. It intentionally does not execute After Effects commands remotely; those remain on the approved local bridge.
+
+## 2026-11-16 — Studio mode navigation
+
+- Updated the Creative Studio triangle mode so it switches the entire navigation context, not only the main content panel.
+- The Studio sidebar now contains Studio, Reference room, App bridges, and Development log. The email rail icon returns to the lead and email workspace and restores its lead-specific menu.
+- Added clear hosted-workspace screens for reference review, approved app bridges, and Studio implementation notes. They describe the current boundary accurately: web coordinates work; the local bridge handles approved production-app commands.
+- Validation: `npm.cmd run outreach:build` passes. Browser verification confirmed the triangle exposes the Studio-specific sidebar and the main Studio page.
+
+## 2026-11-16 — Visible Creative Brief and expanded app bridges
+
+- Replaced the invisible Create brief status notification with a visible in-page Creative Brief form. It has project name, work type, direction, Save brief, Cancel and Add references actions.
+- Expanded Studio → App bridges to show the agreed local production adapters: After Effects, Blender, Photoshop, Illustrator, InDesign, Figma and Premiere Pro. Each has an explicit Working, Needs setup or Planned state and does not claim a remote command connection.
+- Validation: `npm.cmd run outreach:build` passes. The browser automation session disconnected during the live-preview reload; source compilation is verified and the local preview server remains available at port 47833.
+
+## 2026-11-16 — Projects foundation
+
+- Added a third Projects rail entry. A project is now the durable container for a saved Creative Brief and its connected work context.
+- Saving a Studio brief creates an Active project with its name, work type, direction, timestamps and activity entry, then opens the Projects area.
+- Added a first Projects page with a project list, retained brief direction, task creation, task status, and explicit reference/output counts. These records are part of the workspace document, so hosted workspaces persist them through the existing authenticated workspace save path.
+- Local workspaces continue to save projects in browser storage; hosted access from other devices requires the existing Supabase deployment configuration and authenticated sign-in.
+- Validation: `npm.cmd run outreach:build` passes. App-bridge connection work remains deferred until this project-management foundation is reviewed.
+
+## 2026-11-16 — Project-specific navigation
+
+- Projects now has its own sidebar context rather than inheriting the lead and email navigation.
+- The project sidebar contains Project overview, Brief, Tasks, References, Outputs and Activity. The selected section is reflected in the open project header.
+- Validation: `npm.cmd run outreach:build` passes. The next refinement can make each project section an independently focused panel; the current project view already retains the matching brief, task, reference/output and activity data together.
+
+## 2026-11-16 — Shared project context and reference attachment
+
+- Added a persistent project context bar to Studio and Reference Room. It selects the active project and displays its reference, task and output counts.
+- Reference Room now adds a URL or working note directly to the selected project. Each saved reference records type, timestamp and a project activity entry.
+- This establishes the project as the shared source of truth between Studio creation and source-material review. Local video uploads and app-generated outputs will use this same project ID when their hosted connections are added.
+- Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Studio and Projects UI consistency repair
+
+- Fixed shared-shell context bugs in both new systems. Studio subpages now keep the Studio rail active and use Studio labels in the breadcrumb and footer.
+- Projects now uses Projects labels in the shell and removes lead-specific status copy from its context.
+- Project sidebar selections now focus the matching content: Brief, Tasks, References, Outputs or Activity. Overview retains the complete project summary.
+- Validation: `npm.cmd run outreach:build` passes. Browser inspection is temporarily unavailable in the automated in-app session, so verification is build-level until the session reconnects.
+
+## 2026-11-16 — Workspace rail and account-control repair
+
+- Corrected the main rail icon treatment: inactive workspace icons use the neutral rail style and only the active Studio mode receives the orange context surface.
+- Removed the duplicate settings and profile controls from the top navigation.
+- Kept Settings at the bottom of the left rail and made the left profile avatar a button that opens an account menu. Hosted workspaces show Sign out; local preview accurately shows Not signed in.
+- Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Unified Studio shell and project context
+
+- Unified active-state treatment across rail and side navigation; inactive icons are neutral and the active workspace uses the semantic orange context surface.
+- Replaced the triangle rail symbol with a centered Studio clapperboard mark and simplified the project rail to a plain folder icon.
+- Removed development log from the Studio menu, removed light/dark switching, and made the workspace permanently dark.
+- Moved the selected-project control into the top bar for Studio, Reference Room, App Bridges and Projects. All work is now explicitly attached to that current project context.
+- Added local file selection in Reference Room. The selected file’s name, type and size are saved to the project as local-reference metadata; full cross-device binary file storage will require the future hosted storage connection.
+- Made the existing rail collapse icon functional and moved account/sign-out controls to the left rail only.
+- Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Neutral Studio and Projects active states
+
+- Removed orange emphasis from the new Studio and Projects rail/sidebar active states.
+- Restored the established neutral active treatment: muted surface, divider and primary text.
+- Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Local creative app bridge evidence refresh
+
+- Recovered the local-only app-host agent handshake on `127.0.0.1:47832`; its host token stays in ignored local connection storage and is not part of the repository.
+- Verified Illustrator through the allowlisted Windows COM inspection: Illustrator `30.8.1` responded with zero documents open. This confirms the current bridge can inspect that local application and can offer its existing controlled sample-create operation.
+- Photoshop inspection reached the local agent but did not complete; its current result is `needs_setup` with a local Adobe scripting/launch failure. No documents were edited.
+- InDesign inspection reached the local agent but Windows returned `0x80080005` (`CO_E_SERVER_EXEC_FAILURE`) while retrieving its COM server. No documents were edited.
+- Figma's local MCP transport and tool catalog are reachable, but its Figma Desktop plugin has no active file connection. It remains `needs_setup` until the desktop plugin is running in an open Figma file.
+- Premiere Pro remains planned: this repository has no Premiere bridge implementation, so it must not be labelled connected.
+- Limitation: these results apply to the existing local service at `D:\Creative-OS`; the web workspace currently presents connection readiness and project context, but does not yet invoke that service from its UI.
+- Follow-up recovery attempt: launching Photoshop and InDesign normally did not resolve their failures. InDesign returned the same COM-server launch error; Photoshop's inspection stalled, so the local bridge agent was restarted to return the service to an idle connected state. Both Adobe apps and all documents were left open and untouched.
+
+## 2026-11-16 — Connection sweep and verified local sample
+
+- Tested the local application connection inventory. Illustrator is the only newly verified connected product: the allowlisted sample flow created an editable `sample.ai` (231,221 bytes) and a validated PNG preview in ignored local artifact storage. The receipt confirms Illustrator 30.8.1, one open sample document, and a successful save.
+- Photoshop remains `needs_setup` because the controlled inspection does not complete. InDesign remains `needs_setup` because Windows cannot start its COM server (`0x80080005`). Figma's local MCP transport responds, but Figma Desktop has no attached plugin/file session. Premiere Pro, Webflow and Framer have no implemented local bridge.
+- After Effects received a read-only `composition.getActive` request through its localhost bridge. It created a retained receipt but no response, so it is intentionally treated as unavailable. The bridge's durable safety lock means it was not retried automatically.
+- Blender dry-run inspection reports its configured local executable timed out and is not available. No Blender scene was created.
+- No existing user documents were modified. Generated Illustrator artifacts remain local and ignored by Git.
+
+## 16 November 2026 — Integrate existing Studio before account-scoped assistant
+
+Merged the existing creative-studio-hub work into a branch based on the released drafting/scheduler code. Resolved App and log conflicts by preserving Studio/Projects features and the current email draft flow, including draft warnings and save result handling. Existing project JSON uses the same private workspace document. Production build passed; no external application, email or deployment action performed. Next: add separate persistent assistant conversations/files/memory so chat history does not enlarge or overwrite workspace documents.
