@@ -491,3 +491,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added a Studio page for website, development and motion work. It explicitly separates web-based work coordination from local application execution: After Effects remains available through the approved local bridge and is not exposed as an arbitrary public web command endpoint.
 - This deliberately extends the current navigation scope in `DESIGN.md` at the user's direct request. The existing lead and email workflows remain intact.
 - Validation: `git diff --check` passed. The production Vite build is currently blocked in this clean checkout because `apps/outreach/node_modules/.bin/vite` is absent after the locked dependency install; no build-pass claim is made. Next step: repair the dependency install or run the build in the deployment environment, then publish the branch.
+
+## 2026-11-16 — Studio preview validation
+
+- The Outreach app dependencies were installed with development dependencies included after the environment's production-only npm setting omitted Vite.
+- `npm.cmd run outreach:build` now passes: Vite completed a production bundle successfully. The only build note is the existing JavaScript chunk-size warning.
+- Started the local Studio preview at `http://127.0.0.1:47833/` and verified the triangle rail button opens the Creative Studio page. The mail rail button remains the entry to Lead desk and email work.
+- The Studio page is a web coordination surface. It intentionally does not execute After Effects commands remotely; those remain on the approved local bridge.
