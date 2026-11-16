@@ -667,3 +667,9 @@ User reported that the latest production deployment replaced the expected interf
 - Vite SSR rendered Studio, Projects, App bridges, Reference room, Leads, Email and Mailboxes with the shared assistant entry. App bridges render includes OpenAI, Claude, Higgsfield and the original application bridges. Production build and diff checks passed. Browser visual/keyboard, real provider and private database checks remain unperformed; no claim of live provider access.
 - Added a combined migration installer, documented exact in-app connection steps, environment fallback behavior, model pinning, media limitations and billing separation. Existing queue generation and sending are unchanged; no After Effects state modified.
 - Next: publish and merge reviewed code to main, verify the primary Vercel release; private activation requires the user to run the provided SQL and enter their own provider credentials in the app.
+
+## 16 November 2026 — Release multi-provider chat to main
+
+- Merged PR #16 (https://github.com/ProductDesigner-Ath/Creative-OS/pull/16) into main as 3d52ee8034b6f90a7445a0d20ce86decb953c633, preserving the existing integrated workspace. Primary Creative OS Vercel preview passed. The separate legacy `outreach` project remains misconfigured and fails independently.
+- Published full-window GPT/Claude chat and in-app AI connections with 93 verified passing tests and successful build/server-render checks. No private credentials were collected, no schema applied remotely, and no paid provider/media/email/creative-bridge action occurred. AE state unchanged.
+- Next private activation: run supabase/setup/ai_assistant.sql once, then connect keys under Studio → App bridges → AI connections. Provider access is not verified until the user's own key check succeeds.
