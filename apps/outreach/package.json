@@ -11,7 +11,8 @@
     "test:gmail": "node --test tests/gmail.test.mjs",
     "test:sending": "node --test tests/sending.test.mjs",
     "test:queue": "node --test tests/queue.test.mjs",
-    "test:assistant": "node --test tests/assistant.test.mjs"
+    "test:assistant": "node --test tests/assistant.test.mjs",
+    "test:connections": "node --test tests/connections.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -22,6 +23,8 @@
     "radix-ui": "^1.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
