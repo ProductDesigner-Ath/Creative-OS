@@ -497,3 +497,7 @@ The two unpublished asset add/remove commits had no net code changes relative to
 ### Scheduler final review
 
 Clarified manual-limit copy when the queue's lower daily allowance is configured. An uncertain provider result or failed acceptance recording now also pauses the mailbox for explicit Gmail Sent inspection, in addition to blocking replay of the claimed message. The queue regression asserts that pause. Queue/manual-send checks and build were rerun for this refinement; no external services were invoked.
+
+### GitHub review and preview status
+
+Pushed commits ed4dcc5 and e0048cf to codex/outreach-preparation-scheduler and opened PR #13. The intended Vercel creative-os preview passed. A second repository-linked Vercel project named outreach failed; GitHub exposes only an inspect-logs command, not a build reason. No Vercel authenticated browser/CLI connection is available here, so the secondary project's cause is unresolved and no configuration was changed blindly. PR remains open/unmerged, production unchanged, and the migration/credentials/consent/job activation steps remain pending.
