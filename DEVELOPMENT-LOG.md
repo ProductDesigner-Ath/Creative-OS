@@ -638,3 +638,9 @@ User reported that the latest production deployment replaced the expected interf
 
 - User explicitly requested pushing to main. Merged PR #15 with a merge commit preserving history: 8c7f00ff40aece39794968d645777fef1ff0e903. Local main fast-forwarded to the merged remote branch; restored Studio/Projects shell retained.
 - Feature validation remains 84 passing tests and successful production build. Vercel production deployment triggered by main merge; assistant database migration and OpenAI configuration still require confirmation before live responses can be called working. No database writes, paid model requests, mail sending or AE changes performed.
+
+## 16 November 2026 — Make Assistant chat discoverable
+
+- User could not find chat after release. Confirmed production HTML includes the new assistant stylesheet; the original entry point was only in the crowded topbar. Added a labelled Assistant chat sidebar action across Studio, Projects and Email, retaining the topbar action. Added `?assistant=1` deep link and responsive header sizing so project context does not crowd the action.
+- Preserved lead edit guard and restored workspace navigation. No database, mail or After Effects actions. Next: production build/render checks, push this focused visibility fix and verify deployment. Model responses remain dependent on assistant schema and server configuration.
+- Visibility fix validation: production build and diff checks passed; Vite SSR with synthetic workspace and `?assistant=1` confirms the labelled sidebar trigger and expanded chat state. Browser visual review remains unavailable.
