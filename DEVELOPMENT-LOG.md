@@ -519,3 +519,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added a first Projects page with a project list, retained brief direction, task creation, task status, and explicit reference/output counts. These records are part of the workspace document, so hosted workspaces persist them through the existing authenticated workspace save path.
 - Local workspaces continue to save projects in browser storage; hosted access from other devices requires the existing Supabase deployment configuration and authenticated sign-in.
 - Validation: `npm.cmd run outreach:build` passes. App-bridge connection work remains deferred until this project-management foundation is reviewed.
+
+## 2026-11-16 — Project-specific navigation
+
+- Projects now has its own sidebar context rather than inheriting the lead and email navigation.
+- The project sidebar contains Project overview, Brief, Tasks, References, Outputs and Activity. The selected section is reflected in the open project header.
+- Validation: `npm.cmd run outreach:build` passes. The next refinement can make each project section an independently focused panel; the current project view already retains the matching brief, task, reference/output and activity data together.
