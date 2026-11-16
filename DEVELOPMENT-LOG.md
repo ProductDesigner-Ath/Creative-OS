@@ -546,3 +546,13 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Removed the duplicate settings and profile controls from the top navigation.
 - Kept Settings at the bottom of the left rail and made the left profile avatar a button that opens an account menu. Hosted workspaces show Sign out; local preview accurately shows Not signed in.
 - Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Unified Studio shell and project context
+
+- Unified active-state treatment across rail and side navigation; inactive icons are neutral and the active workspace uses the semantic orange context surface.
+- Replaced the triangle rail symbol with a centered Studio clapperboard mark and simplified the project rail to a plain folder icon.
+- Removed development log from the Studio menu, removed light/dark switching, and made the workspace permanently dark.
+- Moved the selected-project control into the top bar for Studio, Reference Room, App Bridges and Projects. All work is now explicitly attached to that current project context.
+- Added local file selection in Reference Room. The selected file’s name, type and size are saved to the project as local-reference metadata; full cross-device binary file storage will require the future hosted storage connection.
+- Made the existing rail collapse icon functional and moved account/sign-out controls to the left rail only.
+- Validation: `npm.cmd run outreach:build` passes.
