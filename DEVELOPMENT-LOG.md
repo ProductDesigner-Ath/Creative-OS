@@ -525,3 +525,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Projects now has its own sidebar context rather than inheriting the lead and email navigation.
 - The project sidebar contains Project overview, Brief, Tasks, References, Outputs and Activity. The selected section is reflected in the open project header.
 - Validation: `npm.cmd run outreach:build` passes. The next refinement can make each project section an independently focused panel; the current project view already retains the matching brief, task, reference/output and activity data together.
+
+## 2026-11-16 — Shared project context and reference attachment
+
+- Added a persistent project context bar to Studio and Reference Room. It selects the active project and displays its reference, task and output counts.
+- Reference Room now adds a URL or working note directly to the selected project. Each saved reference records type, timestamp and a project activity entry.
+- This establishes the project as the shared source of truth between Studio creation and source-material review. Local video uploads and app-generated outputs will use this same project ID when their hosted connections are added.
+- Validation: `npm.cmd run outreach:build` passes.
