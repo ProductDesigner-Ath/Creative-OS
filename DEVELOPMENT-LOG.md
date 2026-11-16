@@ -532,3 +532,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Reference Room now adds a URL or working note directly to the selected project. Each saved reference records type, timestamp and a project activity entry.
 - This establishes the project as the shared source of truth between Studio creation and source-material review. Local video uploads and app-generated outputs will use this same project ID when their hosted connections are added.
 - Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Studio and Projects UI consistency repair
+
+- Fixed shared-shell context bugs in both new systems. Studio subpages now keep the Studio rail active and use Studio labels in the breadcrumb and footer.
+- Projects now uses Projects labels in the shell and removes lead-specific status copy from its context.
+- Project sidebar selections now focus the matching content: Brief, Tasks, References, Outputs or Activity. Overview retains the complete project summary.
+- Validation: `npm.cmd run outreach:build` passes. Browser inspection is temporarily unavailable in the automated in-app session, so verification is build-level until the session reconnects.
