@@ -556,3 +556,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Added local file selection in Reference Room. The selected file’s name, type and size are saved to the project as local-reference metadata; full cross-device binary file storage will require the future hosted storage connection.
 - Made the existing rail collapse icon functional and moved account/sign-out controls to the left rail only.
 - Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Neutral Studio and Projects active states
+
+- Removed orange emphasis from the new Studio and Projects rail/sidebar active states.
+- Restored the established neutral active treatment: muted surface, divider and primary text.
+- Validation: `npm.cmd run outreach:build` passes.
