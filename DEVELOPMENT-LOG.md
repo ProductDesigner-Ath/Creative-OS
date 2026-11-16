@@ -572,3 +572,12 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Figma's local MCP transport and tool catalog are reachable, but its Figma Desktop plugin has no active file connection. It remains `needs_setup` until the desktop plugin is running in an open Figma file.
 - Premiere Pro remains planned: this repository has no Premiere bridge implementation, so it must not be labelled connected.
 - Limitation: these results apply to the existing local service at `D:\Creative-OS`; the web workspace currently presents connection readiness and project context, but does not yet invoke that service from its UI.
+- Follow-up recovery attempt: launching Photoshop and InDesign normally did not resolve their failures. InDesign returned the same COM-server launch error; Photoshop's inspection stalled, so the local bridge agent was restarted to return the service to an idle connected state. Both Adobe apps and all documents were left open and untouched.
+
+## 2026-11-16 — Connection sweep and verified local sample
+
+- Tested the local application connection inventory. Illustrator is the only newly verified connected product: the allowlisted sample flow created an editable `sample.ai` (231,221 bytes) and a validated PNG preview in ignored local artifact storage. The receipt confirms Illustrator 30.8.1, one open sample document, and a successful save.
+- Photoshop remains `needs_setup` because the controlled inspection does not complete. InDesign remains `needs_setup` because Windows cannot start its COM server (`0x80080005`). Figma's local MCP transport responds, but Figma Desktop has no attached plugin/file session. Premiere Pro, Webflow and Framer have no implemented local bridge.
+- After Effects received a read-only `composition.getActive` request through its localhost bridge. It created a retained receipt but no response, so it is intentionally treated as unavailable. The bridge's durable safety lock means it was not retried automatically.
+- Blender dry-run inspection reports its configured local executable timed out and is not available. No Blender scene was created.
+- No existing user documents were modified. Generated Illustrator artifacts remain local and ignored by Git.
