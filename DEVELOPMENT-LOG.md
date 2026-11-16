@@ -483,3 +483,11 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Removed external Original Lead Desk navigation/settings/import links and URL constant. Imported records are standalone; no source sync exists.
 - Validation: all 24,000 original cells verified in both normalized records and exported CSV; 8 outreach tests pass including a regression for exact raw values, blank emails, all legacy field mappings and historical main-domain sender isolation. Production build and diff check pass; existing bundle warning remains.
 - Limitation: no signed-in Chrome control is available, so the user's live Supabase workspace has NOT been modified. Final action is upload original CSV via Import CSV, inspect expected 1,000 source rows / 24 columns, resolve any existing matches, then import. Keep the user's existing lead(s); do not restore over the workspace. No messages sent. After Effects unchanged.
+
+## 2026-11-16 — Creative Studio workspace entry
+
+- Started from the current deployed `main` branch, which contains the newer lead-management and email workflow. The older local Creative OS interface was not copied over it.
+- Added a separate Creative Studio entry in the application rail using the triangle icon requested by the user. The email icon now opens the lead and email workspace.
+- Added a Studio page for website, development and motion work. It explicitly separates web-based work coordination from local application execution: After Effects remains available through the approved local bridge and is not exposed as an arbitrary public web command endpoint.
+- This deliberately extends the current navigation scope in `DESIGN.md` at the user's direct request. The existing lead and email workflows remain intact.
+- Validation: `git diff --check` passed. The production Vite build is currently blocked in this clean checkout because `apps/outreach/node_modules/.bin/vite` is absent after the locked dependency install; no build-pass claim is made. Next step: repair the dependency install or run the build in the deployment environment, then publish the branch.
