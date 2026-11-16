@@ -334,3 +334,5 @@ App bridges includes AI connections above local application readiness. Each prov
 ## Global assistant launcher — 16 November 2026
 
 Use one labelled floating Assistant button fixed to the bottom-right viewport corner across all workspace modes. Remove assistant actions from the sidebar and topbar. Desktop inset is 24px, narrow-screen inset 16px, respecting device safe areas; minimum height 48px. Use the shared Button and neutral theme tokens with a modest floating shadow. The launcher sits below modal overlays, retains the unsaved-lead guard, and receives focus when chat closes. Chat contents, provider controls and full-window/compact modes are unchanged.
+
+Chat window controls use Lucide Maximize2/Minimize2 and X icon buttons grouped at the top-right of the chat header. No expand/compact text button or duplicate close control. Provide action-specific accessible labels, native title tooltips, visible focus and 44px touch targets. Close retains the existing unsaved-content guard.

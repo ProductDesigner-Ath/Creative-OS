@@ -680,3 +680,10 @@ User reported that the latest production deployment replaced the expected interf
 - Added desktop/mobile safe-area spacing and a 48px minimum target, below existing modal overlays. Chat state, provider settings, application navigation and all AE work remain unchanged. No database or provider operations.
 - Next: build and render-check that each workspace exposes exactly one launcher, then push to main and verify the primary Vercel deployment.
 - Validation: production build and diff checks passed; server-render checks across all seven workspace modes confirm exactly one global launcher and no sidebar chat action. Existing bundle-size warning remains. Browser visual interaction was not available. Publishing this focused UI change directly to main under the existing release authorization.
+
+## 16 November 2026 — Chat window icon controls
+
+- Replaced the expand/compact text action with Maximize2/Minimize2 icons and grouped it beside an X close button in the chat header. Disabled the duplicate shared Sheet close button for this instance only; both actions reuse shared Button primitives, accessible labels/tooltips and touch sizing.
+- Preserved expand state, Escape handling, unsaved-content close guard and focus return to the global launcher. No server, credential, email, database or AE operations changed.
+- Next: production build/diff checks, push to main and verify primary deployment.
+- Validation: production build and diff checks passed. Existing bundle-size warning persists; browser visual/keyboard checks remain unavailable. AE state untouched. Publishing the focused icon change to main.
