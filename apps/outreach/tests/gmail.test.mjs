@@ -75,3 +75,11 @@ test('callback diagnostics identify the failed step without exposing provider se
  assert.ok(warnings.every(s=>!s.includes('private-')&&!s.includes('contains-secret')));
  }finally{console.warn=oldWarn;}
 });
+
+test('reply access is optional and a declined read scope never overwrites the existing connection',async()=>{
+ const state=randomBytes(32).toString('hex'),email='sagorika@satavuestudio.com';let writes=0;
+ const db={from(table){if(table.endsWith('oauth_states'))return {delete:()=>({eq:()=>({select:()=>({maybeSingle:async()=>({data:{owner_id:'owner',email,reply_access:true,verifier:'pkce',expires_at:new Date(Date.now()+60000).toISOString()}})})})})};return {upsert:async()=>{writes++;return {data:null};}};}};
+ const oauth={getToken:async()=>({tokens:{id_token:'id',refresh_token:'refresh',scope:SCOPES.join(' ')}}),verifyIdToken:async()=>({getPayload:()=>({email,email_verified:true})})};
+ const handler=createHandler({env,makeDb:()=>db,makeOAuth:()=>oauth});const res=response();await handler({method:'GET',query:{action:'callback',state,code:'code'},headers:{cookie:'__Secure-creative_os_gmail='+hash(state)}},res);
+ assert.match(res.headers.Location,/permission_required/);assert.equal(writes,0);assert(!SCOPES.includes('https://www.googleapis.com/auth/gmail.readonly'));
+});

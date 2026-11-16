@@ -3,6 +3,7 @@ import {createClient} from '@supabase/supabase-js';
 import {OAuth2Client} from 'google-auth-library';
 
 export const MAILBOXES=['sagorika@satavuestudio.com','sagorika@withsatavue.com'];
+export const REPLY_SCOPE='https://www.googleapis.com/auth/gmail.readonly';
 export const SCOPES=['openid','email','https://www.googleapis.com/auth/gmail.send'];
 const COOKIE='__Secure-creative_os_gmail';
 export const hash=value=>createHash('sha256').update(value).digest('hex');
@@ -58,7 +59,7 @@ export function createHandler({env=process.env,makeDb=(url,key)=>createClient(ur
     const identity=ticket.getPayload(),email=identity?.email?.toLowerCase();
     if(!identity?.email_verified||email!==row.email||!MAILBOXES.includes(email))return done(res,config.origin,'wrong_account');
     const granted=(tokens.scope||'').split(' ');
-    if(!granted.includes(SCOPES[2]))return done(res,config.origin,'permission_required');
+    if(!granted.includes(SCOPES[2])||(row.reply_access&&!granted.includes(REPLY_SCOPE)))return done(res,config.origin,'permission_required');
     stage='token_storage';
     dbResult(await db.from('creative_os_gmail_connections').upsert({owner_id:row.owner_id,email,refresh_token:seal(tokens.refresh_token,config.key,row.owner_id,email),scopes:granted,connected_at:new Date().toISOString(),checked_at:null},{onConflict:'owner_id,email'}));
     return done(res,config.origin,'connected');
@@ -70,8 +71,8 @@ export function createHandler({env=process.env,makeDb=(url,key)=>createClient(ur
    if(error||!data?.user)return json(res,401,{error:'Sign in again to connect Gmail.'});
    const owner=data.user.id;
    if(action==='status'){
-    const rows=dbResult(await db.from('creative_os_gmail_connections').select('email,connected_at,checked_at').eq('owner_id',owner));
-    return json(res,200,{connections:rows});
+    const rows=dbResult(await db.from('creative_os_gmail_connections').select('email,connected_at,checked_at,scopes').eq('owner_id',owner));
+    return json(res,200,{connections:rows.map(({scopes,...row})=>({...row,replyAccess:scopes?.includes(REPLY_SCOPE)||false}))});
    }
    const email=req.body?.email;
    if(!MAILBOXES.includes(email))return json(res,400,{error:'Choose one of the two outreach mailboxes.'});
@@ -79,8 +80,8 @@ export function createHandler({env=process.env,makeDb=(url,key)=>createClient(ur
     const state=randomBytes(32).toString('hex'),verifier=randomBytes(32).toString('base64url');
     // Remove this owner's stale/pending states; at most one connection flow per browser.
     dbResult(await db.from('creative_os_gmail_oauth_states').delete().eq('owner_id',owner));
-    dbResult(await db.from('creative_os_gmail_oauth_states').insert({state_hash:hash(state),owner_id:owner,email,verifier,expires_at:new Date(Date.now()+600000).toISOString()}));
-    const url=oauth.generateAuthUrl({access_type:'offline',prompt:'consent',scope:SCOPES,state,login_hint:email,code_challenge:createHash('sha256').update(verifier).digest('base64url'),code_challenge_method:'S256'});
+    dbResult(await db.from('creative_os_gmail_oauth_states').insert({state_hash:hash(state),owner_id:owner,email,verifier,...(req.body?.readReplies===true?{reply_access:true}:{}),expires_at:new Date(Date.now()+600000).toISOString()}));
+    const url=oauth.generateAuthUrl({access_type:'offline',prompt:'consent',scope:req.body?.readReplies===true?[...SCOPES,REPLY_SCOPE]:SCOPES,state,login_hint:email,code_challenge:createHash('sha256').update(verifier).digest('base64url'),code_challenge_method:'S256'});
     cookie(res,hash(state));return json(res,200,{url});
    }
    if(action==='disconnect'){
