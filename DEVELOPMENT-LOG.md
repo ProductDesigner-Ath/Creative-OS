@@ -562,3 +562,13 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Removed orange emphasis from the new Studio and Projects rail/sidebar active states.
 - Restored the established neutral active treatment: muted surface, divider and primary text.
 - Validation: `npm.cmd run outreach:build` passes.
+
+## 2026-11-16 — Local creative app bridge evidence refresh
+
+- Recovered the local-only app-host agent handshake on `127.0.0.1:47832`; its host token stays in ignored local connection storage and is not part of the repository.
+- Verified Illustrator through the allowlisted Windows COM inspection: Illustrator `30.8.1` responded with zero documents open. This confirms the current bridge can inspect that local application and can offer its existing controlled sample-create operation.
+- Photoshop inspection reached the local agent but did not complete; its current result is `needs_setup` with a local Adobe scripting/launch failure. No documents were edited.
+- InDesign inspection reached the local agent but Windows returned `0x80080005` (`CO_E_SERVER_EXEC_FAILURE`) while retrieving its COM server. No documents were edited.
+- Figma's local MCP transport and tool catalog are reachable, but its Figma Desktop plugin has no active file connection. It remains `needs_setup` until the desktop plugin is running in an open Figma file.
+- Premiere Pro remains planned: this repository has no Premiere bridge implementation, so it must not be labelled connected.
+- Limitation: these results apply to the existing local service at `D:\Creative-OS`; the web workspace currently presents connection readiness and project context, but does not yet invoke that service from its UI.
