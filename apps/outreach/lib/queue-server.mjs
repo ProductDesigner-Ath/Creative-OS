@@ -71,9 +71,10 @@ export function createQueueHandler({env=process.env,makeDb=(url,key)=>createClie
      // A possibly submitted send is never automatically replayed.
      await db.from('creative_os_outbox').update({status:'unknown',finished_at:now().toISOString()}).eq('id',claimed.id).eq('status','sending');
      await db.from('creative_os_send_queue').update({state:'unknown',reason:'Check Gmail Sent before any further action.',updated_at:now().toISOString()}).eq('outbox_id',claimed.id).eq('state','processing');
+     await db.from('creative_os_mailbox_settings').update({enabled:false,last_error:'Send result uncertain. Check Gmail Sent before resuming.',last_run_at:now().toISOString()}).eq('owner_id',q.owner_id).eq('mailbox',q.message.mailbox);
      return json(res,202,{state:'unknown'});
     }
-    try{check(await db.from('creative_os_outbox').update({status:'sent',provider_id:providerId,finished_at:now().toISOString()}).eq('id',claimed.id).eq('status','sending'));check(await db.from('creative_os_send_queue').update({state:'sent',updated_at:now().toISOString()}).eq('outbox_id',claimed.id).eq('state','processing'));}catch{return json(res,202,{state:'unknown',message:'Provider accepted; recording failed. Check Gmail Sent. No automatic retry.'});}
+    try{check(await db.from('creative_os_outbox').update({status:'sent',provider_id:providerId,finished_at:now().toISOString()}).eq('id',claimed.id).eq('status','sending'));check(await db.from('creative_os_send_queue').update({state:'sent',updated_at:now().toISOString()}).eq('outbox_id',claimed.id).eq('state','processing'));}catch{await db.from('creative_os_mailbox_settings').update({enabled:false,last_error:'Gmail accepted a send but recording failed. Check Gmail Sent before resuming.',last_run_at:now().toISOString()}).eq('owner_id',q.owner_id).eq('mailbox',q.message.mailbox);return json(res,202,{state:'unknown',message:'Provider accepted; recording failed. Check Gmail Sent. No automatic retry.'});}
     return json(res,200,{state:'sent',message:'Accepted by Gmail; delivery is not confirmed.'});
    }
    if(req.method==='POST'&&req.headers.origin!==config.origin)return json(res,403,{error:'Open this action from Creative OS.'});
