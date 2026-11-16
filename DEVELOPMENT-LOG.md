@@ -505,3 +505,9 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - The Studio sidebar now contains Studio, Reference room, App bridges, and Development log. The email rail icon returns to the lead and email workspace and restores its lead-specific menu.
 - Added clear hosted-workspace screens for reference review, approved app bridges, and Studio implementation notes. They describe the current boundary accurately: web coordinates work; the local bridge handles approved production-app commands.
 - Validation: `npm.cmd run outreach:build` passes. Browser verification confirmed the triangle exposes the Studio-specific sidebar and the main Studio page.
+
+## 2026-11-16 — Visible Creative Brief and expanded app bridges
+
+- Replaced the invisible Create brief status notification with a visible in-page Creative Brief form. It has project name, work type, direction, Save brief, Cancel and Add references actions.
+- Expanded Studio → App bridges to show the agreed local production adapters: After Effects, Blender, Photoshop, Illustrator, InDesign, Figma and Premiere Pro. Each has an explicit Working, Needs setup or Planned state and does not claim a remote command connection.
+- Validation: `npm.cmd run outreach:build` passes. The browser automation session disconnected during the live-preview reload; source compilation is verified and the local preview server remains available at port 47833.
