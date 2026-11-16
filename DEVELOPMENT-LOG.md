@@ -633,3 +633,8 @@ User reported that the latest production deployment replaced the expected interf
 - Published commit 3a605bd and opened PR #15: https://github.com/ProductDesigner-Ath/Creative-OS/pull/15. Production main was not changed.
 - Additional Vite SSR smoke check rendered the restored App with synthetic cloud data and confirmed Assistant, Studio, Projects and Lead desk labels without runtime errors. This is a rendering check, not browser interaction or visual acceptance.
 - Next activation prerequisite remains the assistant SQL migration and server model/key configuration, followed by actual two-device/cloud smoke checks. AE state remains untouched.
+
+## 16 November 2026 — Assistant merged to main at user request
+
+- User explicitly requested pushing to main. Merged PR #15 with a merge commit preserving history: 8c7f00ff40aece39794968d645777fef1ff0e903. Local main fast-forwarded to the merged remote branch; restored Studio/Projects shell retained.
+- Feature validation remains 84 passing tests and successful production build. Vercel production deployment triggered by main merge; assistant database migration and OpenAI configuration still require confirmation before live responses can be called working. No database writes, paid model requests, mail sending or AE changes performed.
