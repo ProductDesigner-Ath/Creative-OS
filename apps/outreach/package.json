@@ -10,7 +10,8 @@
     "test:cloud": "node --test tests/cloud.test.mjs",
     "test:gmail": "node --test tests/gmail.test.mjs",
     "test:sending": "node --test tests/sending.test.mjs",
-    "test:queue": "node --test tests/queue.test.mjs"
+    "test:queue": "node --test tests/queue.test.mjs",
+    "test:assistant": "node --test tests/assistant.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

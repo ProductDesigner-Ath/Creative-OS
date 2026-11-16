@@ -316,3 +316,11 @@ Draft readiness is independent from scheduling readiness. Missing queue tables o
 ## Preserve workspace modes on release — 16 November 2026
 
 Studio and Projects are existing workspace modes. Email feature releases must preserve the Studio/Projects shell, project context and section navigation. Do not ship an email-only App replacement over the integrated workspace. Check all existing workspace modes in the release build. The assistant work is separate from restoring these established screens.
+
+## Account-scoped assistant — 16 November 2026
+
+Preserve the complete Studio/Projects/Email shell. The labelled Assistant topbar action opens the existing shadcn modal Sheet on the right, full-width on small screens. Chat, Memory and Files tabs use existing primitives and semantic feedback. No new global navigation destination or decorative dashboard metrics. Messages render plain text, never provider-generated HTML. Close/context/conversation changes preserve unsent text and unsaved notes; busy actions disable duplicates. This modal panel must be closed to navigate background work.
+
+Scope is explicit: Studio, a saved project or a lead. Studio notes inform all contexts; other notes stay scoped. Saved chat and files belong to the Creative OS account, not the ChatGPT account. Text describes bounded recent/keyword recall, explicit pinned notes, and reattachment for later file analysis. No unlimited-memory promise. The public key stays client-side; provider/service keys stay server-side. Error/configuration states must distinguish missing schema, missing AI setup and failed response without exposing secrets.
+
+Draft suggestions show complete proposed subject/body before Save as lead draft. This action never approves or sends. Uploaded files live in a private bucket and disclose the model data destination. Recent-upload deletion wait protects against still-valid signed upload links. Existing Reference room filename-only entries remain metadata until actual files are uploaded here. Visual and assistive-technology evaluation remains pending; a passing build is not visual QA.
