@@ -539,3 +539,10 @@ The two unpublished asset add/remove commits had no net code changes relative to
 - Projects now uses Projects labels in the shell and removes lead-specific status copy from its context.
 - Project sidebar selections now focus the matching content: Brief, Tasks, References, Outputs or Activity. Overview retains the complete project summary.
 - Validation: `npm.cmd run outreach:build` passes. Browser inspection is temporarily unavailable in the automated in-app session, so verification is build-level until the session reconnects.
+
+## 2026-11-16 — Workspace rail and account-control repair
+
+- Corrected the main rail icon treatment: inactive workspace icons use the neutral rail style and only the active Studio mode receives the orange context surface.
+- Removed the duplicate settings and profile controls from the top navigation.
+- Kept Settings at the bottom of the left rail and made the left profile avatar a button that opens an account menu. Hosted workspaces show Sign out; local preview accurately shows Not signed in.
+- Validation: `npm.cmd run outreach:build` passes.
