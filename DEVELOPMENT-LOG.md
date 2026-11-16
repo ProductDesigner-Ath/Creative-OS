@@ -627,3 +627,9 @@ User reported that the latest production deployment replaced the expected interf
 - Full root suite: 48/48 passed. All outreach suites: 36/36 passed, including eight new assistant checks (84 tests total). Production build passed; original large-chunk warning remains. `git diff --check` passed. Tests use synthetic data and mock provider calls; no actual email or paid model request.
 - Reviewed file lifecycle concurrency: reservations and deletion now lock the conversation; a two-hour upload-token expiry wait prevents signed uploads recreating removed blobs. Added precise attachment failure feedback, full-history JSON export and focus return to the labelled Assistant trigger.
 - Retained all restored workspace modes and AE state; no bridge requests. Actual cross-device/cloud upload checks and browser visual/keyboard review remain pending. Production is unchanged until the reviewed branch is released and assistant schema/configuration is applied.
+
+## 16 November 2026 — Assistant review branch published
+
+- Published commit 3a605bd and opened PR #15: https://github.com/ProductDesigner-Ath/Creative-OS/pull/15. Production main was not changed.
+- Additional Vite SSR smoke check rendered the restored App with synthetic cloud data and confirmed Assistant, Studio, Projects and Lead desk labels without runtime errors. This is a rendering check, not browser interaction or visual acceptance.
+- Next activation prerequisite remains the assistant SQL migration and server model/key configuration, followed by actual two-device/cloud smoke checks. AE state remains untouched.
