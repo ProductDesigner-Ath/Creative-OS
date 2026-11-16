@@ -673,3 +673,10 @@ User reported that the latest production deployment replaced the expected interf
 - Merged PR #16 (https://github.com/ProductDesigner-Ath/Creative-OS/pull/16) into main as 3d52ee8034b6f90a7445a0d20ce86decb953c633, preserving the existing integrated workspace. Primary Creative OS Vercel preview passed. The separate legacy `outreach` project remains misconfigured and fails independently.
 - Published full-window GPT/Claude chat and in-app AI connections with 93 verified passing tests and successful build/server-render checks. No private credentials were collected, no schema applied remotely, and no paid provider/media/email/creative-bridge action occurred. AE state unchanged.
 - Next private activation: run supabase/setup/ai_assistant.sql once, then connect keys under Studio → App bridges → AI connections. Provider access is not verified until the user's own key check succeeds.
+
+## 16 November 2026 — Single global bottom-right Assistant entry
+
+- User requested a common chat entry instead of repeated navigation actions. Removed the sidebar and topbar Assistant buttons and added one fixed bottom-right launcher across workspace modes, reusing the shared Button, existing dialog focus-return ID and lead-edit guard.
+- Added desktop/mobile safe-area spacing and a 48px minimum target, below existing modal overlays. Chat state, provider settings, application navigation and all AE work remain unchanged. No database or provider operations.
+- Next: build and render-check that each workspace exposes exactly one launcher, then push to main and verify the primary Vercel deployment.
+- Validation: production build and diff checks passed; server-render checks across all seven workspace modes confirm exactly one global launcher and no sidebar chat action. Existing bundle-size warning remains. Browser visual interaction was not available. Publishing this focused UI change directly to main under the existing release authorization.
